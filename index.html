@@ -646,73 +646,192 @@ canvas#wheel{
         };
 
         let db = null;
-        try { firebase.initializeApp(firebaseConfig); db = firebase.database(); } catch(e){}
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+        } catch (e) {
+            console.error("Firebase initialization failed:", e);
+        }
 
         let adminPhoneNumber = "201000000000";
-        let cooldownHours = 24; 
+        let cooldownHours = 24;
         let userIP = "unknown_user";
+
+        // IMPORTANT:
+        // لا توجد أي جوائز افتراضية هنا.
+        // العجلة لا يمكنها العمل إلا بالجوائز الموجودة في Firebase /settings/items.
+        let wheelItems = [];
+        let currentRotation = 0;
+        let loadedImages = {};
         let isDataLoaded = false;
-
-        function hideLoader() {
-            if(!isDataLoaded) {
-                isDataLoaded = true;
-                const loader = document.getElementById('dbLoader');
-                if(loader) loader.classList.add('hidden');
-            }
-        }
-
-        // إخفاء التحميل كحد أقصى بعد 3.5 ثوانٍ إذا حدث بطء في الشبكة
-        setTimeout(hideLoader, 3500);
-
-        let wheelItems = [
-            { text: "خصم 50%", logo: "", color: "#151d2a", chance: 10 },
-            { text: "شحن مجاني", logo: "", color: "#0084ff", chance: 20 },
-            { text: "قسيمة 100ج", logo: "", color: "#151d2a", chance: 15 },
-            { text: "حظ سعيد", logo: "", color: "#2d3748", chance: 25 },
-            { text: "هدية مجانية", logo: "", color: "#d97706", chance: 5 },
-            { text: "خصم 20%", logo: "", color: "#151d2a", chance: 15 }
-        ];
-
-        fetch('https://api.ipify.org?format=json')
-            .then(res => res.json())
-            .then(data => {
-                userIP = data.ip.replace(/\./g, '_');
-                checkServerSpinStatus();
-            }).catch(() => { checkServerSpinStatus(); });
-
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        function playTickSound(progress) {
-            try {
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                
-                osc.type = 'triangle';
-                const freq = 300 + (1 - progress) * 420;
-                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(90, audioCtx.currentTime + 0.055);
-                gain.gain.setValueAtTime(0.18, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.055);
-                
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.04);
-            } catch(e){}
-        }
+        let settingsLoaded = false;
+        let spinStatusLoaded = false;
+        let isSpinning = false;
+        let audioCtx = null;
 
         const canvas = document.getElementById('wheel');
         const ctx = canvas.getContext('2d');
-        let currentRotation = 0;
-        let loadedImages = {};
+
+        function hideLoader() {
+            if (!isDataLoaded) {
+                isDataLoaded = true;
+                const loader = document.getElementById('dbLoader');
+                if (loader) loader.classList.add('hidden');
+            }
+        }
+
+        function showConfigError(message) {
+            document.getElementById('activeNotice').style.display = 'block';
+            document.getElementById('cooldownNotice').style.display = 'none';
+            document.getElementById('spinBtn').classList.add('disabled');
+            document.getElementById('activeNotice').innerHTML =
+                `<p style="font-size:.9rem;color:#ff8792;font-weight:700">
+                    <i class="fa-solid fa-triangle-exclamation"></i> ${message}
+                </p>`;
+        }
+
+        function setSpinAvailability(enabled) {
+            const btn = document.getElementById('spinBtn');
+            if (enabled) btn.classList.remove('disabled');
+            else btn.classList.add('disabled');
+        }
+
+        /*
+         * تنظيف بيانات الجوائز القادمة من Firebase.
+         * نقبل Array أو Object، لكن لا ننشئ أي جائزة من عندنا.
+         * كل عنصر يجب أن يحتوي على اسم جائزة ونسبة رقمية أكبر من صفر.
+         */
+        function normalizeWheelItems(rawItems) {
+            if (!rawItems) return [];
+
+            let source = Array.isArray(rawItems)
+                ? rawItems
+                : (typeof rawItems === 'object'
+                    ? Object.keys(rawItems).sort((a, b) => {
+                        const na = Number(a), nb = Number(b);
+                        if (Number.isFinite(na) && Number.isFinite(nb)) return na - nb;
+                        return a.localeCompare(b);
+                    }).map(k => rawItems[k])
+                    : []);
+
+            const cleaned = [];
+
+            source.forEach((raw, originalIndex) => {
+                if (!raw || typeof raw !== 'object') return;
+
+                const text = String(raw.text ?? raw.name ?? '').trim();
+                const chance = Number(raw.chance);
+
+                // أي عنصر ناقص أو بنسبة غير صحيحة يتم تجاهله ولا يتحول لجائزة وهمية.
+                if (!text || !Number.isFinite(chance) || chance <= 0) return;
+
+                cleaned.push({
+                    text,
+                    logo: typeof raw.logo === 'string' ? raw.logo.trim() : '',
+                    color: typeof raw.color === 'string' && raw.color.trim()
+                        ? raw.color
+                        : '#151d2a',
+                    chance,
+                    // نحتفظ بمعرف العنصر إن كان موجوداً لسهولة التتبع.
+                    id: raw.id != null ? String(raw.id) : String(originalIndex)
+                });
+            });
+
+            return cleaned;
+        }
+
+        /*
+         * لكي تكون النسبة التي يضعها المدير هي نفسها نسبة الفوز:
+         * يجب أن يكون مجموع النسب = 100%.
+         * لن نقوم بالتطبيع الصامت لأنه قد يجعل 10% تتحول فعلياً إلى نسبة أخرى.
+         */
+        function validatePrizePercentages(items) {
+            if (!items.length) {
+                return { ok: false, message: "لا توجد جوائز صالحة في قاعدة البيانات." };
+            }
+
+            const total = items.reduce((sum, item) => sum + item.chance, 0);
+            const roundedTotal = Math.round(total * 100) / 100;
+
+            if (Math.abs(roundedTotal - 100) > 0.01) {
+                return {
+                    ok: false,
+                    message: `نسب الجوائز يجب أن يكون مجموعها 100%. المجموع الحالي: ${roundedTotal}%.`
+                };
+            }
+
+            return { ok: true, total: roundedTotal };
+        }
+
+        function maybeEnableAfterLoad() {
+            if (!settingsLoaded || !spinStatusLoaded) return;
+
+            hideLoader();
+
+            if (!wheelItems.length) {
+                showConfigError("لا توجد جوائز محفوظة في النظام.");
+                return;
+            }
+
+            const validation = validatePrizePercentages(wheelItems);
+            if (!validation.ok) {
+                showConfigError(validation.message);
+                return;
+            }
+        }
+
+        function createAudioContext() {
+            if (!audioCtx) {
+                try {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    audioCtx = null;
+                }
+            }
+            return audioCtx;
+        }
+
+        function playTickSound(progress) {
+            try {
+                const ac = createAudioContext();
+                if (!ac) return;
+                if (ac.state === 'suspended') ac.resume();
+
+                const osc = ac.createOscillator();
+                const gain = ac.createGain();
+
+                osc.type = 'triangle';
+                const freq = 300 + (1 - progress) * 420;
+                osc.frequency.setValueAtTime(freq, ac.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(90, ac.currentTime + 0.055);
+                gain.gain.setValueAtTime(0.18, ac.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.055);
+
+                osc.connect(gain);
+                gain.connect(ac.destination);
+                osc.start();
+                osc.stop(ac.currentTime + 0.04);
+            } catch (e) {}
+        }
 
         function preloadImages() {
+            loadedImages = {};
+
             wheelItems.forEach((item, i) => {
-                if (item.logo && item.logo.trim() !== "") {
-                    const img = new Image();
-                    img.src = item.logo;
-                    img.onload = () => { loadedImages[i] = img; drawWheel(); };
-                }
+                if (!item.logo) return;
+
+                const img = new Image();
+                img.crossOrigin = "anonymous";
+                img.onload = () => {
+                    loadedImages[i] = img;
+                    drawWheel();
+                };
+                img.onerror = () => {
+                    // الصورة لا تؤثر على الجائزة نفسها.
+                    delete loadedImages[i];
+                    drawWheel();
+                };
+                img.src = item.logo;
             });
         }
 
@@ -721,14 +840,12 @@ canvas#wheel{
             const center = width / 2;
             const radius = center - 12;
             const numSegments = wheelItems.length;
-            if (numSegments === 0) return;
+
+            ctx.clearRect(0, 0, width, width);
+            if (!numSegments) return;
 
             const segmentAngle = (2 * Math.PI) / numSegments;
-            ctx.clearRect(0, 0, width, width);
 
-            // =========================================================
-            // 1) رسم القطاعات
-            // =========================================================
             for (let i = 0; i < numSegments; i++) {
                 const startAngle = currentRotation + i * segmentAngle;
                 const endAngle = startAngle + segmentAngle;
@@ -750,16 +867,6 @@ canvas#wheel{
                 ctx.restore();
             }
 
-            // =========================================================
-            // 2) رسم الجوائز بشكل منظم
-            //
-            // مهم جداً:
-            // - لا يتم تدوير الكتابة 90 درجة/بشكل رأسي.
-            // - كل بطاقة جائزة لها مركز مستقل.
-            // - يتم قص محتوى الجائزة داخل قطاعها.
-            // - النص الطويل يتوزع تلقائياً على أسطر.
-            // - لا يتم حذف أي جزء من النص.
-            // =========================================================
             for (let i = 0; i < numSegments; i++) {
                 const startAngle = currentRotation + i * segmentAngle;
                 const endAngle = startAngle + segmentAngle;
@@ -771,34 +878,26 @@ canvas#wheel{
                 ctx.save();
                 ctx.translate(center, center);
 
-                // قص صارم على حدود القطاع.
                 ctx.beginPath();
                 ctx.moveTo(0, 0);
                 ctx.arc(0, 0, radius - 4, startAngle, endAngle);
                 ctx.closePath();
                 ctx.clip();
 
-                // مركز البطاقة قطبي: كل جائزة تتحرك مع قطاعها أثناء الدوران.
                 const labelRadius = radius * 0.60;
                 const labelX = Math.cos(midAngle) * labelRadius;
                 const labelY = Math.sin(midAngle) * labelRadius;
 
-                // -----------------------------------------------------
-                // حساب مساحة آمنة حقيقية للبطاقة.
-                // نستخدم نصف عرض محافظ حتى لا تقترب البطاقة من حدود القطاع.
-                // -----------------------------------------------------
                 const sectorSafeWidth = Math.max(
                     86,
                     Math.min(radius * 0.46, labelRadius * segmentAngle * 0.58)
                 );
-
                 const sectorSafeHeight = Math.max(58, radius * 0.30);
 
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
                 ctx.direction = "rtl";
 
-                // تقسيم النص حسب العرض، مع دعم الأكواد والكلمات الطويلة.
                 function buildPrizeLines(text, fontSize, widthLimit) {
                     ctx.font = `900 ${fontSize}px "Tajawal", Arial, sans-serif`;
 
@@ -819,11 +918,9 @@ canvas#wheel{
                             line = "";
                         }
 
-                        // لو كلمة واحدة أكبر من المساحة، نقسمها حرفياً.
                         let chunk = "";
                         for (const char of word) {
                             const test = chunk + char;
-
                             if (ctx.measureText(test).width <= widthLimit || !chunk) {
                                 chunk = test;
                             } else {
@@ -839,11 +936,9 @@ canvas#wheel{
                     return lines.length ? lines : [text];
                 }
 
-                // حجم مبدئي مناسب للموبايل، ثم يتم تصغيره فقط عند الحاجة.
                 let fontSize = Math.min(21, Math.max(11, radius * 0.066));
                 let lines = buildPrizeLines(rawText, fontSize, sectorSafeWidth);
 
-                // نضمن أن كل السطور مناسبة للعرض والارتفاع.
                 while (fontSize > 9) {
                     const lineHeight = fontSize * 1.14;
                     const widestLine = lines.reduce(
@@ -856,16 +951,12 @@ canvas#wheel{
                         widestLine <= sectorSafeWidth &&
                         totalHeight <= sectorSafeHeight &&
                         lines.length <= 5
-                    ) {
-                        break;
-                    }
+                    ) break;
 
                     fontSize -= 1;
                     lines = buildPrizeLines(rawText, fontSize, sectorSafeWidth);
                 }
 
-                // لا نختصر النص أبداً.
-                // لو الجائزة شديدة الطول، نسمح بعدد أكبر من الأسطر بحجم صغير.
                 if (lines.length > 5) {
                     fontSize = Math.max(8, fontSize - 1);
                     lines = buildPrizeLines(rawText, fontSize, sectorSafeWidth);
@@ -877,15 +968,9 @@ canvas#wheel{
                 const hasLogo = !!loadedImages[i];
                 const logoSize = hasLogo ? Math.min(30, radius * 0.09) : 0;
                 const logoGap = hasLogo ? 5 : 0;
-
                 const contentHeight = textHeight + logoSize + logoGap;
 
-                // بطاقة زجاجية صغيرة، مركزها بالضبط فوق مركز الجائزة.
-                const cardWidth = Math.min(
-                    sectorSafeWidth + 12,
-                    radius * 0.50
-                );
-
+                const cardWidth = Math.min(sectorSafeWidth + 12, radius * 0.50);
                 const cardHeight = Math.min(
                     Math.max(contentHeight + 14, 52),
                     radius * 0.34
@@ -894,7 +979,6 @@ canvas#wheel{
                 ctx.save();
                 ctx.translate(labelX, labelY);
 
-                // انعكاس زجاجي خلف الجائزة.
                 ctx.fillStyle = "rgba(4, 10, 20, 0.40)";
                 ctx.strokeStyle = "rgba(255,255,255,0.20)";
                 ctx.lineWidth = 1.5;
@@ -912,7 +996,6 @@ canvas#wheel{
                 ctx.fill();
                 ctx.stroke();
 
-                // لمعة زجاجية علوية.
                 ctx.shadowBlur = 0;
                 ctx.fillStyle = "rgba(255,255,255,0.07)";
                 ctx.beginPath();
@@ -943,7 +1026,6 @@ canvas#wheel{
                     cursorY += logoSize + logoGap;
                 }
 
-                // الكتابة أفقية وواضحة دائماً.
                 ctx.font = `900 ${fontSize}px "Tajawal", Arial, sans-serif`;
                 ctx.fillStyle = "#ffffff";
                 ctx.strokeStyle = "rgba(0,0,0,0.72)";
@@ -954,7 +1036,6 @@ canvas#wheel{
 
                 lines.forEach((line, index) => {
                     const y = cursorY + index * lineHeight + lineHeight / 2;
-
                     ctx.strokeText(line, 0, y, sectorSafeWidth);
                     ctx.fillText(line, 0, y, sectorSafeWidth);
                 });
@@ -963,9 +1044,6 @@ canvas#wheel{
                 ctx.restore();
             }
 
-            // =========================================================
-            // 3) مركز العجلة
-            // =========================================================
             ctx.save();
             ctx.translate(center, center);
 
@@ -1007,71 +1085,128 @@ canvas#wheel{
             ctx.restore();
         }
 
+        /*
+         * اختيار الجائزة:
+         * - يعتمد فقط على wheelItems التي تم تحميلها من Firebase.
+         * - chance هي النسبة الفعلية.
+         * - مجموعها تم التحقق منه = 100%.
+         */
         function pickWinningIndex() {
-            let totalChance = wheelItems.reduce((acc, item) => acc + (parseFloat(item.chance) || 0), 0);
-            if (totalChance <= 0) return Math.floor(Math.random() * wheelItems.length);
+            const validation = validatePrizePercentages(wheelItems);
+            if (!validation.ok) return -1;
 
-            let random = Math.random() * totalChance;
+            const random = Math.random() * 100;
+            let cumulative = 0;
+
             for (let i = 0; i < wheelItems.length; i++) {
-                let chance = parseFloat(wheelItems[i].chance) || 0;
-                if (random < chance) return i;
-                random -= chance;
+                cumulative += wheelItems[i].chance;
+                if (random < cumulative) return i;
             }
-            return 0;
+
+            // حماية من أخطاء الفاصلة العشرية فقط.
+            return wheelItems.length - 1;
         }
 
         function checkServerSpinStatus() {
-            if (!db) { hideLoader(); return; }
-            db.ref('user_spins/' + userIP).once('value', snap => {
-                hideLoader();
-                if (snap.exists()) {
-                    const data = snap.val();
-                    const lastSpinTime = data.lastSpinTime;
-                    const nextSpinTime = parseInt(lastSpinTime) + (cooldownHours * 60 * 60 * 1000);
-                    const now = new Date().getTime();
+            if (!db || !userIP || userIP === "unknown_user") {
+                spinStatusLoaded = true;
+                maybeEnableAfterLoad();
+                return;
+            }
 
-                    if (now < nextSpinTime) {
-                        startTimer(nextSpinTime);
-                        if (data.savedPrize) {
-                            document.getElementById('savedPrizeCard').style.display = 'block';
-                            document.getElementById('savedPrizeText').innerText = `${data.savedPrize.prize} (كود: ${data.savedPrize.code})`;
-                            
-                            const badge = document.getElementById('prizeStatusBadge');
-                            if(data.savedPrize.claimed) {
-                                badge.innerHTML = `<span style="color:#4ade80; font-size:0.85rem; font-weight:bold;"><i class="fa-solid fa-circle-check"></i> تم التفعيل والاستلام بنجاح</span>`;
-                            } else {
-                                badge.innerHTML = `<span style="color:#fbbf24; font-size:0.85rem; font-weight:bold;"><i class="fa-solid fa-clock"></i> الجائزة غير مفعلة حتى الآن</span>`;
+            db.ref('user_spins/' + userIP).once('value')
+                .then(snap => {
+                    spinStatusLoaded = true;
+
+                    if (snap.exists()) {
+                        const data = snap.val() || {};
+                        const lastSpinTime = Number(data.lastSpinTime) || 0;
+                        const nextSpinTime =
+                            lastSpinTime + (cooldownHours * 60 * 60 * 1000);
+                        const now = Date.now();
+
+                        if (now < nextSpinTime) {
+                            startTimer(nextSpinTime);
+
+                            if (data.savedPrize && data.savedPrize.prize) {
+                                document.getElementById('savedPrizeCard').style.display = 'block';
+                                document.getElementById('savedPrizeText').innerText =
+                                    `${data.savedPrize.prize} (كود: ${data.savedPrize.code || '-'})`;
+
+                                const badge = document.getElementById('prizeStatusBadge');
+
+                                if (data.savedPrize.claimed) {
+                                    badge.innerHTML =
+                                        `<span style="color:#4ade80;font-size:.85rem;font-weight:bold">
+                                            <i class="fa-solid fa-circle-check"></i> تم التفعيل والاستلام بنجاح
+                                        </span>`;
+                                } else {
+                                    badge.innerHTML =
+                                        `<span style="color:#fbbf24;font-size:.85rem;font-weight:bold">
+                                            <i class="fa-solid fa-clock"></i> الجائزة غير مفعلة حتى الآن
+                                        </span>`;
+                                }
+
+                                const msg =
+                                    `مرحباً MOHAB STORE 👋🏼\n` +
+                                    `أود استلام جائزتي:\n` +
+                                    `🎁 الجائزة: ${data.savedPrize.prize}\n` +
+                                    `🔑 الكود: ${data.savedPrize.code || '-'}`;
+
+                                document.getElementById('savedWhatsappBtn').href =
+                                    `https://wa.me/${adminPhoneNumber}?text=${encodeURIComponent(msg)}`;
                             }
-
-                            const msg = `مرحباً MOHAB STORE 👋🏼\nأود استلام جائزتي:\n🎁 الجائزة: ${data.savedPrize.prize}\n🔑 الكود: ${data.savedPrize.code}`;
-                            document.getElementById('savedWhatsappBtn').href = `https://wa.me/${adminPhoneNumber}?text=${encodeURIComponent(msg)}`;
+                        } else {
+                            enableSpinning();
                         }
                     } else {
                         enableSpinning();
                     }
-                } else {
-                    enableSpinning();
-                }
-            }, () => { hideLoader(); });
+
+                    maybeEnableAfterLoad();
+                })
+                .catch(error => {
+                    console.error("Spin status read failed:", error);
+                    spinStatusLoaded = true;
+                    showConfigError("تعذر قراءة حالة المحاولة من قاعدة البيانات.");
+                    maybeEnableAfterLoad();
+                });
         }
 
         function enableSpinning() {
+            if (!settingsLoaded || !spinStatusLoaded) return;
+
+            const validation = validatePrizePercentages(wheelItems);
+            if (!validation.ok) {
+                showConfigError(validation.message);
+                return;
+            }
+
             document.getElementById('activeNotice').style.display = 'block';
+            document.getElementById('activeNotice').innerHTML =
+                `<p style="font-size:.9rem;color:#cbd5e1">
+                    <i class="fa-solid fa-hand-pointer" style="color:var(--accent-blue);margin-left:5px"></i>
+                    انقر على زر "إبدأ" لتدوير العجلة
+                </p>`;
             document.getElementById('cooldownNotice').style.display = 'none';
             document.getElementById('savedPrizeCard').style.display = 'none';
-            document.getElementById('spinBtn').classList.remove('disabled');
+            setSpinAvailability(true);
         }
+
+        let timerFrame = null;
 
         function startTimer(targetTime) {
             document.getElementById('activeNotice').style.display = 'none';
             document.getElementById('cooldownNotice').style.display = 'block';
-            document.getElementById('spinBtn').classList.add('disabled');
+            setSpinAvailability(false);
+
+            if (timerFrame) cancelAnimationFrame(timerFrame);
 
             function update() {
-                const now = new Date().getTime();
-                const diff = targetTime - now;
+                const diff = targetTime - Date.now();
 
                 if (diff <= 0) {
+                    timerFrame = null;
                     checkServerSpinStatus();
                     return;
                 }
@@ -1080,43 +1215,93 @@ canvas#wheel{
                 const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                 const secs = Math.floor((diff % (1000 * 60)) / 1000);
 
-                const timeStr = `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+                const timeStr =
+                    `${hrs.toString().padStart(2, '0')}:` +
+                    `${mins.toString().padStart(2, '0')}:` +
+                    `${secs.toString().padStart(2, '0')}`;
+
                 document.getElementById('countdownTimer').innerText = timeStr;
                 document.getElementById('savedPrizeTimer').innerText = timeStr;
-                
-                requestAnimationFrame(update);
+
+                timerFrame = requestAnimationFrame(update);
             }
+
             update();
         }
 
-        let isSpinning = false;
-document.getElementById('spinBtn').addEventListener('click', () => {
-            if (isSpinning || document.getElementById('spinBtn').classList.contains('disabled')) return;
+        document.getElementById('spinBtn').addEventListener('click', () => {
+            if (isSpinning) return;
+            if (document.getElementById('spinBtn').classList.contains('disabled')) return;
+            if (!settingsLoaded || !spinStatusLoaded) return;
+
+            const validation = validatePrizePercentages(wheelItems);
+            if (!validation.ok) {
+                showConfigError(validation.message);
+                return;
+            }
+
+            if (!wheelItems.length) return;
+
+            const winningIndex = pickWinningIndex();
+            if (winningIndex < 0 || !wheelItems[winningIndex]) {
+                showConfigError("تعذر تحديد جائزة صالحة من الجوائز المحفوظة.");
+                return;
+            }
+
+            // نأخذ نسخة من نفس العنصر الذي تم اختياره من قاعدة البيانات.
+            const selectedPrize = { ...wheelItems[winningIndex] };
 
             isSpinning = true;
-            document.getElementById('spinBtn').classList.add('disabled');
+            setSpinAvailability(false);
 
             const numSegments = wheelItems.length;
             const segmentAngle = (2 * Math.PI) / numSegments;
-            const winningIndex = pickWinningIndex();
-            const selectedPrize = wheelItems[winningIndex];
 
-            const spins = 7; 
-            const targetSegmentAngle = (2 * Math.PI) - (winningIndex * segmentAngle) - (segmentAngle / 2) - (Math.PI / 2);
-            const totalTargetRotation = currentRotation + (spins * 2 * Math.PI) + (targetSegmentAngle - (currentRotation % (2 * Math.PI)));
+            const spins = 7;
+
+            // pointer عند أعلى العجلة = -PI/2.
+            // نحدد مركز القطاع الفائز تحت المؤشر بدقة.
+            const desiredRotation =
+                (-Math.PI / 2) -
+                (winningIndex * segmentAngle + segmentAngle / 2);
+
+            const currentNormalized =
+                ((currentRotation % (2 * Math.PI)) + (2 * Math.PI)) % (2 * Math.PI);
+
+            let delta =
+                desiredRotation -
+                currentNormalized;
+
+            while (delta < 0) delta += 2 * Math.PI;
+
+            const totalTargetRotation =
+                currentRotation +
+                (spins * 2 * Math.PI) +
+                delta;
 
             const duration = 6000;
             const startTime = performance.now();
+            const startRotation = currentRotation;
             let lastSoundSegment = -1;
 
             function animateSpin(currentTime) {
                 const elapsed = currentTime - startTime;
                 const progress = Math.min(elapsed / duration, 1);
                 const easeOut = 1 - Math.pow(1 - progress, 4);
-                currentRotation = easeOut * totalTargetRotation;
+
+                currentRotation =
+                    startRotation +
+                    (totalTargetRotation - startRotation) * easeOut;
+
                 drawWheel();
 
-                const currentSegment = Math.floor((currentRotation % (2 * Math.PI)) / segmentAngle);
+                const normalized =
+                    ((currentRotation % (2 * Math.PI)) + (2 * Math.PI)) %
+                    (2 * Math.PI);
+
+                const currentSegment =
+                    Math.floor(normalized / segmentAngle);
+
                 if (currentSegment !== lastSoundSegment) {
                     playTickSound(progress);
                     lastSoundSegment = currentSegment;
@@ -1125,62 +1310,114 @@ document.getElementById('spinBtn').addEventListener('click', () => {
                 if (progress < 1) {
                     requestAnimationFrame(animateSpin);
                 } else {
+                    currentRotation = totalTargetRotation;
+                    drawWheel();
                     isSpinning = false;
                     onSpinComplete(selectedPrize);
                 }
             }
+
             requestAnimationFrame(animateSpin);
         });
 
         function playWinSound() {
             try {
-                if (audioCtx.state === 'suspended') audioCtx.resume();
-                const now = audioCtx.currentTime;
+                const ac = createAudioContext();
+                if (!ac) return;
+                if (ac.state === 'suspended') ac.resume();
+
+                const now = ac.currentTime;
+
                 [523.25, 659.25, 783.99].forEach((freq, i) => {
-                    const osc = audioCtx.createOscillator();
-                    const gain = audioCtx.createGain();
+                    const osc = ac.createOscillator();
+                    const gain = ac.createGain();
+
                     osc.type = 'sine';
                     osc.frequency.setValueAtTime(freq, now + i * 0.08);
                     gain.gain.setValueAtTime(0.0001, now + i * 0.08);
-                    gain.gain.exponentialRampToValueAtTime(0.18, now + i * 0.08 + 0.025);
-                    gain.gain.exponentialRampToValueAtTime(0.0001, now + i * 0.08 + 0.28);
+                    gain.gain.exponentialRampToValueAtTime(
+                        0.18,
+                        now + i * 0.08 + 0.025
+                    );
+                    gain.gain.exponentialRampToValueAtTime(
+                        0.0001,
+                        now + i * 0.08 + 0.28
+                    );
+
                     osc.connect(gain);
-                    gain.connect(audioCtx.destination);
+                    gain.connect(ac.destination);
                     osc.start(now + i * 0.08);
                     osc.stop(now + i * 0.08 + 0.3);
                 });
-            } catch(e) {}
+            } catch (e) {}
+        }
+
+        function generateUniqueCode() {
+            // كود عشوائي محلي للعرض/التتبع، وليس مصدر اختيار الجائزة.
+            return "MS-" + Math.floor(100000 + Math.random() * 900000);
         }
 
         function onSpinComplete(prize) {
             playWinSound();
-            if (window.confetti) confetti({ particleCount: 160, spread: 100, origin: { y: 0.6 } });
 
-            const now = new Date().getTime();
-            const uniqueCode = "MS-" + Math.floor(100000 + Math.random() * 900000);
+            if (window.confetti) {
+                confetti({
+                    particleCount: 160,
+                    spread: 100,
+                    origin: { y: 0.6 }
+                });
+            }
+
+            const now = Date.now();
+            const uniqueCode = generateUniqueCode();
+
+            // حفظ اسم الجائزة المختارة نفسه، وليس أي نص آخر.
+            const savedPrize = {
+                prize: prize.text,
+                code: uniqueCode,
+                claimed: false,
+                itemId: prize.id,
+                chance: prize.chance
+            };
 
             if (db) {
                 db.ref('user_spins/' + userIP).set({
                     lastSpinTime: now,
-                    savedPrize: { prize: prize.text, code: uniqueCode, claimed: false }
+                    savedPrize
+                }).catch(err => {
+                    console.error("Failed to save user spin:", err);
                 });
 
                 db.ref('prizes/' + uniqueCode).set({
                     prize: prize.text,
                     code: uniqueCode,
-                    userIP: userIP,
+                    userIP,
                     claimed: false,
+                    chance: prize.chance,
+                    itemId: prize.id,
                     time: new Date().toLocaleString('ar-EG')
+                }).catch(err => {
+                    console.error("Failed to save prize:", err);
                 });
             }
 
             document.getElementById('modalPrizeTitle').innerText = prize.text;
             document.getElementById('claimCodeDisplay').innerText = uniqueCode;
 
-            const message = `مرحباً MOHAB STORE 👋🏼\nلقد ربحت جائزة من عجلة الحظ!\n🎁 الجائزة: ${prize.text}\n🔑 كود التحقق: ${uniqueCode}`;
-            document.getElementById('whatsappBtn').setAttribute('href', `https://wa.me/${adminPhoneNumber}?text=${encodeURIComponent(message)}`);
+            const message =
+                `مرحباً MOHAB STORE 👋🏼\n` +
+                `لقد ربحت جائزة من عجلة الحظ!\n` +
+                `🎁 الجائزة: ${prize.text}\n` +
+                `🔑 كود التحقق: ${uniqueCode}`;
+
+            document.getElementById('whatsappBtn').setAttribute(
+                'href',
+                `https://wa.me/${adminPhoneNumber}?text=${encodeURIComponent(message)}`
+            );
 
             document.getElementById('prizeModal').classList.add('active');
+
+            // إعادة قراءة حالة المحاولة بعد الحفظ.
             checkServerSpinStatus();
         }
 
@@ -1188,26 +1425,117 @@ document.getElementById('spinBtn').addEventListener('click', () => {
             document.getElementById('prizeModal').classList.remove('active');
         });
 
-        if (db) {
-            db.ref('settings').on('value', snap => {
-                hideLoader();
-                if (snap.exists()) {
-                    const data = snap.val();
-                    if (data.storeName) document.getElementById('storeName').innerText = data.storeName;
-                    if (data.storeLogo) document.getElementById('storeLogo').src = data.storeLogo;
-                    if (data.whatsappNumber) adminPhoneNumber = data.whatsappNumber;
-                    if (data.cooldownHours) cooldownHours = parseInt(data.cooldownHours);
-                    if (data.items) {
-                        wheelItems = data.items;
-                        preloadImages();
-                        drawWheel();
+        /*
+         * تحميل الإعدادات مرة واحدة قبل السماح بأي تدوير.
+         * لا يوجد on('value') أثناء التشغيل حتى لا تتغير قائمة الجوائز
+         * في منتصف دوران العجلة وتصبح النتيجة غير متطابقة مع القطاعات.
+         */
+        async function loadSettings() {
+            if (!db) {
+                settingsLoaded = true;
+                showConfigError("تعذر الاتصال بقاعدة البيانات.");
+                maybeEnableAfterLoad();
+                return;
+            }
+
+            try {
+                const snap = await db.ref('settings').once('value');
+
+                if (!snap.exists()) {
+                    settingsLoaded = true;
+                    wheelItems = [];
+                    drawWheel();
+                    showConfigError("إعدادات العجلة غير موجودة في قاعدة البيانات.");
+                    maybeEnableAfterLoad();
+                    return;
+                }
+
+                const data = snap.val() || {};
+
+                if (data.storeName) {
+                    document.getElementById('storeName').innerText = String(data.storeName);
+                }
+
+                if (data.storeLogo) {
+                    document.getElementById('storeLogo').src = String(data.storeLogo);
+                }
+
+                if (data.whatsappNumber) {
+                    adminPhoneNumber = String(data.whatsappNumber);
+                }
+
+                if (data.cooldownHours != null) {
+                    const parsedHours = Number(data.cooldownHours);
+                    if (Number.isFinite(parsedHours) && parsedHours >= 0) {
+                        cooldownHours = parsedHours;
                     }
                 }
-            });
-        } else {
-            drawWheel();
-            hideLoader();
+
+                // المصدر الوحيد للجوائز هو settings/items.
+                wheelItems = normalizeWheelItems(data.items);
+
+                const validation = validatePrizePercentages(wheelItems);
+
+                if (!validation.ok) {
+                    settingsLoaded = true;
+                    loadedImages = {};
+                    drawWheel();
+                    showConfigError(validation.message);
+                    maybeEnableAfterLoad();
+                    return;
+                }
+
+                settingsLoaded = true;
+                preloadImages();
+                drawWheel();
+                maybeEnableAfterLoad();
+
+            } catch (error) {
+                console.error("Settings read failed:", error);
+                settingsLoaded = true;
+                wheelItems = [];
+                drawWheel();
+                showConfigError("تعذر تحميل جوائز العجلة من قاعدة البيانات.");
+                maybeEnableAfterLoad();
+            }
         }
+
+        async function init() {
+            setSpinAvailability(false);
+            drawWheel();
+
+            // تحميل الإعدادات والـ IP معاً، لكن لا نسمح بالدوران
+            // إلا بعد اكتمال الاثنين.
+            const ipPromise = fetch('https://api.ipify.org?format=json')
+                .then(res => {
+                    if (!res.ok) throw new Error("IP request failed");
+                    return res.json();
+                })
+                .then(data => {
+                    if (data && data.ip) {
+                        userIP = String(data.ip).replace(/\./g, '_');
+                    }
+                })
+                .catch(error => {
+                    console.warn("IP lookup failed:", error);
+                    userIP = "unknown_user";
+                });
+
+            const settingsPromise = loadSettings();
+
+            await Promise.allSettled([ipPromise, settingsPromise]);
+
+            // حتى لو فشل IP، لا نعطل عرض العجلة؛ لكن حالة الاستخدام
+            // ستُعامل بحذر لأن منع التكرار يعتمد على معرف المستخدم.
+            if (userIP !== "unknown_user") {
+                checkServerSpinStatus();
+            } else {
+                spinStatusLoaded = true;
+                maybeEnableAfterLoad();
+            }
+        }
+
+        init();
     </script>
 </body>
 </html>
