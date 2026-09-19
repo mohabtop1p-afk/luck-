@@ -741,26 +741,28 @@ canvas#wheel{
         }
 
         /*
-         * لكي تكون النسبة التي يضعها المدير هي نفسها نسبة الفوز:
-         * يجب أن يكون مجموع النسب = 100%.
-         * لن نقوم بالتطبيع الصامت لأنه قد يجعل 10% تتحول فعلياً إلى نسبة أخرى.
+         * النسب هنا تعمل كـ "أوزان" وليست شرطاً أن يكون مجموعها 100%.
+         * مثال: 100 و85 و90 تعني أن فرص الجوائز الثلاث تتناسب مع هذه الأوزان.
+         * الجائزة ذات 0% تظل ظاهرة في العجلة، لكنها لا تدخل في السحب إطلاقاً.
          */
         function validatePrizePercentages(items) {
             if (!items.length) {
                 return { ok: false, message: "لا توجد جوائز صالحة في قاعدة البيانات." };
             }
 
-            const total = items.reduce((sum, item) => sum + item.chance, 0);
-            const roundedTotal = Math.round(total * 100) / 100;
+            const total = items.reduce((sum, item) => {
+                const chance = Number(item.chance);
+                return sum + (Number.isFinite(chance) && chance > 0 ? chance : 0);
+            }, 0);
 
-            if (Math.abs(roundedTotal - 100) > 0.01) {
+            if (total <= 0) {
                 return {
                     ok: false,
-                    message: `نسب الجوائز يجب أن يكون مجموعها 100%. المجموع الحالي: ${roundedTotal}%.`
+                    message: "لا توجد أي نسبة أكبر من 0% للسحب. ضع نسبة موجبة لجائزة واحدة على الأقل."
                 };
             }
 
-            return { ok: true, total: roundedTotal };
+            return { ok: true, total };
         }
 
         function maybeEnableAfterLoad() {
@@ -1086,25 +1088,36 @@ canvas#wheel{
         }
 
         /*
-         * اختيار الجائزة:
-         * - يعتمد فقط على wheelItems التي تم تحميلها من Firebase.
-         * - chance هي النسبة الفعلية.
-         * - مجموعها تم التحقق منه = 100%.
+         * اختيار الجائزة بنظام الأوزان:
+         * - chance = 0 => الجائزة تظهر على العجلة لكن مستحيل يتم اختيارها.
+         * - أي أرقام موجبة تعمل، ولا يشترط أن يكون مجموعها 100.
+         * - الاحتمال الفعلي لكل جائزة = وزنها / مجموع الأوزان.
+         * مثال: 100 و85 و90 => 36.36% و30.91% و32.73% تقريباً.
          */
         function pickWinningIndex() {
             const validation = validatePrizePercentages(wheelItems);
             if (!validation.ok) return -1;
 
-            const random = Math.random() * 100;
+            const totalChance = validation.total;
+            const random = Math.random() * totalChance;
             let cumulative = 0;
 
             for (let i = 0; i < wheelItems.length; i++) {
-                cumulative += wheelItems[i].chance;
+                const chance = Number(wheelItems[i].chance) || 0;
+
+                // النسبة صفر: موجودة بصرياً فقط ولا يمكن أن تفوز.
+                if (chance <= 0) continue;
+
+                cumulative += chance;
                 if (random < cumulative) return i;
             }
 
-            // حماية من أخطاء الفاصلة العشرية فقط.
-            return wheelItems.length - 1;
+            // لا نعيد جائزة 0% أبداً. نأخذ آخر جائزة موجبة فقط كحماية.
+            for (let i = wheelItems.length - 1; i >= 0; i--) {
+                if ((Number(wheelItems[i].chance) || 0) > 0) return i;
+            }
+
+            return -1;
         }
 
         function checkServerSpinStatus() {
