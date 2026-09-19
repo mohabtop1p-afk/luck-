@@ -699,7 +699,7 @@ canvas#wheel{
         /*
          * تنظيف بيانات الجوائز القادمة من Firebase.
          * نقبل Array أو Object، لكن لا ننشئ أي جائزة من عندنا.
-         * كل عنصر يجب أن يحتوي على اسم جائزة ونسبة رقمية أكبر من صفر.
+         * كل عنصر يجب أن يحتوي على اسم جائزة ونسبة رقمية، بما فيها 0%.
          */
         function normalizeWheelItems(rawItems) {
             if (!rawItems) return [];
@@ -723,7 +723,7 @@ canvas#wheel{
                 const chance = Number(raw.chance);
 
                 // أي عنصر ناقص أو بنسبة غير صحيحة يتم تجاهله ولا يتحول لجائزة وهمية.
-                if (!text || !Number.isFinite(chance) || chance <= 0) return;
+                if (!text || !Number.isFinite(chance) || chance < 0) return;
 
                 cleaned.push({
                     text,
