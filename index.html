@@ -160,12 +160,18 @@ header{
     justify-content:center;
     isolation:isolate;
     touch-action:manipulation;
+    --wheel-size:72%;
+    --frame-size:96%;
 }
 
 .wheel-container::before{
     content:"";
     position:absolute;
-    inset:4%;
+    top:50%;
+    left:50%;
+    width:var(--wheel-size);
+    height:var(--wheel-size);
+    transform:translate(-50%,-50%);
     border-radius:50%;
     background:radial-gradient(circle,rgba(73,166,255,.10),transparent 63%);
     filter:blur(20px);
@@ -175,7 +181,11 @@ header{
 .wheel-container::after{
     content:"";
     position:absolute;
-    inset:-3%;
+    top:50%;
+    left:50%;
+    width:72%;
+    height:72%;
+    transform:translate(-50%,-50%);
     border-radius:50%;
     border:1px solid rgba(255,255,255,.045);
     box-shadow:0 0 80px rgba(73,166,255,.055);
@@ -185,24 +195,26 @@ header{
 
 .wheel-outer-ring{
     position:absolute;
-    inset:0;
-    width:100%;
-    height:100%;
-    padding:clamp(8px,2vw,12px);
+    top:50%;
+    left:50%;
+    width:var(--wheel-size);
+    height:var(--wheel-size);
+    padding:clamp(6px,1.5vw,10px);
     border-radius:50%;
     background:
         linear-gradient(145deg,rgba(255,255,255,.22),rgba(255,255,255,.055) 28%,rgba(0,0,0,.30) 70%),
         rgba(10,15,24,.62);
     border:1px solid rgba(255,255,255,.22);
     box-shadow:
-        0 30px 75px rgba(0,0,0,.58),
+        0 24px 60px rgba(0,0,0,.54),
         inset 0 1px 0 rgba(255,255,255,.22),
-        inset 0 -16px 35px rgba(0,0,0,.28),
-        0 0 0 7px rgba(255,255,255,.025);
+        inset 0 -14px 30px rgba(0,0,0,.28),
+        0 0 0 6px rgba(255,255,255,.025);
     backdrop-filter:blur(24px) saturate(135%);
     -webkit-backdrop-filter:blur(24px) saturate(135%);
-    transform:translateZ(0);
-    overflow:visible;
+    transform:translate(-50%,-50%) translateZ(0);
+    overflow:hidden;
+    z-index:2;
 }
 
 .wheel-outer-ring::before{
@@ -221,11 +233,27 @@ header{
 .wheel-outer-ring::after{
     content:"";
     position:absolute;
-    inset:11px;
+    inset:10px;
     border-radius:50%;
     border:1px solid rgba(73,166,255,.08);
     pointer-events:none;
     z-index:3;
+}
+
+.wheel-frame{
+    position:absolute;
+    top:50%;
+    left:50%;
+    width:var(--frame-size);
+    height:var(--frame-size);
+    object-fit:contain;
+    display:block;
+    z-index:20;
+    pointer-events:none;
+    user-select:none;
+    -webkit-user-drag:none;
+    transform:translate(-50%,-50%) translateZ(0);
+    filter:drop-shadow(0 12px 20px rgba(0,0,0,.22));
 }
 
 canvas#wheel{
@@ -242,7 +270,7 @@ canvas#wheel{
 
 .pointer-box{
     position:absolute;
-    top:-9px;
+    top:calc(50% - (var(--wheel-size) / 2) - 7px);
     left:50%;
     transform:translateX(-50%);
     z-index:100;
@@ -545,7 +573,7 @@ canvas#wheel{
     body{padding:22px 10px 34px}
     .logo-box{width:82px;height:82px}
     .glass-card{border-radius:23px;padding:16px}
-    .wheel-container{width:min(410px,94vw);margin-top:4px}
+    .wheel-container{width:min(410px,94vw);margin-top:4px;--wheel-size:72%;--frame-size:96%}
     .spin-btn{width:78px;height:78px;font-size:1.05rem}
     .pointer-arrow{width:29px;height:42px}
 }
@@ -553,7 +581,7 @@ canvas#wheel{
 @media (max-width:360px){
     .store-title{font-size:1.85rem}
     .subtitle{font-size:.82rem}
-    .wheel-container{width:93vw}
+    .wheel-container{width:93vw;--wheel-size:72%;--frame-size:96%}
     .spin-btn{width:72px;height:72px}
 }
 
@@ -563,6 +591,59 @@ canvas#wheel{
         animation-iteration-count:1!important;
         transition-duration:.01ms!important;
     }
+}
+
+/* Precision wheel/frame alignment: keep the wheel and artwork scaled together. */
+.wheel-container{
+    --wheel-size:74%;
+    --frame-size:101%;
+}
+.wheel-outer-ring{
+    top:43.5%;
+    left:50%;
+    width:var(--wheel-size);
+    height:var(--wheel-size);
+    transform:translate(-50%,-50%) translateZ(0);
+    overflow:hidden;
+    box-sizing:border-box;
+}
+.wheel-outer-ring #wheel{
+    width:100%;
+    height:100%;
+    clip-path:circle(50% at 50% 50%);
+    -webkit-clip-path:circle(50% at 50% 50%);
+}
+.wheel-frame{
+    top:50%;
+    left:50%;
+    width:var(--frame-size);
+    height:var(--frame-size);
+    transform:translate(-50%,-50%) translateZ(0);
+}
+.pointer-box{
+    top:calc(43.5% - (var(--wheel-size) / 2) - 7px);
+}
+@media (max-width:520px){
+    .wheel-container{--wheel-size:74%;--frame-size:101%;}
+}
+@media (max-width:360px){
+    .wheel-container{--wheel-size:74%;--frame-size:101%;}
+}
+
+/* Responsive wheel sizing: scales naturally from phones to large desktop screens. */
+.wheel-container{
+    width:clamp(320px,58vw,680px);
+    max-width:none;
+    aspect-ratio:1 / 1;
+}
+@media (max-width:900px){
+    .wheel-container{width:min(88vw,560px);}
+}
+@media (max-width:520px){
+    .wheel-container{width:94vw;}
+}
+@media (max-width:360px){
+    .wheel-container{width:93vw;}
 }
 </style>
 </head>
@@ -604,6 +685,13 @@ canvas#wheel{
             <canvas id="wheel" width="600" height="600"></canvas>
             <div class="spin-btn" id="spinBtn">إبدأ</div>
         </div>
+        <img
+            class="wheel-frame"
+            src="https://f.top4top.io/p_3914hp00q0.png"
+            alt="MOHAB STORE Wheel Frame"
+            aria-hidden="true"
+            draggable="false"
+        >
     </div>
 
     <div class="glass-card" style="text-align: center;">
@@ -656,6 +744,28 @@ canvas#wheel{
         let adminPhoneNumber = "201000000000";
         let cooldownHours = 24;
         let userIP = "unknown_user";
+        // معرف ثابت للمتصفح: يمنع إعادة اللفة بعد إغلاق الموقع حتى لو تغيّر عنوان الـ IP.
+        // لا يحتوي على أي بيانات شخصية ويتم حفظه محلياً على نفس الجهاز/المتصفح.
+        let userDeviceId = "unknown_device";
+
+        function getOrCreateDeviceId() {
+            const storageKey = "mohab_store_wheel_device_id_v1";
+            try {
+                let id = localStorage.getItem(storageKey);
+                if (!id) {
+                    if (window.crypto && typeof crypto.randomUUID === "function") {
+                        id = crypto.randomUUID();
+                    } else {
+                        id = "ms-" + Date.now() + "-" + Math.random().toString(36).slice(2) + "-" + Math.random().toString(36).slice(2);
+                    }
+                    localStorage.setItem(storageKey, id);
+                }
+                return String(id).replace(/[.#$\[\]/]/g, "_");
+            } catch (e) {
+                console.warn("Device ID storage unavailable:", e);
+                return "unknown_device";
+            }
+        }
 
         // IMPORTANT:
         // لا توجد أي جوائز افتراضية هنا.
@@ -1120,70 +1230,100 @@ canvas#wheel{
             return -1;
         }
 
-        function checkServerSpinStatus() {
-            if (!db || !userIP || userIP === "unknown_user") {
+        async function readSpinRecord(key) {
+            if (!db || !key || key === "unknown_user" || key === "unknown_device") return null;
+            try {
+                const snap = await db.ref('user_spins/' + key).once('value');
+                return snap.exists() ? (snap.val() || {}) : null;
+            } catch (error) {
+                console.error("Spin status read failed for", key, error);
+                return null;
+            }
+        }
+
+        async function checkServerSpinStatus() {
+            if (!db) {
                 spinStatusLoaded = true;
                 maybeEnableAfterLoad();
                 return;
             }
 
-            db.ref('user_spins/' + userIP).once('value')
-                .then(snap => {
-                    spinStatusLoaded = true;
+            const keys = [];
+            // المعرف الثابت هو الأساس، وIP القديم يبقى كاحتياطي للتوافق مع السجلات الحالية.
+            if (userDeviceId !== "unknown_device") keys.push(userDeviceId);
+            if (userIP !== "unknown_user" && userIP !== userDeviceId) keys.push(userIP);
 
-                    if (snap.exists()) {
-                        const data = snap.val() || {};
-                        const lastSpinTime = Number(data.lastSpinTime) || 0;
-                        const nextSpinTime =
-                            lastSpinTime + (cooldownHours * 60 * 60 * 1000);
-                        const now = Date.now();
+            if (!keys.length) {
+                spinStatusLoaded = true;
+                maybeEnableAfterLoad();
+                return;
+            }
 
-                        if (now < nextSpinTime) {
-                            startTimer(nextSpinTime);
+            try {
+                const records = await Promise.all(keys.map(readSpinRecord));
+                let data = null;
 
-                            if (data.savedPrize && data.savedPrize.prize) {
-                                document.getElementById('savedPrizeCard').style.display = 'block';
-                                document.getElementById('savedPrizeText').innerText =
-                                    `${data.savedPrize.prize} (كود: ${data.savedPrize.code || '-'})`;
+                // نستخدم أحدث سجل من الجهاز أو الـIP حتى لا يستطيع المستخدم
+                // تجاوز المنع بمجرد تغيير الشبكة أو إعادة فتح الموقع.
+                for (const record of records) {
+                    if (!record) continue;
+                    if (!data || Number(record.lastSpinTime || 0) > Number(data.lastSpinTime || 0)) {
+                        data = record;
+                    }
+                }
 
-                                const badge = document.getElementById('prizeStatusBadge');
+                spinStatusLoaded = true;
 
-                                if (data.savedPrize.claimed) {
-                                    badge.innerHTML =
-                                        `<span style="color:#4ade80;font-size:.85rem;font-weight:bold">
-                                            <i class="fa-solid fa-circle-check"></i> تم التفعيل والاستلام بنجاح
-                                        </span>`;
-                                } else {
-                                    badge.innerHTML =
-                                        `<span style="color:#fbbf24;font-size:.85rem;font-weight:bold">
-                                            <i class="fa-solid fa-clock"></i> الجائزة غير مفعلة حتى الآن
-                                        </span>`;
-                                }
+                if (data) {
+                    const lastSpinTime = Number(data.lastSpinTime) || 0;
+                    const nextSpinTime = lastSpinTime + (cooldownHours * 60 * 60 * 1000);
+                    const now = Date.now();
 
-                                const msg =
-                                    `مرحباً MOHAB STORE 👋🏼\n` +
-                                    `أود استلام جائزتي:\n` +
-                                    `🎁 الجائزة: ${data.savedPrize.prize}\n` +
-                                    `🔑 الكود: ${data.savedPrize.code || '-'}`;
+                    if (now < nextSpinTime) {
+                        startTimer(nextSpinTime);
 
-                                document.getElementById('savedWhatsappBtn').href =
-                                    `https://wa.me/${adminPhoneNumber}?text=${encodeURIComponent(msg)}`;
+                        if (data.savedPrize && data.savedPrize.prize) {
+                            document.getElementById('savedPrizeCard').style.display = 'block';
+                            document.getElementById('savedPrizeText').innerText =
+                                `${data.savedPrize.prize} (كود: ${data.savedPrize.code || '-'})`;
+
+                            const badge = document.getElementById('prizeStatusBadge');
+
+                            if (data.savedPrize.claimed) {
+                                badge.innerHTML =
+                                    `<span style="color:#4ade80;font-size:.85rem;font-weight:bold">
+                                        <i class="fa-solid fa-circle-check"></i> تم التفعيل والاستلام بنجاح
+                                    </span>`;
+                            } else {
+                                badge.innerHTML =
+                                    `<span style="color:#fbbf24;font-size:.85rem;font-weight:bold">
+                                        <i class="fa-solid fa-clock"></i> الجائزة غير مفعلة حتى الآن
+                                    </span>`;
                             }
-                        } else {
-                            enableSpinning();
+
+                            const msg =
+                                `مرحباً MOHAB STORE 👋🏼\\n` +
+                                `أود استلام جائزتي:\\n` +
+                                `🎁 الجائزة: ${data.savedPrize.prize}\\n` +
+                                `🔑 الكود: ${data.savedPrize.code || '-'}`;
+
+                            document.getElementById('savedWhatsappBtn').href =
+                                `https://wa.me/${adminPhoneNumber}?text=${encodeURIComponent(msg)}`;
                         }
                     } else {
                         enableSpinning();
                     }
+                } else {
+                    enableSpinning();
+                }
 
-                    maybeEnableAfterLoad();
-                })
-                .catch(error => {
-                    console.error("Spin status read failed:", error);
-                    spinStatusLoaded = true;
-                    showConfigError("تعذر قراءة حالة المحاولة من قاعدة البيانات.");
-                    maybeEnableAfterLoad();
-                });
+                maybeEnableAfterLoad();
+            } catch (error) {
+                console.error("Spin status read failed:", error);
+                spinStatusLoaded = true;
+                showConfigError("تعذر قراءة حالة المحاولة من قاعدة البيانات.");
+                maybeEnableAfterLoad();
+            }
         }
 
         function enableSpinning() {
@@ -1254,6 +1394,18 @@ canvas#wheel{
             }
 
             if (!wheelItems.length) return;
+
+            // فحص إضافي محلي قبل بدء الدوران؛ يمنع إعادة اللفة حتى لو
+            // كانت قراءة قاعدة البيانات ما زالت قيد التنفيذ بعد فتح الصفحة.
+            const localLockKey = "mohab_store_wheel_last_spin_v1";
+            try {
+                const localLastSpin = Number(localStorage.getItem(localLockKey)) || 0;
+                const localNextSpin = localLastSpin + (cooldownHours * 60 * 60 * 1000);
+                if (localLastSpin && Date.now() < localNextSpin) {
+                    startTimer(localNextSpin);
+                    return;
+                }
+            } catch (e) {}
 
             const winningIndex = pickWinningIndex();
             if (winningIndex < 0 || !wheelItems[winningIndex]) {
@@ -1393,18 +1545,37 @@ canvas#wheel{
                 chance: prize.chance
             };
 
+            // نقفل المحاولة محلياً فوراً، حتى لو أغلق المستخدم الصفحة قبل
+            // اكتمال طلب Firebase.
+            try {
+                localStorage.setItem("mohab_store_wheel_last_spin_v1", String(now));
+            } catch (e) {}
+
             if (db) {
-                db.ref('user_spins/' + userIP).set({
+                const spinData = {
                     lastSpinTime: now,
                     savedPrize
-                }).catch(err => {
-                    console.error("Failed to save user spin:", err);
-                });
+                };
+
+                // السجل الأساسي بالمعرف الثابت للمتصفح.
+                if (userDeviceId !== "unknown_device") {
+                    db.ref('user_spins/' + userDeviceId).set(spinData).catch(err => {
+                        console.error("Failed to save device spin:", err);
+                    });
+                }
+
+                // نحافظ على سجل الـIP الحالي للتوافق مع قاعدة البيانات القديمة.
+                if (userIP !== "unknown_user") {
+                    db.ref('user_spins/' + userIP).set(spinData).catch(err => {
+                        console.error("Failed to save IP spin:", err);
+                    });
+                }
 
                 db.ref('prizes/' + uniqueCode).set({
                     prize: prize.text,
                     code: uniqueCode,
                     userIP,
+                    userDeviceId,
                     claimed: false,
                     chance: prize.chance,
                     itemId: prize.id,
@@ -1514,6 +1685,7 @@ canvas#wheel{
         }
 
         async function init() {
+            userDeviceId = getOrCreateDeviceId();
             setSpinAvailability(false);
             drawWheel();
 
@@ -1538,14 +1710,9 @@ canvas#wheel{
 
             await Promise.allSettled([ipPromise, settingsPromise]);
 
-            // حتى لو فشل IP، لا نعطل عرض العجلة؛ لكن حالة الاستخدام
-            // ستُعامل بحذر لأن منع التكرار يعتمد على معرف المستخدم.
-            if (userIP !== "unknown_user") {
-                checkServerSpinStatus();
-            } else {
-                spinStatusLoaded = true;
-                maybeEnableAfterLoad();
-            }
+            // نتحقق دائماً من معرف الجهاز الثابت، مع استخدام IP القديم
+            // كطبقة توافق إضافية مع السجلات الموجودة مسبقاً.
+            checkServerSpinStatus();
         }
 
         init();
