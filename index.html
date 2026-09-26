@@ -569,6 +569,91 @@ canvas#wheel{
     box-shadow:inset 0 1px rgba(255,255,255,.04);
 }
 
+
+/* قفل العجلة بعد استخدام المحاولة: نفس الدائرة تماماً وبصورة خفيفة */
+.wheel-lock-overlay{
+    position:absolute;
+    top:43.5%;
+    left:50%;
+    width:var(--wheel-size);
+    height:var(--wheel-size);
+    transform:translate(-50%,-50%) translateZ(0);
+    border-radius:50%;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:30;
+    pointer-events:none;
+    opacity:0;
+    visibility:hidden;
+    background:rgba(5,7,12,.18);
+    transition:opacity:.35s ease,visibility:.35s ease;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.10),inset 0 0 55px rgba(0,0,0,.20);
+}
+.wheel-lock-overlay.active{
+    opacity:1;
+    visibility:visible;
+}
+.wheel-lock-overlay img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    display:block;
+    opacity:.94;
+    filter:drop-shadow(0 8px 18px rgba(0,0,0,.28));
+    user-select:none;
+    -webkit-user-drag:none;
+}
+
+/* معلومات صلاحية الكود */
+.code-expiry-box,
+.saved-expiry-box{
+    margin:0 0 16px;
+    padding:11px 12px;
+    border-radius:14px;
+    border:1px solid rgba(255,215,106,.18);
+    background:rgba(255,215,106,.055);
+    color:#dbe7f5;
+    font-size:.82rem;
+    line-height:1.75;
+}
+.code-expiry-box strong,
+.saved-expiry-box strong{
+    color:#ffd76a;
+}
+.code-expiry-box i,
+.saved-expiry-box i{
+    color:#ffd76a;
+    margin-left:4px;
+}
+.expiry-countdown{
+    display:inline-block;
+    margin-top:5px;
+    padding:4px 10px;
+    border-radius:9px;
+    background:rgba(0,0,0,.22);
+    color:#ffd76a;
+    font-weight:900;
+    direction:ltr;
+    letter-spacing:.5px;
+}
+.expiry-expired{
+    color:#ff7885!important;
+}
+.lose-prize-state{
+    border-color:rgba(73,166,255,.22)!important;
+    background:rgba(73,166,255,.055)!important;
+}
+.lose-prize-state .prize-icon-wrapper{
+    color:#65b7ff;
+    border-color:rgba(73,166,255,.30);
+    background:radial-gradient(circle,rgba(73,166,255,.14),rgba(73,166,255,.025));
+}
+.lose-prize-state .prize-name-display{
+    border-color:rgba(73,166,255,.22);
+}
+
 @media (max-width:520px){
     body{padding:22px 10px 34px}
     .logo-box{width:82px;height:82px}
@@ -673,6 +758,10 @@ canvas#wheel{
         <p style="color: var(--accent-gold); font-weight: bold; font-size: 0.95rem;"><i class="fa-solid fa-box-open"></i> لديك جائزة محفوظة بانتظارك</p>
         <div style="font-size: 1.15rem; margin: 10px 0; color: #fff; font-weight: 800;" id="savedPrizeText">-</div>
         <div id="prizeStatusBadge" style="margin-bottom: 12px;"></div>
+        <div class="saved-expiry-box" id="savedExpiryBox">
+            <div><i class="fa-solid fa-hourglass-half"></i> مدة صلاحية الكود: <strong>24 ساعة</strong></div>
+            <div>تاريخ انتهاء الكود: <strong id="savedExpiryDate">-</strong></div>
+        </div>
         <a id="savedWhatsappBtn" class="btn-whatsapp" target="_blank" href="#" style="margin-bottom: 10px;">
             <i class="fa-brands fa-whatsapp" style="font-size:1.2rem;"></i> استلام الجائزة عبر الواتساب
         </a>
@@ -692,6 +781,13 @@ canvas#wheel{
             aria-hidden="true"
             draggable="false"
         >
+        <div class="wheel-lock-overlay" id="wheelLockOverlay" aria-hidden="true">
+            <img
+                src="https://l.top4top.io/p_3921q8csf0.png"
+                alt=""
+                draggable="false"
+            >
+        </div>
     </div>
 
     <div class="glass-card" style="text-align: center;">
@@ -714,6 +810,11 @@ canvas#wheel{
             <div class="claim-code-box">
                 <span style="color: var(--text-sub); font-size: 0.8rem;">الرمز:</span>
                 <span class="claim-code-val" id="claimCodeDisplay">MS-000000</span>
+            </div>
+            <div class="code-expiry-box" id="modalExpiryBox">
+                <div><i class="fa-solid fa-clock"></i> صلاحية الكود: <strong>24 ساعة</strong></div>
+                <div>ينتهي في: <strong id="modalExpiryDate">-</strong></div>
+                <div class="expiry-countdown" id="modalExpiryCountdown">23:59:59</div>
             </div>
             <a id="whatsappBtn" class="btn-whatsapp" target="_blank" href="#">
                 <i class="fa-brands fa-whatsapp" style="font-size: 1.25rem;"></i>
@@ -742,11 +843,17 @@ canvas#wheel{
         }
 
         let adminPhoneNumber = "201000000000";
+        // اللفة اليومية والكود كلاهما ثابتان لمدة 24 ساعة حسب المطلوب.
+        const DAILY_COOLDOWN_MS = 24 * 60 * 60 * 1000;
+        const PRIZE_VALIDITY_MS = 24 * 60 * 60 * 1000;
         let cooldownHours = 24;
         let userIP = "unknown_user";
-        // معرف ثابت للمتصفح: يمنع إعادة اللفة بعد إغلاق الموقع حتى لو تغيّر عنوان الـ IP.
-        // لا يحتوي على أي بيانات شخصية ويتم حفظه محلياً على نفس الجهاز/المتصفح.
+        // طبقات تعريف إضافية للمساعدة في منع إعادة اللفة بعد مسح بيانات الموقع.
         let userDeviceId = "unknown_device";
+        let deviceFingerprint = "unknown_fingerprint";
+        let deviceFingerprintKey = "unknown_fingerprint";
+        let activeExpiryTimer = null;
+        let activeSavedExpiryTimer = null;
 
         function getOrCreateDeviceId() {
             const storageKey = "mohab_store_wheel_device_id_v1";
@@ -765,6 +872,145 @@ canvas#wheel{
                 console.warn("Device ID storage unavailable:", e);
                 return "unknown_device";
             }
+        }
+
+
+        function simpleHash(value) {
+            let hash = 2166136261;
+            const str = String(value);
+            for (let i = 0; i < str.length; i++) {
+                hash ^= str.charCodeAt(i);
+                hash = Math.imul(hash, 16777619);
+            }
+            return ("00000000" + (hash >>> 0).toString(16)).slice(-8);
+        }
+
+        function buildDeviceFingerprint() {
+            try {
+                const parts = [
+                    navigator.userAgent || "",
+                    navigator.language || "",
+                    Array.isArray(navigator.languages) ? navigator.languages.join(",") : "",
+                    navigator.platform || "",
+                    String(navigator.hardwareConcurrency || ""),
+                    String(navigator.deviceMemory || ""),
+                    String(screen.width || ""),
+                    String(screen.height || ""),
+                    String(screen.colorDepth || ""),
+                    String(window.devicePixelRatio || ""),
+                    String(new Date().getTimezoneOffset()),
+                    String(Intl.DateTimeFormat().resolvedOptions().timeZone || ""),
+                    String(navigator.maxTouchPoints || "")
+                ];
+                return "fp_" + simpleHash(parts.join("|"));
+            } catch (e) {
+                return "unknown_fingerprint";
+            }
+        }
+
+        function getFingerprintKey() {
+            return String(buildDeviceFingerprint()).replace(/[.#$\[\]/]/g, "_");
+        }
+
+        function isLosePrizeText(value) {
+            // يتعرف على "حظ أوفر" حتى مع اختلاف الهمزات/المسافات/الإيموجي والرموز.
+            const normalized = String(value || "")
+                .toLowerCase()
+                .replace(/[أإآٱ]/g, "ا")
+                .replace(/ؤ/g, "و")
+                .replace(/ئ/g, "ي")
+                .replace(/ة/g, "ه")
+                .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, "")
+                .replace(/[\s\u200B-\u200D\uFEFF]+/g, "")
+                .replace(/[\p{P}\p{S}]/gu, "");
+            return normalized.includes("حظاوفر");
+        }
+
+        function formatArabicDate(timestamp) {
+            const date = new Date(Number(timestamp) || 0);
+            if (!Number.isFinite(date.getTime()) || date.getTime() <= 0) return "-";
+            try {
+                return date.toLocaleString("ar-EG", {
+                    year:"numeric",
+                    month:"2-digit",
+                    day:"2-digit",
+                    hour:"2-digit",
+                    minute:"2-digit",
+                    second:"2-digit"
+                });
+            } catch (e) {
+                return date.toLocaleString("ar-EG");
+            }
+        }
+
+        function formatRemaining(ms) {
+            if (ms <= 0) return "انتهى";
+            const totalSeconds = Math.floor(ms / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return `${String(hours).padStart(2,"0")}:${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")}`;
+        }
+
+        function setWheelLocked(locked) {
+            const overlay = document.getElementById("wheelLockOverlay");
+            const btn = document.getElementById("spinBtn");
+            if (overlay) overlay.classList.toggle("active", !!locked);
+            if (locked) {
+                if (btn) {
+                    btn.classList.add("disabled");
+                    btn.innerHTML = '<i class="fa-solid fa-lock"></i>';
+                }
+            } else if (btn) {
+                btn.innerHTML = "إبدأ";
+            }
+        }
+
+        function startPrizeExpiryTimer(expiresAt) {
+            if (activeExpiryTimer) clearInterval(activeExpiryTimer);
+            const update = () => {
+                const remaining = Number(expiresAt) - Date.now();
+                const countdown = document.getElementById("modalExpiryCountdown");
+                const box = document.getElementById("modalExpiryBox");
+                if (remaining <= 0) {
+                    if (countdown) {
+                        countdown.textContent = "انتهى";
+                        countdown.classList.add("expiry-expired");
+                    }
+                    if (box) box.classList.add("expiry-expired");
+                    clearInterval(activeExpiryTimer);
+                    activeExpiryTimer = null;
+                    return;
+                }
+                if (countdown) {
+                    countdown.textContent = formatRemaining(remaining);
+                    countdown.classList.remove("expiry-expired");
+                }
+            };
+            update();
+            activeExpiryTimer = setInterval(update, 1000);
+        }
+
+        function startSavedPrizeExpiryTimer(expiresAt) {
+            if (activeSavedExpiryTimer) clearInterval(activeSavedExpiryTimer);
+            const update = () => {
+                const remaining = Number(expiresAt) - Date.now();
+                const box = document.getElementById("savedExpiryBox");
+                const dateEl = document.getElementById("savedExpiryDate");
+                if (dateEl) dateEl.textContent = formatArabicDate(expiresAt);
+                if (remaining <= 0) {
+                    if (box) {
+                        box.classList.add("expiry-expired");
+                        box.innerHTML = '<div><i class="fa-solid fa-circle-xmark"></i> انتهت صلاحية الكود بعد مرور 24 ساعة.</div>';
+                    }
+                    clearInterval(activeSavedExpiryTimer);
+                    activeSavedExpiryTimer = null;
+                    return;
+                }
+                if (box) box.classList.remove("expiry-expired");
+            };
+            update();
+            activeSavedExpiryTimer = setInterval(update, 1000);
         }
 
         // IMPORTANT:
@@ -1251,7 +1497,16 @@ canvas#wheel{
             const keys = [];
             // المعرف الثابت هو الأساس، وIP القديم يبقى كاحتياطي للتوافق مع السجلات الحالية.
             if (userDeviceId !== "unknown_device") keys.push(userDeviceId);
-            if (userIP !== "unknown_user" && userIP !== userDeviceId) keys.push(userIP);
+            if (deviceFingerprintKey !== "unknown_fingerprint" && deviceFingerprintKey !== userDeviceId) {
+                keys.push(deviceFingerprintKey);
+            }
+            if (
+                userIP !== "unknown_user" &&
+                userIP !== userDeviceId &&
+                userIP !== deviceFingerprintKey
+            ) {
+                keys.push(userIP);
+            }
 
             if (!keys.length) {
                 spinStatusLoaded = true;
@@ -1276,39 +1531,69 @@ canvas#wheel{
 
                 if (data) {
                     const lastSpinTime = Number(data.lastSpinTime) || 0;
-                    const nextSpinTime = lastSpinTime + (cooldownHours * 60 * 60 * 1000);
+                    const nextSpinTime = lastSpinTime + DAILY_COOLDOWN_MS;
                     const now = Date.now();
 
                     if (now < nextSpinTime) {
                         startTimer(nextSpinTime);
 
                         if (data.savedPrize && data.savedPrize.prize) {
+                            const saved = data.savedPrize;
+                            const isLose = isLosePrizeText(saved.prize);
+                            const expiresAt = Number(saved.expiresAt) || (lastSpinTime + PRIZE_VALIDITY_MS);
+                            const expired = Date.now() >= expiresAt;
+
                             document.getElementById('savedPrizeCard').style.display = 'block';
                             document.getElementById('savedPrizeText').innerText =
-                                `${data.savedPrize.prize} (كود: ${data.savedPrize.code || '-'})`;
+                                isLose
+                                    ? `حظ أوفر 🍀`
+                                    : `${saved.prize} (كود: ${saved.code || '-'})`;
 
                             const badge = document.getElementById('prizeStatusBadge');
 
-                            if (data.savedPrize.claimed) {
+                            if (isLose) {
                                 badge.innerHTML =
-                                    `<span style="color:#4ade80;font-size:.85rem;font-weight:bold">
-                                        <i class="fa-solid fa-circle-check"></i> تم التفعيل والاستلام بنجاح
+                                    `<span style="color:#65b7ff;font-size:.85rem;font-weight:bold">
+                                        <i class="fa-solid fa-face-smile"></i> حظ أوفر — لا يوجد كود أو استلام عبر الواتساب
                                     </span>`;
+                                document.getElementById('savedWhatsappBtn').style.display = 'none';
+                                document.getElementById('savedExpiryBox').style.display = 'none';
                             } else {
-                                badge.innerHTML =
-                                    `<span style="color:#fbbf24;font-size:.85rem;font-weight:bold">
-                                        <i class="fa-solid fa-clock"></i> الجائزة غير مفعلة حتى الآن
-                                    </span>`;
+                                document.getElementById('savedWhatsappBtn').style.display = 'flex';
+                                document.getElementById('savedExpiryBox').style.display = 'block';
+
+                                if (expired) {
+                                    badge.innerHTML =
+                                        `<span style="color:#ff7885;font-size:.85rem;font-weight:bold">
+                                            <i class="fa-solid fa-circle-xmark"></i> انتهت صلاحية الكود
+                                        </span>`;
+                                    document.getElementById('savedWhatsappBtn').style.display = 'none';
+                                } else if (saved.claimed) {
+                                    badge.innerHTML =
+                                        `<span style="color:#4ade80;font-size:.85rem;font-weight:bold">
+                                            <i class="fa-solid fa-circle-check"></i> تم التفعيل والاستلام بنجاح
+                                        </span>`;
+                                } else {
+                                    badge.innerHTML =
+                                        `<span style="color:#fbbf24;font-size:.85rem;font-weight:bold">
+                                            <i class="fa-solid fa-clock"></i> الكود صالح لمدة 24 ساعة فقط
+                                        </span>`;
+                                }
+
+                                document.getElementById('savedExpiryDate').textContent = formatArabicDate(expiresAt);
+                                startSavedPrizeExpiryTimer(expiresAt);
+
+                                const msg =
+                                    `مرحباً MOHAB STORE 👋🏼\n` +
+                                    `أود استلام جائزتي:\n` +
+                                    `🎁 الجائزة: ${saved.prize}\n` +
+                                    `🔑 الكود: ${saved.code || '-'}\n` +
+                                    `⏳ مدة صلاحية الكود: 24 ساعة\n` +
+                                    `📅 تاريخ انتهاء الكود: ${formatArabicDate(expiresAt)}`;
+
+                                document.getElementById('savedWhatsappBtn').href =
+                                    `https://wa.me/${adminPhoneNumber}?text=${encodeURIComponent(msg)}`;
                             }
-
-                            const msg =
-                                `مرحباً MOHAB STORE 👋🏼\\n` +
-                                `أود استلام جائزتي:\\n` +
-                                `🎁 الجائزة: ${data.savedPrize.prize}\\n` +
-                                `🔑 الكود: ${data.savedPrize.code || '-'}`;
-
-                            document.getElementById('savedWhatsappBtn').href =
-                                `https://wa.me/${adminPhoneNumber}?text=${encodeURIComponent(msg)}`;
                         }
                     } else {
                         enableSpinning();
@@ -1343,6 +1628,7 @@ canvas#wheel{
                 </p>`;
             document.getElementById('cooldownNotice').style.display = 'none';
             document.getElementById('savedPrizeCard').style.display = 'none';
+            setWheelLocked(false);
             setSpinAvailability(true);
         }
 
@@ -1352,6 +1638,7 @@ canvas#wheel{
             document.getElementById('activeNotice').style.display = 'none';
             document.getElementById('cooldownNotice').style.display = 'block';
             setSpinAvailability(false);
+            setWheelLocked(true);
 
             if (timerFrame) cancelAnimationFrame(timerFrame);
 
@@ -1400,7 +1687,7 @@ canvas#wheel{
             const localLockKey = "mohab_store_wheel_last_spin_v1";
             try {
                 const localLastSpin = Number(localStorage.getItem(localLockKey)) || 0;
-                const localNextSpin = localLastSpin + (cooldownHours * 60 * 60 * 1000);
+                const localNextSpin = localLastSpin + DAILY_COOLDOWN_MS;
                 if (localLastSpin && Date.now() < localNextSpin) {
                     startTimer(localNextSpin);
                     return;
@@ -1525,31 +1812,34 @@ canvas#wheel{
         function onSpinComplete(prize) {
             playWinSound();
 
+            const now = Date.now();
+            const isLose = isLosePrizeText(prize.text);
+            const expiresAt = now + PRIZE_VALIDITY_MS;
+            const uniqueCode = isLose ? "" : generateUniqueCode();
+
             if (window.confetti) {
                 confetti({
-                    particleCount: 160,
-                    spread: 100,
+                    particleCount: isLose ? 70 : 160,
+                    spread: isLose ? 75 : 100,
                     origin: { y: 0.6 }
                 });
             }
 
-            const now = Date.now();
-            const uniqueCode = generateUniqueCode();
+            // قفل المحاولة محلياً فوراً حتى لا تبدأ لفة ثانية.
+            try {
+                localStorage.setItem("mohab_store_wheel_last_spin_v1", String(now));
+            } catch (e) {}
 
-            // حفظ اسم الجائزة المختارة نفسه، وليس أي نص آخر.
             const savedPrize = {
                 prize: prize.text,
                 code: uniqueCode,
                 claimed: false,
                 itemId: prize.id,
-                chance: prize.chance
+                chance: prize.chance,
+                expiresAt,
+                validityHours: 24,
+                isLosePrize: isLose
             };
-
-            // نقفل المحاولة محلياً فوراً، حتى لو أغلق المستخدم الصفحة قبل
-            // اكتمال طلب Firebase.
-            try {
-                localStorage.setItem("mohab_store_wheel_last_spin_v1", String(now));
-            } catch (e) {}
 
             if (db) {
                 const spinData = {
@@ -1557,49 +1847,87 @@ canvas#wheel{
                     savedPrize
                 };
 
-                // السجل الأساسي بالمعرف الثابت للمتصفح.
                 if (userDeviceId !== "unknown_device") {
                     db.ref('user_spins/' + userDeviceId).set(spinData).catch(err => {
                         console.error("Failed to save device spin:", err);
                     });
                 }
 
-                // نحافظ على سجل الـIP الحالي للتوافق مع قاعدة البيانات القديمة.
+                // طبقة fingerprint إضافية للمساعدة في كشف إعادة الاستخدام بعد مسح التخزين المحلي.
+                if (deviceFingerprintKey !== "unknown_fingerprint") {
+                    db.ref('user_spins/' + deviceFingerprintKey).set(spinData).catch(err => {
+                        console.error("Failed to save fingerprint spin:", err);
+                    });
+                }
+
+                // سجل IP قديم محفوظ للتوافق مع النظام الحالي.
                 if (userIP !== "unknown_user") {
                     db.ref('user_spins/' + userIP).set(spinData).catch(err => {
                         console.error("Failed to save IP spin:", err);
                     });
                 }
 
-                db.ref('prizes/' + uniqueCode).set({
-                    prize: prize.text,
-                    code: uniqueCode,
-                    userIP,
-                    userDeviceId,
-                    claimed: false,
-                    chance: prize.chance,
-                    itemId: prize.id,
-                    time: new Date().toLocaleString('ar-EG')
-                }).catch(err => {
-                    console.error("Failed to save prize:", err);
-                });
+                // نفس مسار prizes الحالي، مع إضافة معلومات الصلاحية دون حذف الحقول القديمة.
+                if (!isLose) {
+                    db.ref('prizes/' + uniqueCode).set({
+                        prize: prize.text,
+                        code: uniqueCode,
+                        userIP,
+                        userDeviceId,
+                        claimed: false,
+                        chance: prize.chance,
+                        itemId: prize.id,
+                        time: new Date().toLocaleString('ar-EG'),
+                        expiresAt,
+                        validityHours: 24,
+                        isLosePrize: false
+                    }).catch(err => {
+                        console.error("Failed to save prize:", err);
+                    });
+                }
             }
 
-            document.getElementById('modalPrizeTitle').innerText = prize.text;
-            document.getElementById('claimCodeDisplay').innerText = uniqueCode;
+            setWheelLocked(true);
 
-            const message =
-                `مرحباً MOHAB STORE 👋🏼\n` +
-                `لقد ربحت جائزة من عجلة الحظ!\n` +
-                `🎁 الجائزة: ${prize.text}\n` +
-                `🔑 كود التحقق: ${uniqueCode}`;
+            const modal = document.getElementById('prizeModal');
+            const modalCard = modal.querySelector('.modal-card');
+            const expiryBox = document.getElementById('modalExpiryBox');
+            const whatsappBtn = document.getElementById('whatsappBtn');
+            const prizeIcon = modal.querySelector('.prize-icon-wrapper');
+            const expiryDateEl = document.getElementById('modalExpiryDate');
 
-            document.getElementById('whatsappBtn').setAttribute(
-                'href',
-                `https://wa.me/${adminPhoneNumber}?text=${encodeURIComponent(message)}`
-            );
+            modalCard.classList.toggle('lose-prize-state', isLose);
+            document.getElementById('modalPrizeTitle').innerText =
+                isLose ? 'حظ أوفر 🍀' : prize.text;
 
-            document.getElementById('prizeModal').classList.add('active');
+            if (isLose) {
+                document.getElementById('claimCodeDisplay').innerText = 'لا يوجد كود';
+                expiryBox.style.display = 'none';
+                whatsappBtn.style.display = 'none';
+                prizeIcon.innerHTML = '<i class="fa-solid fa-clover"></i>';
+            } else {
+                document.getElementById('claimCodeDisplay').innerText = uniqueCode;
+                expiryBox.style.display = 'block';
+                whatsappBtn.style.display = 'flex';
+                prizeIcon.innerHTML = '<i class="fa-solid fa-trophy"></i>';
+                expiryDateEl.textContent = formatArabicDate(expiresAt);
+                startPrizeExpiryTimer(expiresAt);
+
+                const message =
+                    `مرحباً MOHAB STORE 👋🏼\n` +
+                    `لقد ربحت جائزة من عجلة الحظ!\n` +
+                    `🎁 الجائزة: ${prize.text}\n` +
+                    `🔑 كود التحقق: ${uniqueCode}\n` +
+                    `⏳ مدة صلاحية الكود: 24 ساعة فقط\n` +
+                    `📅 تاريخ انتهاء الكود: ${formatArabicDate(expiresAt)}`;
+
+                whatsappBtn.setAttribute(
+                    'href',
+                    `https://wa.me/${adminPhoneNumber}?text=${encodeURIComponent(message)}`
+                );
+            }
+
+            modal.classList.add('active');
 
             // إعادة قراءة حالة المحاولة بعد الحفظ.
             checkServerSpinStatus();
@@ -1607,6 +1935,10 @@ canvas#wheel{
 
         document.getElementById('closeModalBtn').addEventListener('click', () => {
             document.getElementById('prizeModal').classList.remove('active');
+            if (activeExpiryTimer) {
+                clearInterval(activeExpiryTimer);
+                activeExpiryTimer = null;
+            }
         });
 
         /*
@@ -1648,12 +1980,8 @@ canvas#wheel{
                     adminPhoneNumber = String(data.whatsappNumber);
                 }
 
-                if (data.cooldownHours != null) {
-                    const parsedHours = Number(data.cooldownHours);
-                    if (Number.isFinite(parsedHours) && parsedHours >= 0) {
-                        cooldownHours = parsedHours;
-                    }
-                }
+                // نحتفظ بإعداد cooldownHours القديم في قاعدة البيانات، لكن اللفة اليومية هنا ثابتة 24 ساعة.
+                cooldownHours = 24;
 
                 // المصدر الوحيد للجوائز هو settings/items.
                 wheelItems = normalizeWheelItems(data.items);
@@ -1686,6 +2014,9 @@ canvas#wheel{
 
         async function init() {
             userDeviceId = getOrCreateDeviceId();
+            deviceFingerprint = buildDeviceFingerprint();
+            deviceFingerprintKey = getFingerprintKey();
+            setWheelLocked(false);
             setSpinAvailability(false);
             drawWheel();
 
