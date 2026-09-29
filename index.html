@@ -852,6 +852,7 @@ canvas#wheel{
         let userDeviceId = "unknown_device";
         let deviceFingerprint = "unknown_fingerprint";
         let deviceFingerprintKey = "unknown_fingerprint";
+        let currentResetVersion = 0;
         let activeExpiryTimer = null;
         let activeSavedExpiryTimer = null;
 
@@ -2012,6 +2013,13 @@ canvas#wheel{
             }
         }
 
+        function timeoutPromise(promise, ms, label) {
+            return Promise.race([
+                Promise.resolve(promise),
+                new Promise((_, reject) => setTimeout(() => reject(new Error(label + " timeout")), ms))
+            ]);
+        }
+
         async function init() {
             userDeviceId = getOrCreateDeviceId();
             deviceFingerprint = buildDeviceFingerprint();
@@ -2020,30 +2028,67 @@ canvas#wheel{
             setSpinAvailability(false);
             drawWheel();
 
-            // تحميل الإعدادات والـ IP معاً، لكن لا نسمح بالدوران
-            // إلا بعد اكتمال الاثنين.
-            const ipPromise = fetch('https://api.ipify.org?format=json')
-                .then(res => {
+            // عنوان IP مجرد طبقة إضافية؛ لا يجوز أن يمنع ظهور الموقع إذا تعطل مزود IP.
+            const ipPromise = timeoutPromise(
+                fetch('https://api.ipify.org?format=json').then(res => {
                     if (!res.ok) throw new Error("IP request failed");
                     return res.json();
-                })
-                .then(data => {
-                    if (data && data.ip) {
-                        userIP = String(data.ip).replace(/\./g, '_');
-                    }
-                })
-                .catch(error => {
-                    console.warn("IP lookup failed:", error);
-                    userIP = "unknown_user";
-                });
+                }).then(data => {
+                    if (data && data.ip) userIP = String(data.ip).replace(/\./g, '_');
+                }),
+                3500,
+                "IP lookup"
+            ).catch(error => {
+                console.warn("IP lookup skipped:", error);
+                userIP = "unknown_user";
+            });
 
-            const settingsPromise = loadSettings();
+            // Firebase يجب ألا يترك شاشة المزامنة معلقة إلى ما لا نهاية.
+            const settingsPromise = timeoutPromise(loadSettings(), 8000, "Firebase settings");
+            try {
+                await settingsPromise;
+            } catch (error) {
+                console.error("Initial settings timeout/error:", error);
+                settingsLoaded = true;
+                if (!wheelItems.length) {
+                    showConfigError("تعذر الاتصال بقاعدة البيانات حالياً. حاول تحديث الصفحة.");
+                }
+            }
 
-            await Promise.allSettled([ipPromise, settingsPromise]);
+            // لا ننتظر IP حتى تظهر الصفحة.
+            await ipPromise;
 
-            // نتحقق دائماً من معرف الجهاز الثابت، مع استخدام IP القديم
-            // كطبقة توافق إضافية مع السجلات الموجودة مسبقاً.
-            checkServerSpinStatus();
+            try {
+                await timeoutPromise(checkServerSpinStatus(), 6000, "Firebase spin status");
+            } catch (error) {
+                console.error("Initial spin-status timeout/error:", error);
+                spinStatusLoaded = true;
+                showConfigError("تعذر قراءة حالة المحاولة من قاعدة البيانات حالياً. حاول تحديث الصفحة.");
+            }
+
+            // ضمان أخير: لا تظل شاشة المزامنة ظاهرة للأبد بسبب طلب خارجي عالق.
+            hideLoader();
+            maybeEnableAfterLoad();
+        }
+
+        // مزامنة التصفير من لوحة التحكم بدون إعادة تحميل الصفحة.
+        if (db) {
+            db.ref("wheel_control/resetVersion").on("value", snap => {
+                const version = Number(snap.val()) || 0;
+                if (version > currentResetVersion) {
+                    currentResetVersion = version;
+                    try {
+                        localStorage.removeItem("mohab_store_wheel_last_spin_v1");
+                        localStorage.setItem("mohab_store_wheel_reset_version_v2", String(version));
+                    } catch (e) {}
+                    if (timerFrame) cancelAnimationFrame(timerFrame);
+                    timerFrame = null;
+                    document.getElementById("savedPrizeCard").style.display = "none";
+                    document.getElementById("cooldownNotice").style.display = "none";
+                    spinStatusLoaded = true;
+                    if (!isSpinning && settingsLoaded) enableSpinning();
+                }
+            });
         }
 
         init();
