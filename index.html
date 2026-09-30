@@ -846,13 +846,20 @@ canvas#wheel{
         // اللفة اليومية والكود كلاهما ثابتان لمدة 24 ساعة حسب المطلوب.
         const DAILY_COOLDOWN_MS = 24 * 60 * 60 * 1000;
         const PRIZE_VALIDITY_MS = 24 * 60 * 60 * 1000;
+
+        function getCooldownMs() {
+            const hours = Number(cooldownHours);
+            return (Number.isFinite(hours) && hours >= 1 ? hours : 24) * 60 * 60 * 1000;
+        }
         let cooldownHours = 24;
+        let dailyCooldownMs = DAILY_COOLDOWN_MS;
         let userIP = "unknown_user";
         // طبقات تعريف إضافية للمساعدة في منع إعادة اللفة بعد مسح بيانات الموقع.
         let userDeviceId = "unknown_device";
         let deviceFingerprint = "unknown_fingerprint";
         let deviceFingerprintKey = "unknown_fingerprint";
         let currentResetVersion = 0;
+        let resetVersionLoaded = false;
         let activeExpiryTimer = null;
         let activeSavedExpiryTimer = null;
 
@@ -1102,24 +1109,36 @@ canvas#wheel{
          * مثال: 100 و85 و90 تعني أن فرص الجوائز الثلاث تتناسب مع هذه الأوزان.
          * الجائزة ذات 0% تظل ظاهرة في العجلة، لكنها لا تدخل في السحب إطلاقاً.
          */
+        function getEligiblePrizeIndexes(items = wheelItems) {
+            const eligible = [];
+            (Array.isArray(items) ? items : []).forEach((item, index) => {
+                const chance = Number(item && item.chance);
+                if (Number.isFinite(chance) && chance > 0) {
+                    eligible.push(index);
+                }
+            });
+            return eligible;
+        }
+
         function validatePrizePercentages(items) {
-            if (!items.length) {
+            if (!Array.isArray(items) || !items.length) {
                 return { ok: false, message: "لا توجد جوائز صالحة في قاعدة البيانات." };
             }
 
-            const total = items.reduce((sum, item) => {
-                const chance = Number(item.chance);
-                return sum + (Number.isFinite(chance) && chance > 0 ? chance : 0);
+            const eligibleIndexes = getEligiblePrizeIndexes(items);
+            const total = eligibleIndexes.reduce((sum, index) => {
+                const chance = Number(items[index].chance);
+                return sum + chance;
             }, 0);
 
-            if (total <= 0) {
+            if (eligibleIndexes.length === 0 || total <= 0) {
                 return {
                     ok: false,
-                    message: "لا توجد أي نسبة أكبر من 0% للسحب. ضع نسبة موجبة لجائزة واحدة على الأقل."
+                    message: "لا توجد أي جائزة بنسبة أكبر من 0% للسحب. الجوائز بنسبة 0% تظل ظاهرة فقط ولا يمكن أن تفوز."
                 };
             }
 
-            return { ok: true, total };
+            return { ok: true, total, eligibleIndexes };
         }
 
         function maybeEnableAfterLoad() {
@@ -1459,22 +1478,16 @@ canvas#wheel{
             const random = Math.random() * totalChance;
             let cumulative = 0;
 
-            for (let i = 0; i < wheelItems.length; i++) {
-                const chance = Number(wheelItems[i].chance) || 0;
-
-                // النسبة صفر: موجودة بصرياً فقط ولا يمكن أن تفوز.
-                if (chance <= 0) continue;
-
+            // مهم: نبني قائمة السحب من الجوائز التي chance > 0 فقط.
+            // لذلك لا توجد أي حالة fallback يمكن أن تعيد جائزة 0%.
+            for (const index of validation.eligibleIndexes) {
+                const chance = Number(wheelItems[index].chance);
                 cumulative += chance;
-                if (random < cumulative) return i;
+                if (random < cumulative) return index;
             }
 
-            // لا نعيد جائزة 0% أبداً. نأخذ آخر جائزة موجبة فقط كحماية.
-            for (let i = wheelItems.length - 1; i >= 0; i--) {
-                if ((Number(wheelItems[i].chance) || 0) > 0) return i;
-            }
-
-            return -1;
+            // بسبب دقة الفاصلة العائمة فقط: أعد آخر عنصر مؤهل، وليس أي عنصر 0%.
+            return validation.eligibleIndexes[validation.eligibleIndexes.length - 1] ?? -1;
         }
 
         async function readSpinRecord(key) {
@@ -1496,7 +1509,6 @@ canvas#wheel{
             }
 
             const keys = [];
-            // المعرف الثابت هو الأساس، وIP القديم يبقى كاحتياطي للتوافق مع السجلات الحالية.
             if (userDeviceId !== "unknown_device") keys.push(userDeviceId);
             if (deviceFingerprintKey !== "unknown_fingerprint" && deviceFingerprintKey !== userDeviceId) {
                 keys.push(deviceFingerprintKey);
@@ -1509,20 +1521,28 @@ canvas#wheel{
                 keys.push(userIP);
             }
 
-            if (!keys.length) {
-                spinStatusLoaded = true;
-                maybeEnableAfterLoad();
-                return;
-            }
-
             try {
+                // اقرأ إصدار التصفير أولاً. أي سجل قديم بإصدار أقل يتم تجاهله.
+                const resetSnap = await db.ref("wheel_control/resetVersion").once("value");
+                currentResetVersion = Number(resetSnap.val()) || 0;
+                resetVersionLoaded = true;
+
+                if (!keys.length) {
+                    spinStatusLoaded = true;
+                    maybeEnableAfterLoad();
+                    return;
+                }
+
                 const records = await Promise.all(keys.map(readSpinRecord));
                 let data = null;
 
-                // نستخدم أحدث سجل من الجهاز أو الـIP حتى لا يستطيع المستخدم
-                // تجاوز المنع بمجرد تغيير الشبكة أو إعادة فتح الموقع.
                 for (const record of records) {
                     if (!record) continue;
+
+                    // سجل قبل آخر تصفير = محاولة قديمة، ولا يجب أن تقفل الدورة الجديدة.
+                    const recordResetVersion = Number(record.resetVersion) || 0;
+                    if (recordResetVersion < currentResetVersion) continue;
+
                     if (!data || Number(record.lastSpinTime || 0) > Number(data.lastSpinTime || 0)) {
                         data = record;
                     }
@@ -1532,7 +1552,7 @@ canvas#wheel{
 
                 if (data) {
                     const lastSpinTime = Number(data.lastSpinTime) || 0;
-                    const nextSpinTime = lastSpinTime + DAILY_COOLDOWN_MS;
+                    const nextSpinTime = lastSpinTime + getCooldownMs();
                     const now = Date.now();
 
                     if (now < nextSpinTime) {
@@ -1670,10 +1690,10 @@ canvas#wheel{
             update();
         }
 
-        document.getElementById('spinBtn').addEventListener('click', () => {
+        document.getElementById('spinBtn').addEventListener('click', async () => {
             if (isSpinning) return;
             if (document.getElementById('spinBtn').classList.contains('disabled')) return;
-            if (!settingsLoaded || !spinStatusLoaded) return;
+            if (!settingsLoaded || !spinStatusLoaded || !resetVersionLoaded) return;
 
             const validation = validatePrizePercentages(wheelItems);
             if (!validation.ok) {
@@ -1683,25 +1703,92 @@ canvas#wheel{
 
             if (!wheelItems.length) return;
 
-            // فحص إضافي محلي قبل بدء الدوران؛ يمنع إعادة اللفة حتى لو
-            // كانت قراءة قاعدة البيانات ما زالت قيد التنفيذ بعد فتح الصفحة.
+            // فحص محلي سريع قبل طلب الحجز من السيرفر.
             const localLockKey = "mohab_store_wheel_last_spin_v1";
             try {
                 const localLastSpin = Number(localStorage.getItem(localLockKey)) || 0;
-                const localNextSpin = localLastSpin + DAILY_COOLDOWN_MS;
-                if (localLastSpin && Date.now() < localNextSpin) {
+                const localNextSpin = localLastSpin + getCooldownMs();
+                const localResetVersion = Number(localStorage.getItem("mohab_store_wheel_reset_version_v2")) || 0;
+
+                if (localResetVersion === currentResetVersion && localLastSpin && Date.now() < localNextSpin) {
                     startTimer(localNextSpin);
                     return;
                 }
             } catch (e) {}
 
+            // حجز المحاولة على Firebase قبل بدء الدوران.
+            // هذا يمنع الضغط مرتين/فتح تبويبين في نفس الوقت من إنشاء لفتين.
+            if (!db || userDeviceId === "unknown_device") {
+                showConfigError("تعذر التحقق من محاولة المستخدم. يرجى إعادة تحميل الصفحة.");
+                return;
+            }
+
+            let reservationKey = deviceFingerprintKey !== "unknown_fingerprint"
+                ? deviceFingerprintKey
+                : userDeviceId;
+
+            if (!reservationKey || reservationKey === "unknown_fingerprint") {
+                reservationKey = userDeviceId;
+            }
+
+            const reservationRef = db.ref("user_spins/" + reservationKey);
+            const reservationNow = Date.now();
+            let reserved = false;
+            let existingRecord = null;
+
+            try {
+                const tx = await reservationRef.transaction(record => {
+                    const data = record && typeof record === "object" ? record : {};
+                    const recordResetVersion = Number(data.resetVersion) || 0;
+                    const lastSpinTime = Number(data.lastSpinTime) || 0;
+
+                    // السجل من إصدار قديم بعد التصفير = يبدأ إصداراً جديداً.
+                    if (recordResetVersion < currentResetVersion) {
+                        reserved = true;
+                        return {
+                            ...data,
+                            lastSpinTime: reservationNow,
+                            resetVersion: currentResetVersion
+                        };
+                    }
+
+                    // نفس الإصدار: لا تسمح بلفة أخرى قبل انتهاء المدة.
+                    if (lastSpinTime > 0 && reservationNow < lastSpinTime + getCooldownMs()) {
+                        existingRecord = data;
+                        return;
+                    }
+
+                    reserved = true;
+                    return {
+                        ...data,
+                        lastSpinTime: reservationNow,
+                        resetVersion: currentResetVersion
+                    };
+                });
+
+                if (!tx.committed || !reserved) {
+                    const lastSpinTime = Number((tx.snapshot.val() || existingRecord || {}).lastSpinTime) || reservationNow;
+                    startTimer(lastSpinTime + getCooldownMs());
+                    return;
+                }
+            } catch (error) {
+                console.error("Spin reservation failed:", error);
+                showConfigError("تعذر تثبيت محاولة العجلة حالياً. لم يتم بدء الدوران.");
+                return;
+            }
+
+            // بعد نجاح الحجز فقط نختار الجائزة ونبدأ الحركة.
             const winningIndex = pickWinningIndex();
-            if (winningIndex < 0 || !wheelItems[winningIndex]) {
+            if (winningIndex < 0 || !wheelItems[winningIndex] || Number(wheelItems[winningIndex].chance) <= 0) {
+                // لا نترك حجزاً وهمياً إذا حدث خطأ في إعداد الجوائز.
+                await reservationRef.update({
+                    lastSpinTime: 0,
+                    resetVersion: currentResetVersion
+                }).catch(() => {});
                 showConfigError("تعذر تحديد جائزة صالحة من الجوائز المحفوظة.");
                 return;
             }
 
-            // نأخذ نسخة من نفس العنصر الذي تم اختياره من قاعدة البيانات.
             const selectedPrize = { ...wheelItems[winningIndex] };
 
             isSpinning = true;
@@ -1709,11 +1796,8 @@ canvas#wheel{
 
             const numSegments = wheelItems.length;
             const segmentAngle = (2 * Math.PI) / numSegments;
-
             const spins = 7;
 
-            // pointer عند أعلى العجلة = -PI/2.
-            // نحدد مركز القطاع الفائز تحت المؤشر بدقة.
             const desiredRotation =
                 (-Math.PI / 2) -
                 (winningIndex * segmentAngle + segmentAngle / 2);
@@ -1721,10 +1805,7 @@ canvas#wheel{
             const currentNormalized =
                 ((currentRotation % (2 * Math.PI)) + (2 * Math.PI)) % (2 * Math.PI);
 
-            let delta =
-                desiredRotation -
-                currentNormalized;
-
+            let delta = desiredRotation - currentNormalized;
             while (delta < 0) delta += 2 * Math.PI;
 
             const totalTargetRotation =
@@ -1749,8 +1830,7 @@ canvas#wheel{
                 drawWheel();
 
                 const normalized =
-                    ((currentRotation % (2 * Math.PI)) + (2 * Math.PI)) %
-                    (2 * Math.PI);
+                    ((currentRotation % (2 * Math.PI)) + (2 * Math.PI)) % (2 * Math.PI);
 
                 const currentSegment =
                     Math.floor(normalized / segmentAngle);
@@ -1845,6 +1925,7 @@ canvas#wheel{
             if (db) {
                 const spinData = {
                     lastSpinTime: now,
+                    resetVersion: currentResetVersion,
                     savedPrize
                 };
 
@@ -1981,8 +2062,12 @@ canvas#wheel{
                     adminPhoneNumber = String(data.whatsappNumber);
                 }
 
-                // نحتفظ بإعداد cooldownHours القديم في قاعدة البيانات، لكن اللفة اليومية هنا ثابتة 24 ساعة.
-                cooldownHours = 24;
+                // مدة الانتظار تؤخذ من إعدادات لوحة التحكم، والحد الأدنى ساعة واحدة.
+                const configuredCooldown = Number(data.cooldownHours);
+                cooldownHours = Number.isFinite(configuredCooldown) && configuredCooldown >= 1
+                    ? configuredCooldown
+                    : 24;
+                dailyCooldownMs = getCooldownMs();
 
                 // المصدر الوحيد للجوائز هو settings/items.
                 wheelItems = normalizeWheelItems(data.items);
@@ -2075,19 +2160,34 @@ canvas#wheel{
         if (db) {
             db.ref("wheel_control/resetVersion").on("value", snap => {
                 const version = Number(snap.val()) || 0;
-                if (version > currentResetVersion) {
-                    currentResetVersion = version;
-                    try {
+                const changed = version !== currentResetVersion;
+
+                currentResetVersion = version;
+                resetVersionLoaded = true;
+
+                try {
+                    localStorage.setItem("mohab_store_wheel_reset_version_v2", String(version));
+
+                    // إذا حدث تصفير جديد، امسح القفل المحلي فقط.
+                    // سجلات Firebase القديمة لا يتم حذفها؛ يتم تجاهلها بواسطة resetVersion.
+                    if (changed) {
                         localStorage.removeItem("mohab_store_wheel_last_spin_v1");
-                        localStorage.setItem("mohab_store_wheel_reset_version_v2", String(version));
-                    } catch (e) {}
+                    }
+                } catch (e) {}
+
+                if (changed) {
                     if (timerFrame) cancelAnimationFrame(timerFrame);
                     timerFrame = null;
                     document.getElementById("savedPrizeCard").style.display = "none";
                     document.getElementById("cooldownNotice").style.display = "none";
                     spinStatusLoaded = true;
-                    if (!isSpinning && settingsLoaded) enableSpinning();
+
+                    if (!isSpinning && settingsLoaded) {
+                        enableSpinning();
+                    }
                 }
+
+                maybeEnableAfterLoad();
             });
         }
 
