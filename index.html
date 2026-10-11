@@ -2,2196 +2,2103 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MOHAB STORE - عجلة الحظ</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MOHAB STORE | المتجر الرسمي</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preload" as="image" href="https://g.top4top.io/p_39146kcfj0.png">
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <style>
-:root{
-    --bg:#05070c;
-    --bg-2:#0a0f18;
-    --glass:rgba(255,255,255,.075);
-    --glass-strong:rgba(255,255,255,.105);
-    --glass-line:rgba(255,255,255,.16);
-    --glass-soft:rgba(255,255,255,.07);
-    --white:#f8fbff;
-    --muted:#9aa9bd;
-    --blue:#49a6ff;
-    --blue-2:#0b78e8;
-    --gold:#ffd76a;
-    --green:#39e58c;
-    --red:#ff6574;
-    --shadow:0 24px 70px rgba(0,0,0,.46);
-}
+        :root {
+            --bg-deep: #090d16; 
+            --surface: #131c2e; 
+            --surface-hover: #1e293b;
+            --surface-border: rgba(255, 255, 255, 0.08);
+            --primary: #06b6d4; 
+            --primary-glow: rgba(6, 182, 212, 0.25); 
+            --accent: #3b82f6;
+            --telegram-blue: #229ed9; 
+            --text-main: #f8fafc; 
+            --text-muted: #94a3b8;
+            --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
 
-*{
-    box-sizing:border-box;
-    margin:0;
-    padding:0;
-    font-family:'Tajawal',sans-serif;
-    user-select:none;
-    -webkit-tap-highlight-color:transparent!important;
-    outline:none!important;
-}
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Almarai', sans-serif; -webkit-tap-highlight-color: transparent; }
 
-html{
-    min-height:100%;
-    background:#05070c;
-    color:var(--white);
-}
+        body { 
+            background-color: var(--bg-deep); 
+            color: var(--text-main); 
+            min-height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            overflow-x: hidden; 
+            padding-bottom: 110px;
+            -webkit-user-select: none;
+            user-select: none;
+        }
 
-body{
-    min-height:100vh;
-    padding:30px 14px 42px;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    color:var(--white);
-    overflow-x:hidden;
-    background:
-        radial-gradient(900px 560px at 50% -10%, rgba(44,141,255,.19), transparent 62%),
-        radial-gradient(700px 500px at 100% 45%, rgba(255,201,78,.075), transparent 65%),
-        radial-gradient(700px 500px at 0% 70%, rgba(64,139,255,.08), transparent 65%),
-        linear-gradient(145deg,#05070c 0%,#080d15 48%,#05070c 100%);
-    -webkit-font-smoothing:antialiased;
-    text-rendering:optimizeLegibility;
-}
+        /* تحسين تحميل الصور وتقليل العمل على المتصفح */
+        img { background-color: var(--surface); }
+        img { content-visibility: auto; }
+        iframe { border: 0; }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+        }
+        /* صور الأيقونات الشفافة يجب أن تحتفظ بخلفيتها الشفافة */
+        .price-item-icon { background: transparent !important; padding: 0 !important; border-radius: 0 !important; }
+        .game-logo-frame img { background: transparent; }
+        img[loading="lazy" decoding="async"] { content-visibility: auto; }
+        
+        nav { 
+            position: sticky; top: 0; z-index: 50; 
+            background: rgba(9, 13, 22, 0.85); 
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--surface-border); 
+            padding: 12px 20px; display: flex; justify-content: center; align-items: center; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            transform: translateZ(0); 
+        }
+        .nav-content { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 900px; }
+        
+        .main-logo { 
+            height: 60px; 
+            max-width: 200px; 
+            object-fit: contain; 
+            border-radius: 12px;
+            transition: var(--transition-smooth); 
+            will-change: transform; 
+            transform: translateZ(0); 
+        }
+        .main-logo:hover { transform: scale(1.02) translateZ(0); }
+        
+        /* زر العملة - تصميم حديث وصغير مع علم دائري */
+        .currency-toggle {
+            width: 174px;
+            min-height: 54px;
+            padding: 6px 10px;
+            border-radius: 18px;
+            cursor: pointer;
+            font-family: inherit;
+            color: #fff;
+            background: linear-gradient(135deg, rgba(6,182,212,.14), rgba(59,130,246,.10));
+            border: 1px solid rgba(6,182,212,.38);
+            box-shadow: 0 5px 18px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.05);
+            transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease, background .22s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            will-change: transform;
+            overflow: hidden;
+        }
+        .currency-toggle:hover {
+            transform: translateY(-2px);
+            border-color: rgba(6,182,212,.75);
+            box-shadow: 0 8px 22px rgba(6,182,212,.16), inset 0 1px 0 rgba(255,255,255,.08);
+        }
+        .currency-flag {
+            width: 32px;
+            height: 32px;
+            flex: 0 0 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
+            border: 2px solid rgba(255,255,255,.20);
+            box-shadow: 0 2px 8px rgba(0,0,0,.30);
+        }
+        .currency-toggle-main {
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            line-height: 1.1;
+            text-align: right;
+        }
+        .currency-toggle-title {
+            font-size: .72rem;
+            font-weight: 800;
+            color: #fff;
+            white-space: nowrap;
+        }
+        .currency-toggle-hint {
+            margin-top: 4px;
+            font-size: .55rem;
+            font-weight: 700;
+            color: var(--primary);
+            white-space: nowrap;
+        }
+        .currency-toggle-arrow {
+            width: 25px;
+            height: 25px;
+            flex: 0 0 25px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: rgba(255,255,255,.07);
+            color: var(--primary);
+            font-size: .72rem;
+        }
+        .spacer { width: 75px; }
 
-body::before{
-    content:"";
-    position:fixed;
-    inset:0;
-    pointer-events:none;
-    z-index:-1;
-    opacity:.22;
-    background-image:
-        linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
-        linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);
-    background-size:42px 42px;
-    mask-image:linear-gradient(to bottom,black,transparent 82%);
-}
+        @media (max-width: 767px) {
+            .currency-toggle {
+                width: 150px;
+                min-height: 50px;
+                padding: 5px 8px;
+                border-radius: 17px;
+                gap: 7px;
+            }
+            .currency-flag {
+                width: 29px;
+                height: 29px;
+                flex-basis: 29px;
+            }
+            .currency-toggle-title { font-size: .64rem; }
+            .currency-toggle-hint { font-size: .50rem; margin-top: 3px; }
+            .currency-toggle-arrow {
+                width: 23px;
+                height: 23px;
+                flex-basis: 23px;
+                font-size: .65rem;
+            }
+            .spacer { width: 45px; }
+        }
 
-header{
-    width:min(100%,520px);
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    text-align:center;
-    margin-bottom:24px;
-}
+        /* ===== شريط علوي متوازن: اللوجو في منتصف الشاشة تماماً ===== */
+        nav {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            min-height: 82px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(9, 13, 22, 0.90);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--surface-border);
+            box-shadow: 0 4px 15px rgba(0,0,0,.28);
+        }
 
-.logo-box{
-    width:92px;
-    height:92px;
-    padding:2px;
-    margin-bottom:14px;
-    border-radius:28px;
-    background:linear-gradient(135deg,rgba(255,255,255,.55),rgba(73,166,255,.35),rgba(255,215,106,.35));
-    box-shadow:0 18px 45px rgba(0,0,0,.42),0 0 35px rgba(73,166,255,.10);
-    backdrop-filter:blur(22px) saturate(150%);
-    -webkit-backdrop-filter:blur(22px) saturate(150%);
-}
+        .nav-content {
+            position: relative;
+            width: 100%;
+            max-width: 900px;
+            min-height: 62px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
 
-.logo-inner{
-    width:100%;
-    height:100%;
-    border-radius:26px;
-    overflow:hidden;
-    background:linear-gradient(145deg,rgba(255,255,255,.12),rgba(255,255,255,.035));
-    border:1px solid rgba(255,255,255,.14);
-}
+        /* اللوجو مستقل عن زر العملة حتى يظل في منتصف الشاشة الحقيقي */
+        .main-logo {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: auto;
+            height: 56px;
+            max-width: 150px;
+            object-fit: contain;
+            border-radius: 12px;
+            transform: translate(-50%, -50%) translateZ(0);
+            transition: transform .22s ease;
+            will-change: transform;
+            z-index: 2;
+        }
+        .main-logo:hover {
+            transform: translate(-50%, -50%) scale(1.02) translateZ(0);
+        }
 
-.logo-inner img{
-    width:100%;
-    height:100%;
-    object-fit:cover;
-}
+        /* زر العملة: أصغر وأهدأ بصرياً مع وضوح النص والعلم */
+        .currency-toggle {
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            z-index: 3;
+            width: 148px;
+            min-height: 50px;
+            height: 50px;
+            padding: 5px 8px;
+            margin: 0;
+            border-radius: 16px;
+            cursor: pointer;
+            font-family: inherit;
+            color: #fff;
+            background: linear-gradient(135deg, rgba(6,182,212,.13), rgba(59,130,246,.08));
+            border: 1px solid rgba(6,182,212,.42);
+            box-shadow: 0 4px 14px rgba(0,0,0,.20), inset 0 1px 0 rgba(255,255,255,.05);
+            transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease, background .22s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            overflow: hidden;
+            appearance: none;
+            -webkit-appearance: none;
+        }
+        .currency-toggle:hover {
+            transform: translateY(calc(-50% - 1px));
+            border-color: rgba(6,182,212,.72);
+            box-shadow: 0 7px 18px rgba(6,182,212,.13), inset 0 1px 0 rgba(255,255,255,.08);
+        }
+        .currency-toggle:active {
+            transform: translateY(-50%) scale(.98);
+        }
 
-.store-title{
-    font-size:clamp(2rem,8vw,2.7rem);
-    line-height:1.05;
-    font-weight:900;
-    letter-spacing:.5px;
-    color:#fff;
-    text-shadow:0 4px 24px rgba(0,0,0,.55);
-}
+        .currency-flag {
+            width: 28px;
+            height: 28px;
+            flex: 0 0 28px;
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
+            border: 1.5px solid rgba(255,255,255,.22);
+            box-shadow: 0 2px 7px rgba(0,0,0,.28);
+        }
+        .currency-toggle-main {
+            min-width: 0;
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            line-height: 1.05;
+            text-align: right;
+            overflow: hidden;
+        }
+        .currency-toggle-title {
+            display: block;
+            max-width: 100%;
+            font-size: .62rem;
+            font-weight: 800;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .currency-toggle-hint {
+            display: block;
+            margin-top: 3px;
+            font-size: .48rem;
+            font-weight: 700;
+            color: var(--primary);
+            white-space: nowrap;
+        }
+        .currency-toggle-arrow {
+            width: 22px;
+            height: 22px;
+            flex: 0 0 22px;
+            display: grid;
+            place-items: center;
+            border-radius: 50%;
+            background: rgba(255,255,255,.065);
+            color: var(--primary);
+            font-size: .62rem;
+        }
+        .spacer { display: none; }
 
-.subtitle{
-    margin-top:8px;
-    color:var(--muted);
-    font-size:.9rem;
-    font-weight:600;
-}
+        @media (max-width: 767px) {
+            nav {
+                min-height: 76px;
+                padding: 8px 12px;
+            }
+            .nav-content {
+                min-height: 60px;
+            }
+            .main-logo {
+                height: 52px;
+                max-width: 128px;
+            }
+            .currency-toggle {
+                width: 142px;
+                min-height: 48px;
+                height: 48px;
+                right: 0;
+                padding: 5px 7px;
+                border-radius: 15px;
+                gap: 5px;
+            }
+            .currency-flag {
+                width: 27px;
+                height: 27px;
+                flex-basis: 27px;
+            }
+            .currency-toggle-title { font-size: .59rem; }
+            .currency-toggle-hint { font-size: .46rem; margin-top: 3px; }
+            .currency-toggle-arrow {
+                width: 21px;
+                height: 21px;
+                flex-basis: 21px;
+                font-size: .58rem;
+            }
+        }
 
-.glass-card{
-    width:min(100%,430px);
-    padding:18px 20px;
-    border:1px solid var(--glass-line);
-    border-radius:26px;
-    background:
-        linear-gradient(145deg,rgba(255,255,255,.105),rgba(255,255,255,.045) 48%,rgba(255,255,255,.025)),
-        rgba(12,18,29,.42);
-    backdrop-filter:blur(28px) saturate(155%);
-    -webkit-backdrop-filter:blur(28px) saturate(155%);
-    box-shadow:
-        inset 0 1px 0 rgba(255,255,255,.12),
-        inset 0 0 0 1px rgba(255,255,255,.025),
-        0 22px 65px rgba(0,0,0,.32);
-}
+        @media (max-width: 390px) {
+            nav { padding-left: 8px; padding-right: 8px; }
+            .currency-toggle { width: 136px; }
+            .main-logo { height: 49px; max-width: 118px; }
+            .currency-toggle-title { font-size: .56rem; }
+        }
 
-.saved-prize-card{
-    display:none;
-    text-align:center;
-    margin-bottom:20px;
-    border-color:rgba(255,215,106,.28);
-    background:
-        linear-gradient(145deg,rgba(255,215,106,.105),rgba(255,255,255,.045)),
-        rgba(15,19,27,.42);
-}
+        /* بطاقة عجلة الحظ - خارج الشريط العلوي */
+        .luck-feature-wrap {
+            max-width: 900px; width: 100%; margin: 10px auto 4px; padding: 0 20px;
+            display: flex; justify-content: center;
+        }
+        .luck-feature {
+            position: relative; width: min(100%, 360px); min-height: 76px;
+            display: flex; align-items: center; gap: 14px; padding: 9px 16px;
+            border-radius: 20px; text-decoration: none; color: #fff; overflow: hidden;
+            background: linear-gradient(135deg, rgba(6,182,212,.14), rgba(59,130,246,.10));
+            border: 1px solid rgba(6,182,212,.30);
+            box-shadow: 0 8px 28px rgba(6,182,212,.12), inset 0 0 24px rgba(59,130,246,.05);
+            transition: transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+            animation: luckFloat 3.2s ease-in-out infinite;
+        }
+        .luck-feature::before {
+            content:''; position:absolute; width:90px; height:90px; right:-30px; top:-40px;
+            border-radius:50%; background:rgba(6,182,212,.22); filter:blur(18px);
+            animation: luckGlow 2.4s ease-in-out infinite;
+        }
+        .luck-feature::after {
+            content:''; position:absolute; top:0; bottom:0; left:-45%; width:35%;
+            background:linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+            transform:skewX(-18deg); animation: luckShine 3.8s ease-in-out infinite;
+        }
+        .luck-feature:hover { transform:translateY(-3px) scale(1.015); border-color:rgba(6,182,212,.55); box-shadow:0 12px 34px rgba(6,182,212,.20), inset 0 0 26px rgba(59,130,246,.07); }
+        .luck-feature img {
+            position:relative; z-index:1; width:56px; height:56px; flex:0 0 56px; object-fit:cover;
+            border-radius:16px; border:2px solid rgba(255,255,255,.24);
+            box-shadow:0 0 0 4px rgba(6,182,212,.07), 0 8px 18px rgba(0,0,0,.28);
+            animation: luckIconPulse 2.2s ease-in-out infinite;
+        }
+        .luck-feature-text { position:relative; z-index:1; display:flex; flex-direction:column; gap:4px; flex:1; }
+        .luck-feature-title { font-size:.9rem; font-weight:800; }
+        .luck-feature-sub { font-size:.63rem; color:var(--text-muted); }
+        .luck-feature-arrow { position:relative; z-index:1; width:30px; height:30px; display:grid; place-items:center; border-radius:50%; background:rgba(255,255,255,.08); color:var(--primary); }
+        @keyframes luckFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-3px)} }
+        @keyframes luckGlow { 0%,100%{opacity:.45;transform:scale(.9)} 50%{opacity:.9;transform:scale(1.15)} }
+        @keyframes luckShine { 0%,55%{left:-45%} 80%,100%{left:120%} }
+        @keyframes luckIconPulse { 0%,100%{transform:scale(1);box-shadow:0 0 0 4px rgba(6,182,212,.07),0 8px 18px rgba(0,0,0,.28)} 50%{transform:scale(1.04);box-shadow:0 0 0 7px rgba(6,182,212,.10),0 8px 22px rgba(0,0,0,.32)} }
+        @media (max-width:767px){ .luck-feature-wrap{margin:8px auto 2px;} .luck-feature{width:100%;min-height:72px;padding:8px 13px;gap:12px;} .luck-feature img{width:52px;height:52px;flex-basis:52px;} .luck-feature-title{font-size:.82rem;} .luck-feature-sub{font-size:.58rem;} }
 
-.wheel-container{
-    position:relative;
-    width:min(430px,94vw);
-    aspect-ratio:1;
-    margin:8px auto 28px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    isolation:isolate;
-    touch-action:manipulation;
-    --wheel-size:72%;
-    --frame-size:96%;
-}
+        /* شات بوت المساعد الذكي: نفس تصميم عجلة الحظ مع ضبط الصورة داخل الإطار */
+        .chatbot-feature img {
+            object-fit: contain;
+            padding: 3px;
+            background: rgba(255,255,255,.035);
+        }
+        #chatbotPage {
+            display:none; position:fixed; inset:0; z-index:210; background:var(--bg-deep);
+            flex-direction:column; overflow:hidden;
+        }
+        #chatbotPage.open { display:flex; animation:fadeIn .25s ease; }
 
-.wheel-container::before{
-    content:"";
-    position:absolute;
-    top:50%;
-    left:50%;
-    width:var(--wheel-size);
-    height:var(--wheel-size);
-    transform:translate(-50%,-50%);
-    border-radius:50%;
-    background:radial-gradient(circle,rgba(73,166,255,.10),transparent 63%);
-    filter:blur(20px);
-    z-index:-2;
-}
+        /* صفحة عجلة الحظ داخل الموقع */
+        #luckPage {
+            display:none; position:fixed; inset:0; z-index:210; background:var(--bg-deep);
+            flex-direction:column; overflow:hidden;
+        }
+        #luckPage.open { display:flex; animation:fadeIn .25s ease; }
+        .luck-page-header {
+            height:62px; flex-shrink:0; display:flex; align-items:center; gap:10px;
+            padding:10px 14px; background:rgba(9,13,22,.92); border-bottom:1px solid var(--surface-border);
+            backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+        }
+        .luck-back-btn {
+            border:1px solid var(--surface-border); background:var(--surface); color:#fff;
+            width:40px; height:40px; border-radius:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+            font-size:1rem; transition:all .2s;
+        }
+        .luck-back-btn:hover { background:var(--primary); border-color:transparent; transform:translateX(3px); }
+        .luck-page-title { font-size:.95rem; font-weight:800; color:#fff; }
+        .luck-page-frame { width:100%; height:calc(100vh - 62px); border:0; background:#090d16; }
+ 
 
-.wheel-container::after{
-    content:"";
-    position:absolute;
-    top:50%;
-    left:50%;
-    width:72%;
-    height:72%;
-    transform:translate(-50%,-50%);
-    border-radius:50%;
-    border:1px solid rgba(255,255,255,.045);
-    box-shadow:0 0 80px rgba(73,166,255,.055);
-    pointer-events:none;
-    z-index:-1;
-}
+        /* صفحات خارجية مضافة من السيستم، تعرض داخل واجهة المتجر */
+        #customExternalPage { display:none; position:fixed; inset:0; z-index:500; background:var(--bg-deep,#090d16); flex-direction:column; overflow:hidden; }
+        #customExternalPage.open { display:flex; animation:fadeIn .2s ease; }
+        .custom-external-header { min-height:60px; flex-shrink:0; display:flex; align-items:center; gap:12px; padding:10px 14px; background:rgba(9,13,22,.96); border-bottom:1px solid var(--surface-border,rgba(255,255,255,.1)); }
+        .custom-external-close { width:40px; height:40px; flex-shrink:0; border:1px solid var(--surface-border,rgba(255,255,255,.14)); border-radius:12px; color:#fff; background:var(--surface,#131c2e); cursor:pointer; }
+        #customExternalTitle { color:#fff; font-weight:800; font-size:.96rem; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        #customExternalFrame { display:block; width:100%; flex:1; min-height:0; border:0; background:#fff; }
+        .custom-external-help { flex-shrink:0; display:flex; align-items:center; justify-content:space-between; gap:10px; padding:9px 12px; color:#cbd5e1; background:#111827; border-bottom:1px solid rgba(255,255,255,.1); font-size:.78rem; line-height:1.5; }
+        .custom-external-help button { flex-shrink:0; border:0; border-radius:9px; padding:8px 10px; color:#fff; background:#0891b2; font:inherit; font-weight:800; cursor:pointer; }
+        .custom-external-help[hidden] { display:none; }
 
-.wheel-outer-ring{
-    position:absolute;
-    top:50%;
-    left:50%;
-    width:var(--wheel-size);
-    height:var(--wheel-size);
-    padding:clamp(6px,1.5vw,10px);
-    border-radius:50%;
-    background:
-        linear-gradient(145deg,rgba(255,255,255,.22),rgba(255,255,255,.055) 28%,rgba(0,0,0,.30) 70%),
-        rgba(10,15,24,.62);
-    border:1px solid rgba(255,255,255,.22);
-    box-shadow:
-        0 24px 60px rgba(0,0,0,.54),
-        inset 0 1px 0 rgba(255,255,255,.22),
-        inset 0 -14px 30px rgba(0,0,0,.28),
-        0 0 0 6px rgba(255,255,255,.025);
-    backdrop-filter:blur(24px) saturate(135%);
-    -webkit-backdrop-filter:blur(24px) saturate(135%);
-    transform:translate(-50%,-50%) translateZ(0);
-    overflow:hidden;
-    z-index:2;
-}
+        /* نافذة طلب إضافة لعبة - يمكن التحكم بها من السيستم */
+        #gameRequestModal {
+            position:fixed; inset:0; z-index:260; display:none; align-items:center; justify-content:center;
+            padding:20px; background:rgba(3,7,18,.72); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+        }
+        #gameRequestModal.active { display:flex; animation:fadeIn .22s ease; }
+        .game-request-card {
+            width:min(430px,100%); background:linear-gradient(145deg,rgba(19,28,46,.98),rgba(9,13,22,.98));
+            border:1px solid rgba(6,182,212,.32); border-radius:24px; padding:24px;
+            box-shadow:0 25px 70px rgba(0,0,0,.55), inset 0 1px 0 rgba(255,255,255,.06);
+        }
+        .game-request-icon { width:58px;height:58px;border-radius:18px;display:grid;place-items:center;margin:0 auto 14px;
+            background:linear-gradient(135deg,rgba(6,182,212,.22),rgba(59,130,246,.16));
+            border:1px solid rgba(6,182,212,.32);color:var(--primary);font-size:1.5rem; }
+        .game-request-card h3 { text-align:center;color:#fff;margin:0 0 8px;font-size:1.05rem; }
+        .game-request-card p { text-align:center;color:var(--text-muted);font-size:.76rem;line-height:1.8;margin:0 0 17px; }
+        .game-request-input { width:100%;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.055);
+            color:#fff;border-radius:15px;padding:14px 15px;outline:none;font-family:inherit;font-size:.9rem; }
+        .game-request-input:focus { border-color:var(--primary);box-shadow:0 0 0 3px rgba(6,182,212,.12); }
+        .game-request-actions { display:flex;gap:9px;margin-top:12px; }
+        .game-request-btn { flex:1;border:0;border-radius:13px;padding:12px;font-family:inherit;font-weight:800;cursor:pointer; }
+        .game-request-submit { background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff; }
+        .game-request-cancel { background:rgba(255,255,255,.06);color:#cbd5e1;border:1px solid rgba(255,255,255,.08); }
+        .game-request-message { min-height:20px;margin-top:10px;text-align:center;font-size:.72rem;color:var(--primary); }
 
-.wheel-outer-ring::before{
-    content:"";
-    position:absolute;
-    inset:5px;
-    border-radius:50%;
-    border:1px solid rgba(255,255,255,.13);
-    box-shadow:
-        inset 0 0 0 2px rgba(255,255,255,.025),
-        inset 0 0 28px rgba(0,0,0,.42);
-    pointer-events:none;
-    z-index:3;
-}
+        .slider-container { max-width: 900px; margin: 18px auto 8px; padding: 0 20px; width: 100%; position: relative; }
+        .slider { 
+            width: 100%; border-radius: 20px; overflow: hidden; position: relative; 
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); 
+            border: 1px solid var(--surface-border); background: #05070c; touch-action: pan-y; 
+            transform: translateZ(0); 
+        }
+        
+        @media (max-width: 767px) {
+            .slider { aspect-ratio: 16/9; }
+        }
+        @media (min-width: 768px) {
+            .main-logo { height: 75px; max-width: 280px; } 
+            .games-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); } 
+            .slider { aspect-ratio: 21/9; max-height: 380px; }
+        }
 
-.wheel-outer-ring::after{
-    content:"";
-    position:absolute;
-    inset:10px;
-    border-radius:50%;
-    border:1px solid rgba(73,166,255,.08);
-    pointer-events:none;
-    z-index:3;
-}
+        .slide-wrapper-box {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            opacity: 0; transition: opacity 0.4s ease-in-out; will-change: opacity;
+            display: flex; align-items: center; justify-content: center; background-color: #05070c;
+        }
+        .slide-wrapper-box.active { opacity: 1; z-index: 1; }
+        
+        .slide-bg-blur {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background-size: cover; background-position: center;
+            filter: blur(20px) brightness(0.4); transform: scale(1.1); z-index: 1; pointer-events: none;
+        }
+        .slide { 
+            position: relative; width: 100%; height: 100%; 
+            object-fit: contain; z-index: 2; background: transparent; 
+        }
+        
+        .slider-dots { 
+            position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%) translateZ(0); 
+            display: flex; gap: 5px; z-index: 5; 
+            background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 12px; 
+            backdrop-filter: blur(4px);
+        }
+        .dot { 
+            width: 6px; height: 4px; border-radius: 4px; 
+            background: rgba(255,255,255,0.4); cursor: pointer; 
+            transition: width 0.3s ease, background-color 0.3s ease; 
+        }
+        .dot.active { width: 16px; background: var(--primary); box-shadow: 0 0 8px var(--primary-glow); }
 
-.wheel-frame{
-    position:absolute;
-    top:50%;
-    left:50%;
-    width:var(--frame-size);
-    height:var(--frame-size);
-    object-fit:contain;
-    display:block;
-    z-index:20;
-    pointer-events:none;
-    user-select:none;
-    -webkit-user-drag:none;
-    transform:translate(-50%,-50%) translateZ(0);
-    filter:drop-shadow(0 12px 20px rgba(0,0,0,.22));
-}
+        .search-container { max-width: 900px; margin: 12px auto; padding: 0 20px; width: 100%; }
+        .search-box { position: relative; width: 100%; }
+        .search-box input { 
+            width: 100%; background: var(--surface); 
+            border: 1px solid var(--surface-border); padding: 13px 45px 13px 18px; 
+            border-radius: 16px; color: #fff; font-size: 0.9rem; outline: none; 
+            transition: border-color 0.2s, box-shadow 0.2s, background 0.2s; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15); background: var(--surface-hover); }
+        .search-box i { position: absolute; right: 18px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1rem; transition: color 0.2s; }
+        .search-box input:focus + i { color: var(--primary); }
 
-canvas#wheel{
-    display:block;
-    width:100%;
-    height:100%;
-    border-radius:50%;
-    background:#090d15;
-    position:relative;
-    z-index:1;
-    transform:translateZ(0);
-    backface-visibility:hidden;
-}
+        .container { max-width: 900px; margin: 0 auto; padding: 5px 20px 20px; width: 100%; flex: 1; }
+        .games-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; position: relative; }
+        
+        .loader-wrapper {
+            grid-column: 1 / -1; display: flex; justify-content: center; align-items: center;
+            min-height: 40vh; font-size: 3rem; color: var(--primary); 
+            text-shadow: 0 0 8px var(--primary-glow); 
+        }
 
-.pointer-box{
-    position:absolute;
-    top:calc(50% - (var(--wheel-size) / 2) - 7px);
-    left:50%;
-    transform:translateX(-50%);
-    z-index:100;
-    filter:drop-shadow(0 9px 13px rgba(0,0,0,.58));
-}
+        .game-card { 
+            background: var(--surface); border: 1px solid var(--surface-border); border-radius: 20px; padding: 16px; 
+            text-align: center; cursor: pointer; transition: transform 0.2s, background 0.2s, border-color 0.2s; 
+            display: flex; flex-direction: column; align-items: center; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .game-card:hover { transform: translateY(-4px) translateZ(0); background: var(--surface-hover); border-color: rgba(6, 182, 212, 0.3); box-shadow: 0 8px 18px rgba(0,0,0,0.2); }
+        /* إطار لوجو الألعاب - يُطبق تلقائياً على كل لعبة */
+        .game-logo-frame {
+            position: relative;
+            width: 75px;
+            height: 75px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex: 0 0 75px;
+            overflow: visible;
+        }
 
-.pointer-box::before{
-    content:"";
-    position:absolute;
-    left:50%;
-    top:-5px;
-    width:42px;
-    height:15px;
-    transform:translateX(-50%);
-    border-radius:50%;
-    background:rgba(255,255,255,.10);
-    filter:blur(5px);
-}
+        /* الإطار مضبوط على مقاس اللوجو بدون بروز زائد */
+        .game-logo-frame::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 2;
+            background: url('https://g.top4top.io/p_39146kcfj0.png') center / 100% 100% no-repeat;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 100% 100%;
+            pointer-events: none;
+        }
 
-.pointer-arrow{
-    width:34px;
-    height:48px;
-    background:
-        linear-gradient(180deg,#ff7783 0%,#ff394d 48%,#a30e1f 100%);
-    border:1px solid rgba(255,255,255,.72);
-    clip-path:polygon(50% 100%,0 0,100% 0);
-    filter:drop-shadow(inset 0 1px rgba(255,255,255,.5));
-}
+        /* تصغير اللوجو داخل فتحة الإطار حتى لا يخرج منه نهائياً */
+        .game-logo-frame img {
+            width: 61px;
+            height: 61px;
+            border-radius: 13px;
+            object-fit: contain;
+            margin: 0;
+            border: 0;
+            display: block;
+            position: relative;
+            z-index: 1;
+            flex: 0 0 61px;
+        }
 
-.spin-btn{
-    position:absolute;
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
-    width:88px;
-    height:88px;
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:#fff;
-    font-size:1.18rem;
-    font-weight:900;
-    cursor:pointer;
-    z-index:40;
-    border:2px solid rgba(255,255,255,.74);
-    background:
-        radial-gradient(circle at 33% 22%,rgba(255,255,255,.34),transparent 31%),
-        linear-gradient(145deg,rgba(86,180,255,.98),rgba(0,89,181,.98));
-    box-shadow:
-        0 0 0 7px rgba(73,166,255,.055),
-        0 12px 34px rgba(0,0,0,.42),
-        0 0 34px rgba(73,166,255,.34),
-        inset 0 2px 7px rgba(255,255,255,.35),
-        inset 0 -10px 17px rgba(0,0,0,.20);
-    transition:transform .2s ease,filter .2s ease,box-shadow .2s ease;
-    touch-action:manipulation;
-}
+        @media (max-width: 767px) {
+            .game-logo-frame {
+                width: 75px;
+                height: 75px;
+                flex-basis: 75px;
+            }
+        }
+        .game-card h3 { font-size: 0.9rem; font-weight: 700; margin-bottom: 10px; width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: #e2e8f0; }
+        .btn-view { background: rgba(255, 255, 255, 0.02); color: var(--text-muted); border: 1px solid var(--surface-border); padding: 7px 0; width: 100%; border-radius: 12px; font-size: 0.78rem; font-weight: 700; transition: all 0.2s; }
+        .game-card:hover .btn-view { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; border-color: transparent; box-shadow: 0 4px 10px var(--primary-glow); }
 
-.spin-btn:hover{
-    transform:translate(-50%,-50%) scale(1.055);
-    filter:brightness(1.07);
-}
+        .bottom-nav-dock {
+            position: fixed; bottom: 15px; left: 50%; transform: translateX(-50%) translateZ(0); 
+            width: 95%; max-width: 600px;
+            background: rgba(13, 20, 35, 0.88); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 28px; padding: 8px 10px;
+            display: flex; justify-content: space-around; align-items: center; z-index: 90; 
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+            transition: transform 0.3s; will-change: transform;
+        }
+        .dock-item {
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+            text-decoration: none; color: var(--text-muted); transition: transform 0.2s;
+            flex: 1; text-align: center; will-change: transform;
+        }
+        .dock-icon-wrapper {
+            width: 36px; height: 36px; border-radius: 12px; 
+            display: flex; align-items: center; justify-content: center; font-size: 1.1rem;
+            transition: all 0.2s; border: 1px solid rgba(34, 158, 217, 0.3);
+            background: rgba(34, 158, 217, 0.05); color: var(--telegram-blue);
+        }
+        .dock-item span { font-size: 0.65rem; font-weight: 700; transition: color 0.2s; color: var(--telegram-blue); }
+        .dock-item:hover { transform: translateY(-4px) translateZ(0); }
+        .dock-item:hover .dock-icon-wrapper { background: rgba(34, 158, 217, 0.2); box-shadow: 0 4px 10px rgba(34, 158, 217, 0.3); border-color: var(--telegram-blue); }
 
-.spin-btn:active{
-    transform:translate(-50%,-50%) scale(.95);
-}
+        .modal-overlay { 
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0; 
+            background: rgba(3, 7, 18, 0.85); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+            z-index: 100; opacity: 0; visibility: hidden; display: flex; align-items: center; justify-content: center; 
+            transition: opacity 0.25s ease, visibility 0.25s ease; padding: 15px;
+            will-change: opacity, visibility;
+        }
+        .modal-overlay.active { opacity: 1; visibility: visible; }
+        
+        .modal-box { 
+            background: var(--bg-deep); width: 100%; max-width: 460px; max-height: 88vh; 
+            border-radius: 24px; border: 1px solid var(--surface-border); display: block; overflow-y: auto; 
+            transform: translateY(20px) scale(0.95) translateZ(0); transition: transform 0.25s ease; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6); -webkit-overflow-scrolling: touch; will-change: transform;
+        }
+        .modal-overlay.active .modal-box { transform: translateY(0) scale(1) translateZ(0); }
 
-.spin-btn.disabled{
-    color:#8190a3;
-    cursor:not-allowed;
-    background:linear-gradient(145deg,#263242,#151d28);
-    border-color:rgba(255,255,255,.14);
-    box-shadow:0 8px 25px rgba(0,0,0,.30),inset 0 1px rgba(255,255,255,.05);
-}
+        /* ========================================================== */
+        /* تصميم إحترافي لنافذة الإشعار (صورة فقط) Ultra Modern Image Notification */
+        /* ========================================================== */
+        .ultra-event-modal {
+            position: relative;
+            background: transparent;
+            border: 1px solid rgba(6, 182, 212, 0.35);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 35px rgba(6, 182, 212, 0.25);
+            border-radius: 26px;
+            overflow: hidden;
+            width: 100%;
+            max-width: 420px;
+            transform: scale(0.7) translateY(30px) translateZ(0);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .modal-overlay.active .ultra-event-modal {
+            transform: scale(1) translateY(0) translateZ(0);
+            opacity: 1;
+        }
+        .ultra-img-container {
+            position: relative;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #090d16;
+            border-radius: 26px;
+            overflow: hidden;
+        }
+        .ultra-img-container img {
+            width: 100%;
+            height: auto;
+            max-height: 80vh;
+            object-fit: contain;
+            display: block;
+            border-radius: 26px;
+        }
+        .ultra-close-btn {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            z-index: 10;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+        }
+        .ultra-close-btn:hover {
+            background: #ef4444;
+            border-color: transparent;
+            transform: scale(1.1);
+        }
 
-.db-loader-overlay{
-    position:fixed;
-    inset:0;
-    width:100%;
-    height:100%;
-    display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
-    z-index:3000;
-    background:
-        radial-gradient(circle at 50% 40%,rgba(73,166,255,.13),transparent 35%),
-        rgba(4,7,12,.76);
-    backdrop-filter:blur(30px) saturate(145%);
-    -webkit-backdrop-filter:blur(30px) saturate(145%);
-    opacity:1;
-    transition:opacity .45s ease,visibility .45s ease;
-}
+        /* تحكم إشعار الدخول */
+        .welcome-countdown {
+            position: absolute;
+            left: 14px;
+            top: 14px;
+            z-index: 10;
+            min-width: 38px;
+            height: 38px;
+            padding: 0 10px;
+            border-radius: 20px;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            font-weight: 900;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+            direction: rtl;
+        }
+        .welcome-event-link { display: block; width: 100%; text-decoration: none; color: inherit; }
+        .welcome-event-link img { cursor: pointer; }
 
-.db-loader-overlay.hidden{
-    opacity:0;
-    visibility:hidden;
-    pointer-events:none;
-}
+        /* ========================================================== */
 
-.loader-spinner-box{
-    position:relative;
-    width:92px;
-    height:92px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    margin-bottom:22px;
-}
+        .modal-header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            position: sticky; top: 0; background: var(--bg-deep); z-index: 10;
+            padding: 20px; border-bottom: 1px solid var(--surface-border);
+            transform: translateZ(0);
+        }
+        
+        .modal-title-area { display: flex; align-items: center; gap: 12px; }
+        .modal-title-area img { width: 42px; height: 42px; border-radius: 12px; object-fit: cover; }
+        .modal-title { font-size: 1.05rem; font-weight: 800; color: #fff; }
+        
+        .close-modal { background: var(--surface); border: 1px solid var(--surface-border); color: var(--text-muted); width: 34px; height: 34px; border-radius: 50%; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; will-change: transform; }
+        .close-modal:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: #ef4444; transform: scale(1.1); }
+        
+        .step-panel { display: none; padding: 20px; animation: fadeIn 0.25s ease; }
+        .step-panel.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(-5px); } to { opacity: 1; transform: translateX(0); } }
 
-.spinner-ring{
-    position:absolute;
-    inset:0;
-    border-radius:50%;
-    border:2px solid rgba(255,255,255,.08);
-    border-top-color:var(--blue);
-    border-right-color:var(--gold);
-    box-shadow:0 0 35px rgba(73,166,255,.12);
-    animation:spinRing 1s linear infinite;
-}
+        .options-list { display: flex; flex-direction: column; gap: 12px; }
+        .option-card { background: var(--surface); border: 1px solid var(--surface-border); border-radius: 16px; padding: 15px; display: flex; align-items: center; gap: 15px; cursor: pointer; transition: transform 0.2s, background 0.2s; will-change: transform; }
+        .option-card:hover { background: var(--surface-hover); border-color: var(--primary); transform: translateX(-4px) translateZ(0); }
+        .option-icon { width: 42px; height: 42px; border-radius: 12px; background: rgba(6, 182, 212, 0.1); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
+        
+        .prices-top-bar { display: flex; justify-content: space-between; margin-bottom: 15px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); align-items: center; }
+        .back-step-btn { background: none; border: none; color: var(--primary); cursor: pointer; font-weight: 700; display: flex; align-items: center; gap: 6px; font-size: 0.9rem; transition: transform 0.2s; will-change: transform; }
+        .back-step-btn:hover { color: var(--accent); transform: translateX(4px); }
+        
+        .prices-grid-container { display: flex; flex-direction: column; gap: 12px; padding-bottom: 10px; }
 
-.spinner-icon{
-    font-size:1.75rem;
-    color:#fff;
-    filter:drop-shadow(0 0 12px rgba(73,166,255,.35));
-    animation:pulseIcon 1.35s ease-in-out infinite alternate;
-}
+        #pricesContent { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; align-items:stretch; }
+        .price-card-modern {
+            min-width:0; position:relative; isolation:isolate; border-radius:16px; padding:1.5px;
+            background:linear-gradient(135deg, rgba(148,163,184,.42), var(--primary), rgba(148,163,184,.28), var(--accent));
+            background-size:220% 220%; animation:subtleBorderFlow 7s ease-in-out infinite;
+            overflow:hidden; box-shadow:0 3px 10px rgba(0,0,0,.16), 0 0 0 1px rgba(6,182,212,.035);
+            transition:transform .22s ease, box-shadow .22s ease; will-change:transform;
+        }
+        @keyframes subtleBorderFlow { 0%,100% { background-position:0% 50%; } 50% { background-position:100% 50%; } }
+        .price-card-modern:hover { transform:translateY(-2px); box-shadow:0 6px 16px rgba(6,182,212,.15), 0 0 0 1px rgba(6,182,212,.12); }
+        .price-card-modern::after {
+            content:''; position:absolute; inset:0; border-radius:inherit; padding:1px; pointer-events:none; z-index:2;
+            background:linear-gradient(110deg,transparent 15%,rgba(255,255,255,.16) 48%,transparent 72%);
+            background-size:220% 100%; background-position:180% 0; opacity:.55;
+            animation:subtleEdgeSheen 6.5s ease-in-out infinite;
+            -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+            -webkit-mask-composite:xor; mask-composite:exclude;
+        }
+        @keyframes subtleEdgeSheen { 0%,65%,100% { background-position:180% 0; } 35% { background-position:-80% 0; } }
+        .price-item-icon { width:54px;height:54px;max-width:100%;object-fit:contain;object-position:center;border-radius:0;margin:0 auto 2px;display:block;background-color:transparent !important;background-image:none !important;padding:0;box-sizing:border-box;image-rendering:auto;mix-blend-mode:normal; }
+        .price-card-content { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; min-height:126px; gap:8px; width:100%; height:100%; padding:12px 8px; box-sizing:border-box; background:var(--surface); border-radius:14.5px; }
+        /* خلفية الأيقونة شفافة فعلياً؛ لا نضع لوناً خلف ملف PNG الشفاف */
+        img.price-item-icon { background:transparent !important; background-color:transparent !important; background-image:none !important; border:0 !important; box-shadow:none; }
+        .price-card-content:has(.price-item-icon) { grid-template-columns:1fr; }
+        .item-details { justify-content:center; max-width:100%; display:flex; align-items:center; gap:8px; flex-wrap:wrap; word-break:break-word; }
+        .item-quantity,.item-type { overflow-wrap:anywhere; }
+        .price-area { display:flex; flex-direction:column; align-items:center; gap:4px; }
+        @media(max-width:360px){ #pricesContent{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;} .price-item-icon{width:46px;height:46px;} .price-card-content{padding:10px 5px;min-height:118px;gap:7px;} }
+        @media(prefers-reduced-motion:reduce){ .price-card-modern,.price-card-modern::after{animation:none;transition:none;} }
+        
+        .item-details { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; word-break: break-word; }
+        .item-quantity { font-size: 1.15rem; font-weight: 900; color: #fff; }
+        .item-type { font-size: 0.9rem; color: var(--text-muted); font-weight: 700; }
+        
+        .price-area { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+        .discount-wrapper { display: flex; align-items: center; gap: 6px; }
+        .discount-badge { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); font-size: 0.65rem; padding: 2px 6px; border-radius: 6px; font-weight: 800; }
+        .old-price { text-decoration: line-through; color: #ef4444; font-size: 0.85rem; opacity: 0.8; font-weight: 700; }
+        .item-price-tag { background: rgba(16, 185, 129, 0.1); color: #10b981; padding: 8px 16px; border-radius: 12px; font-weight: 800; font-size: 0.95rem; border: 1px solid rgba(16, 185, 129, 0.3); direction: ltr; text-align: center; min-width: 80px; }
+        .empty-msg { text-align: center; color: #ef4444; padding: 18px; background: rgba(239, 68, 68, 0.05); border: 1px dashed rgba(239, 68, 68, 0.3); border-radius: 12px; width: 100%; font-size: 0.85rem; }
 
-@keyframes spinRing{
-    to{transform:rotate(360deg)}
-}
-@keyframes pulseIcon{
-    from{transform:scale(.88);opacity:.7}
-    to{transform:scale(1.08);opacity:1}
-}
+        .special-discount-modal {
+            position: relative; background: linear-gradient(45deg, var(--surface-border), var(--primary), var(--surface-border), var(--accent));
+            background-size: 200% 200%; animation: gradientBorder 4s ease infinite;
+            border-radius: 24px; padding: 2px; border: none; box-shadow: 0 0 25px rgba(6, 182, 212, 0.2);
+            overflow: hidden; will-change: background-position, transform;
+        }
+        .special-discount-modal::after {
+            content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.12), transparent);
+            transform: skewX(-25deg); animation: shine 3s infinite linear; z-index: 3; pointer-events: none;
+        }
+        .discount-modal-inner {
+            background: linear-gradient(145deg, #182235, #0b111e); border-radius: 22px; width: 100%; height: 100%;
+            position: relative; z-index: 5; padding-bottom: 22px;
+        }
 
-.loader-text{
-    font-size:1.05rem;
-    font-weight:800;
-    color:#fff;
-}
-.loader-subtext{
-    margin-top:7px;
-    font-size:.8rem;
-    color:var(--muted);
-}
+        .discount-header { text-align: center; padding: 22px 20px 10px; }
+        .discount-icon { font-size: 2.8rem; color: #f59e0b; text-shadow: 0 0 10px rgba(245,158,11,0.5); margin-bottom: 8px; animation: bounce-icon 2s infinite ease-in-out; will-change: transform; }
+        .discount-game-img { width: 75px; height: 75px; border-radius: 18px; object-fit: cover; margin: 0 auto 12px auto; display: none; border: 2px solid var(--primary); box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3); animation: bounce-icon 2s infinite ease-in-out; will-change: transform; }
+        @keyframes bounce-icon { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+        
+        .discount-title { font-size: 1.25rem; font-weight: 900; color: #fff; margin-bottom: 4px; }
+        .discount-body { padding: 10px 22px 0px; }
+        
+        .discount-details-box { background: rgba(0,0,0,0.35); border-radius: 16px; padding: 16px; margin-bottom: 16px; border: 1px solid rgba(255,255,255,0.06); }
+        .d-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-size: 0.9rem; }
+        .d-row:last-child { margin-bottom: 0; }
+        .d-label { color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+        .d-val { color: #fff; font-weight: bold; }
+        
+        .timer-title-text { text-align: center; font-size: 0.78rem; color: var(--text-muted); margin-bottom: 8px; font-weight: 700; }
+        .timer-box { display: flex; justify-content: center; align-items: center; gap: 8px; direction: ltr; margin-bottom: 20px; }
+        .timer-card { background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 8px 10px; min-width: 60px; text-align: center; box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+        .time-unit { color: #f59e0b; font-weight: 900; font-size: 1.2rem; display: block; line-height: 1.2; }
+        .time-label { font-size: 0.65rem; font-weight: bold; color: var(--text-muted); display: block; margin-top: 2px; }
+        .timer-separator { color: #f59e0b; font-weight: 900; font-size: 1.1rem; margin-top: -10px; }
 
-.modal-overlay{
-    position:fixed;
-    inset:0;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    padding:20px;
-    z-index:2000;
-    background:rgba(3,6,11,.62);
-    backdrop-filter:blur(26px) saturate(135%);
-    -webkit-backdrop-filter:blur(26px) saturate(135%);
-    opacity:0;
-    pointer-events:none;
-    transition:opacity .28s ease;
-}
+        .discount-btn { background: #25d366; color: #fff; width: 100%; border: none; padding: 14px; border-radius: 14px; font-size: 1rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: transform 0.2s, background 0.2s; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2); will-change: transform; }
+        .discount-btn:hover { background: #1ebd5a; transform: translateY(-2px) translateZ(0); box-shadow: 0 6px 15px rgba(37, 211, 102, 0.3); }
+        
+        .floating-gift { position: fixed; bottom: 95px; right: 20px; width: 50px; height: 50px; background: linear-gradient(135deg, #f59e0b, #d97706); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #fff; cursor: pointer; z-index: 95; box-shadow: 0 0 15px rgba(245, 158, 11, 0.4); animation: pulse-gift 2s infinite ease-in-out; display: none; will-change: transform, box-shadow; transform: translateZ(0); }
+        @keyframes pulse-gift { 0% { transform: scale(1) translateZ(0); box-shadow: 0 0 10px rgba(245, 158, 11, 0.3); } 50% { transform: scale(1.1) translateZ(0); box-shadow: 0 0 25px rgba(245, 158, 11, 0.6); } 100% { transform: scale(1) translateZ(0); box-shadow: 0 0 10px rgba(245, 158, 11, 0.3); } }
 
-.modal-overlay.active{
-    opacity:1;
-    pointer-events:all;
-}
+        #recoveryPage { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; z-index: 200; background: var(--bg-deep); flex-direction: column; justify-content: center; align-items: center; padding: 20px; will-change: opacity; }
+        #recoveryPage.open { display: flex; animation: fadeIn 0.25s ease; }
+        
+        .recovery-card { background: var(--surface); border: 1px solid var(--surface-border); border-radius: 24px; width: 100%; max-width: 420px; padding: 30px 20px; text-align: center; box-shadow: 0 15px 35px rgba(0,0,0,0.5); position: relative; transform: translateZ(0); }
+        .recovery-close-icon { position: absolute; top: 15px; left: 15px; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; transition: all 0.2s; will-change: transform; }
+        .recovery-close-icon:hover { background: #ef4444; color: #fff; transform: scale(1.1); }
+        .recovery-icon-glow { width: 70px; height: 70px; background: rgba(6, 182, 212, 0.1); border: 2px solid rgba(6, 182, 212, 0.3); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 2rem; color: var(--primary); box-shadow: 0 0 15px var(--primary-glow); }
+        .recovery-title { font-size: 1.15rem; font-weight: 800; color: #fff; margin-bottom: 12px; line-height: 1.5; }
+        .recovery-desc { font-size: 0.88rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 25px; }
+        .telegram-btn { background: #229ed9; color: #fff; width: 100%; border: none; padding: 14px; border-radius: 14px; font-size: 1rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: transform 0.2s, background 0.2s; text-decoration: none; box-shadow: 0 4px 12px rgba(34, 158, 217, 0.2); will-change: transform; }
+        .telegram-btn:hover { background: #1d8ac0; transform: translateY(-2px) translateZ(0); box-shadow: 0 6px 15px rgba(34, 158, 217, 0.3); }
 
-.modal-card{
-    width:min(100%,400px);
-    padding:30px 22px 24px;
-    text-align:center;
-    position:relative;
-    border-radius:30px;
-    border:1px solid rgba(255,255,255,.19);
-    background:
-        linear-gradient(145deg,rgba(255,255,255,.13),rgba(255,255,255,.045)),
-        rgba(13,19,30,.62);
-    backdrop-filter:blur(34px) saturate(150%);
-    -webkit-backdrop-filter:blur(34px) saturate(150%);
-    box-shadow:
-        0 35px 90px rgba(0,0,0,.62),
-        inset 0 1px rgba(255,255,255,.16);
-    transform:translateY(10px) scale(.985);
-    transition:transform .28s ease;
-}
+        /* الإطار الجديد: تحميل مبكر وبدون تغيير مقاس اللوجو أو بطاقات الألعاب */
+        .game-logo-frame::before {
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 100% 100%;
+        }
+    
+        /* إصلاح عرض اسم العملة في الشريط العلوي فقط — بدون تغيير أي بيانات أو قاعدة بيانات */
+        .currency-toggle-main {
+            flex: 1 1 auto;
+            min-width: 0;
+            max-width: 100%;
+            align-items: center;
+            overflow: visible;
+        }
 
-.modal-overlay.active .modal-card{
-    transform:translateY(0) scale(1);
-}
+        .currency-toggle-title {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            font-size: .60rem;
+            line-height: 1.35;
+            font-weight: 800;
+            white-space: normal;
+            overflow: visible;
+            text-overflow: clip;
+            text-align: center;
+            overflow-wrap: normal;
+            word-break: normal;
+        }
 
-.modal-close-btn{
-    position:absolute;
-    top:13px;
-    left:13px;
-    width:36px;
-    height:36px;
-    border-radius:50%;
-    border:1px solid rgba(255,255,255,.12);
-    background:rgba(255,255,255,.07);
-    color:#fff;
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    transition:.2s ease;
-}
+        .currency-toggle-hint {
+            font-size: .46rem;
+            line-height: 1.2;
+            white-space: nowrap;
+            text-align: center;
+        }
 
-.modal-close-btn:hover{
-    background:rgba(255,101,116,.13);
-    border-color:rgba(255,101,116,.55);
-    color:#ff8994;
-}
+        @media (max-width: 767px) {
+            .currency-toggle-main {
+                flex: 1 1 0;
+            }
 
-.prize-icon-wrapper{
-    width:78px;
-    height:78px;
-    margin:0 auto 14px;
-    border-radius:50%;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    color:var(--gold);
-    font-size:2.05rem;
-    border:1px solid rgba(255,215,106,.35);
-    background:radial-gradient(circle,rgba(255,215,106,.16),rgba(255,215,106,.035));
-    box-shadow:0 0 35px rgba(255,215,106,.10),inset 0 1px rgba(255,255,255,.12);
-}
+            .currency-toggle-title {
+                font-size: .57rem;
+                line-height: 1.35;
+                white-space: normal;
+            }
 
-.prize-name-display{
-    margin:14px 0;
-    padding:14px 12px;
-    border-radius:17px;
-    color:#fff;
-    font-size:1.38rem;
-    font-weight:900;
-    border:1px solid rgba(255,215,106,.25);
-    background:rgba(255,255,255,.055);
-    box-shadow:inset 0 1px rgba(255,255,255,.08);
-}
+            .currency-toggle-hint {
+                font-size: .45rem;
+                margin-top: 2px;
+            }
+        }
 
-.claim-code-box{
-    margin-bottom:20px;
-    padding:13px 14px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:10px;
-    border-radius:15px;
-    border:1px solid rgba(255,255,255,.10);
-    background:rgba(0,0,0,.22);
-    box-shadow:inset 0 1px rgba(255,255,255,.05);
-}
+        @media (max-width: 390px) {
+            .currency-toggle-title {
+                font-size: .54rem;
+            }
 
-.claim-code-val{
-    font-family:monospace;
-    font-size:1.25rem;
-    font-weight:900;
-    letter-spacing:1px;
-    color:#65b7ff;
-}
+            .currency-toggle-hint {
+                font-size: .43rem;
+            }
+        }
 
-.btn-whatsapp{
-    width:100%;
-    padding:14px;
-    border-radius:16px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    gap:10px;
-    text-decoration:none;
-    color:#fff;
-    font-size:1rem;
-    font-weight:800;
-    border:1px solid rgba(255,255,255,.13);
-    background:linear-gradient(135deg,rgba(49,229,139,.92),rgba(18,128,75,.95));
-    box-shadow:0 12px 30px rgba(18,128,75,.20),inset 0 1px rgba(255,255,255,.22);
-    transition:transform .18s ease,filter .18s ease;
-}
+    
+        /* ===== تحسين الاستجابة لجميع الشاشات بدون المساس بالبيانات أو قاعدة البيانات ===== */
+        html {
+            font-size: 16px;
+        }
 
-.btn-whatsapp:hover{filter:brightness(1.06)}
-.btn-whatsapp:active{transform:scale(.985)}
+        .nav-content,
+        .luck-feature-wrap,
+        .slider-container,
+        .search-container,
+        .container {
+            width: 100%;
+            max-width: 1280px;
+        }
 
-.timer-box{
-    display:inline-block;
-    direction:ltr;
-    margin-top:7px;
-    padding:7px 15px;
-    border-radius:11px;
-    color:var(--gold);
-    font-size:1.15rem;
-    font-weight:900;
-    background:rgba(0,0,0,.26);
-    border:1px solid rgba(255,215,106,.18);
-    box-shadow:inset 0 1px rgba(255,255,255,.04);
-}
+        .main-logo {
+            max-width: clamp(118px, 12vw, 230px);
+            height: clamp(49px, 6vw, 82px);
+        }
 
+        .currency-toggle {
+            width: clamp(136px, 19vw, 220px);
+            min-height: clamp(48px, 5vw, 64px);
+            height: auto;
+            padding: clamp(5px, .7vw, 10px);
+        }
 
-/* قفل العجلة بعد استخدام المحاولة: نفس الدائرة تماماً وبصورة خفيفة */
-.wheel-lock-overlay{
-    position:absolute;
-    top:43.5%;
-    left:50%;
-    width:var(--wheel-size);
-    height:var(--wheel-size);
-    transform:translate(-50%,-50%) translateZ(0);
-    border-radius:50%;
-    overflow:hidden;
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    z-index:30;
-    pointer-events:none;
-    opacity:0;
-    visibility:hidden;
-    background:rgba(5,7,12,.18);
-    transition:opacity:.35s ease,visibility:.35s ease;
-    box-shadow:inset 0 0 0 1px rgba(255,255,255,.10),inset 0 0 55px rgba(0,0,0,.20);
-}
-.wheel-lock-overlay.active{
-    opacity:1;
-    visibility:visible;
-}
-.wheel-lock-overlay img{
-    width:100%;
-    height:100%;
-    object-fit:contain;
-    display:block;
-    opacity:.94;
-    filter:drop-shadow(0 8px 18px rgba(0,0,0,.28));
-    user-select:none;
-    -webkit-user-drag:none;
-}
+        .currency-flag {
+            width: clamp(27px, 3vw, 38px);
+            height: clamp(27px, 3vw, 38px);
+            flex-basis: clamp(27px, 3vw, 38px);
+        }
 
-/* معلومات صلاحية الكود */
-.code-expiry-box,
-.saved-expiry-box{
-    margin:0 0 16px;
-    padding:11px 12px;
-    border-radius:14px;
-    border:1px solid rgba(255,215,106,.18);
-    background:rgba(255,215,106,.055);
-    color:#dbe7f5;
-    font-size:.82rem;
-    line-height:1.75;
-}
-.code-expiry-box strong,
-.saved-expiry-box strong{
-    color:#ffd76a;
-}
-.code-expiry-box i,
-.saved-expiry-box i{
-    color:#ffd76a;
-    margin-left:4px;
-}
-.expiry-countdown{
-    display:inline-block;
-    margin-top:5px;
-    padding:4px 10px;
-    border-radius:9px;
-    background:rgba(0,0,0,.22);
-    color:#ffd76a;
-    font-weight:900;
-    direction:ltr;
-    letter-spacing:.5px;
-}
-.expiry-expired{
-    color:#ff7885!important;
-}
-.lose-prize-state{
-    border-color:rgba(73,166,255,.22)!important;
-    background:rgba(73,166,255,.055)!important;
-}
-.lose-prize-state .prize-icon-wrapper{
-    color:#65b7ff;
-    border-color:rgba(73,166,255,.30);
-    background:radial-gradient(circle,rgba(73,166,255,.14),rgba(73,166,255,.025));
-}
-.lose-prize-state .prize-name-display{
-    border-color:rgba(73,166,255,.22);
-}
+        .currency-toggle-title {
+            font-size: clamp(.54rem, .85vw, .82rem);
+        }
 
-@media (max-width:520px){
-    body{padding:22px 10px 34px}
-    .logo-box{width:82px;height:82px}
-    .glass-card{border-radius:23px;padding:16px}
-    .wheel-container{width:min(410px,94vw);margin-top:4px;--wheel-size:72%;--frame-size:96%}
-    .spin-btn{width:78px;height:78px;font-size:1.05rem}
-    .pointer-arrow{width:29px;height:42px}
-}
+        .currency-toggle-hint {
+            font-size: clamp(.43rem, .62vw, .62rem);
+        }
 
-@media (max-width:360px){
-    .store-title{font-size:1.85rem}
-    .subtitle{font-size:.82rem}
-    .wheel-container{width:93vw;--wheel-size:72%;--frame-size:96%}
-    .spin-btn{width:72px;height:72px}
-}
+        .currency-toggle-arrow {
+            width: clamp(21px, 2.5vw, 30px);
+            height: clamp(21px, 2.5vw, 30px);
+            flex-basis: clamp(21px, 2.5vw, 30px);
+            font-size: clamp(.58rem, .8vw, .8rem);
+        }
 
-@media (prefers-reduced-motion:reduce){
-    *,*::before,*::after{
-        animation-duration:.01ms!important;
-        animation-iteration-count:1!important;
-        transition-duration:.01ms!important;
-    }
-}
+        .slider-container,
+        .search-container {
+            margin-top: clamp(12px, 2vw, 24px);
+        }
 
-/* Precision wheel/frame alignment: keep the wheel and artwork scaled together. */
-.wheel-container{
-    --wheel-size:74%;
-    --frame-size:101%;
-}
-.wheel-outer-ring{
-    top:43.5%;
-    left:50%;
-    width:var(--wheel-size);
-    height:var(--wheel-size);
-    transform:translate(-50%,-50%) translateZ(0);
-    overflow:hidden;
-    box-sizing:border-box;
-}
-.wheel-outer-ring #wheel{
-    width:100%;
-    height:100%;
-    clip-path:circle(50% at 50% 50%);
-    -webkit-clip-path:circle(50% at 50% 50%);
-}
-.wheel-frame{
-    top:50%;
-    left:50%;
-    width:var(--frame-size);
-    height:var(--frame-size);
-    transform:translate(-50%,-50%) translateZ(0);
-}
-.pointer-box{
-    top:calc(43.5% - (var(--wheel-size) / 2) - 7px);
-}
-@media (max-width:520px){
-    .wheel-container{--wheel-size:74%;--frame-size:101%;}
-}
-@media (max-width:360px){
-    .wheel-container{--wheel-size:74%;--frame-size:101%;}
-}
+        .container {
+            padding-left: clamp(12px, 2.5vw, 30px);
+            padding-right: clamp(12px, 2.5vw, 30px);
+        }
 
-/* Responsive wheel sizing: scales naturally from phones to large desktop screens. */
-.wheel-container{
-    width:clamp(320px,58vw,680px);
-    max-width:none;
-    aspect-ratio:1 / 1;
-}
-@media (max-width:900px){
-    .wheel-container{width:min(88vw,560px);}
-}
-@media (max-width:520px){
-    .wheel-container{width:94vw;}
-}
-@media (max-width:360px){
-    .wheel-container{width:93vw;}
-}
-</style>
+        .games-grid {
+            grid-template-columns: repeat(auto-fit, minmax(clamp(145px, 18vw, 245px), 1fr));
+            gap: clamp(12px, 1.6vw, 24px);
+        }
+
+        .game-card {
+            padding: clamp(12px, 1.6vw, 24px);
+            border-radius: clamp(16px, 1.8vw, 24px);
+        }
+
+        .game-logo-frame {
+            width: clamp(75px, 9vw, 125px);
+            height: clamp(75px, 9vw, 125px);
+            flex-basis: clamp(75px, 9vw, 125px);
+            margin-bottom: clamp(8px, 1vw, 14px);
+        }
+
+        .game-logo-frame img {
+            width: calc(clamp(75px, 9vw, 125px) - 14px);
+            height: calc(clamp(75px, 9vw, 125px) - 14px);
+            flex-basis: calc(clamp(75px, 9vw, 125px) - 14px);
+            border-radius: clamp(12px, 1.2vw, 18px);
+        }
+
+        .game-card h3 {
+            font-size: clamp(.82rem, 1.25vw, 1.15rem);
+            margin-bottom: clamp(8px, 1vw, 14px);
+        }
+
+        .btn-view {
+            font-size: clamp(.72rem, 1vw, .95rem);
+            padding: clamp(7px, .9vw, 12px) 0;
+            border-radius: clamp(10px, 1vw, 15px);
+        }
+
+        .luck-feature {
+            width: min(100%, 520px);
+            min-height: clamp(72px, 9vw, 110px);
+            padding: clamp(8px, 1.2vw, 16px);
+            gap: clamp(10px, 1.5vw, 18px);
+        }
+
+        .luck-feature img {
+            width: clamp(52px, 7vw, 84px);
+            height: clamp(52px, 7vw, 84px);
+            flex-basis: clamp(52px, 7vw, 84px);
+        }
+
+        .luck-feature-title {
+            font-size: clamp(.82rem, 1.35vw, 1.15rem);
+        }
+
+        .luck-feature-sub {
+            font-size: clamp(.58rem, .9vw, .78rem);
+        }
+
+        .luck-feature-arrow {
+            width: clamp(30px, 3.5vw, 42px);
+            height: clamp(30px, 3.5vw, 42px);
+        }
+
+        .bottom-nav-dock {
+            width: min(95%, 760px);
+            padding: clamp(8px, 1vw, 14px);
+            border-radius: clamp(24px, 2.5vw, 34px);
+        }
+
+        .dock-icon-wrapper {
+            width: clamp(36px, 4vw, 52px);
+            height: clamp(36px, 4vw, 52px);
+            border-radius: clamp(12px, 1.2vw, 17px);
+            font-size: clamp(1.05rem, 1.8vw, 1.45rem);
+        }
+
+        .dock-item span {
+            font-size: clamp(.62rem, .9vw, .82rem);
+        }
+
+        @media (min-width: 768px) {
+            nav {
+                min-height: clamp(82px, 8vw, 108px);
+                padding: clamp(10px, 1.3vw, 18px) clamp(16px, 2.5vw, 32px);
+            }
+
+            .nav-content {
+                min-height: clamp(62px, 6vw, 86px);
+            }
+
+            .games-grid {
+                grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            }
+
+            .slider {
+                max-height: min(520px, 42vw);
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .games-grid {
+                grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+            }
+        }
+
+        @media (max-width: 390px) {
+            .games-grid {
+                gap: 10px;
+            }
+
+            .game-card {
+                padding: 10px 8px;
+            }
+        }
+
+    </style>
 </head>
 <body>
 
-    <!-- شاشة التحميل الحديثة تظهر حتى اكتمال جلب البيانات -->
-    <div class="db-loader-overlay" id="dbLoader">
-        <div class="loader-spinner-box">
-            <div class="spinner-ring"></div>
-            <i class="fa-solid fa-database spinner-icon"></i>
-        </div>
-        <div class="loader-text">جاري مزامنة بيانات العجلة...</div>
-        <div class="loader-subtext">يرجى الانتظار لحظة واحدة</div>
-    </div>
+    <nav>
+        <div class="nav-content">
+            <button id="currencyBtn" class="currency-toggle" onclick="toggleCurrency()" aria-label="تغيير العملة">
+                <img id="currencyFlag" class="currency-flag"
+                     src="https://a.top4top.io/p_3914owpxp0.jpg"
+                     alt="علم مصر"
+                     onerror="handleCurrencyFlagError(this)">
+                <span class="currency-toggle-main">
+                    <span id="currencyTitle" class="currency-toggle-title">الأسعار بالجنيه المصري</span>
+                    <span class="currency-toggle-hint">اضغط للتغيير</span>
+                </span>
+                <span class="currency-toggle-arrow"><i class="fas fa-exchange-alt"></i></span>
+            </button>
 
-    <header>
-        <div class="logo-box">
-            <div class="logo-inner">
-                <img src="https://via.placeholder.com/150/151d2a/0084ff?text=MOHAB" alt="MOHAB STORE" id="storeLogo">
+            <img id="mainLogoImg" src="" alt="Logo" class="main-logo" style="display:none;" loading="lazy" decoding="async">
+
+            <div class="spacer"></div>
+        </div>
+    </nav>
+
+    <div class="luck-feature-wrap">
+        <a href="#luck" class="luck-feature" onclick="openLuckPage(event)" aria-label="فتح عجلة الحظ">
+            <img src="https://e.top4top.io/p_3913ditnr0.png" alt="عجلة الحظ" loading="lazy" decoding="async">
+            <div class="luck-feature-text">
+                <div class="luck-feature-title">🎡 عجلة الحظ</div>
+                <div class="luck-feature-sub">جرّب حظك واكتشف المفاجأة</div>
             </div>
-        </div>
-        <h1 class="store-title" id="storeName">MOHAB STORE</h1>
-        <p class="subtitle"><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--accent-gold);"></i> اضغط ودوّر العجلة للفوز بهدايا فورية!</p>
-    </header>
-
-    <div class="glass-card saved-prize-card" id="savedPrizeCard">
-        <p style="color: var(--accent-gold); font-weight: bold; font-size: 0.95rem;"><i class="fa-solid fa-box-open"></i> لديك جائزة محفوظة بانتظارك</p>
-        <div style="font-size: 1.15rem; margin: 10px 0; color: #fff; font-weight: 800;" id="savedPrizeText">-</div>
-        <div id="prizeStatusBadge" style="margin-bottom: 12px;"></div>
-        <div class="saved-expiry-box" id="savedExpiryBox">
-            <div><i class="fa-solid fa-hourglass-half"></i> مدة صلاحية الكود: <strong>24 ساعة</strong></div>
-            <div>تاريخ انتهاء الكود: <strong id="savedExpiryDate">-</strong></div>
-        </div>
-        <a id="savedWhatsappBtn" class="btn-whatsapp" target="_blank" href="#" style="margin-bottom: 10px;">
-            <i class="fa-brands fa-whatsapp" style="font-size:1.2rem;"></i> استلام الجائزة عبر الواتساب
+            <div class="luck-feature-arrow"><i class="fas fa-chevron-left"></i></div>
         </a>
-        <div style="font-size: 0.8rem; color: var(--text-sub);">المحاولة التالية المتاحة بعد: <br><span class="timer-box" id="savedPrizeTimer">00:00:00</span></div>
     </div>
 
-    <div class="wheel-container">
-        <div class="pointer-box"><div class="pointer-arrow"></div></div>
-        <div class="wheel-outer-ring">
-            <canvas id="wheel" width="600" height="600"></canvas>
-            <div class="spin-btn" id="spinBtn">إبدأ</div>
-        </div>
-        <img
-            class="wheel-frame"
-            src="https://f.top4top.io/p_3914hp00q0.png"
-            alt="MOHAB STORE Wheel Frame"
-            aria-hidden="true"
-            draggable="false"
-        >
-        <div class="wheel-lock-overlay" id="wheelLockOverlay" aria-hidden="true">
-            <img
-                src="https://l.top4top.io/p_3921q8csf0.png"
-                alt=""
-                draggable="false"
-            >
-        </div>
-    </div>
-
-    <div class="glass-card" style="text-align: center;">
-        <div id="activeNotice">
-            <p style="font-size: 0.9rem; color: #cbd5e1;"><i class="fa-solid fa-hand-pointer" style="color:var(--accent-blue); margin-left:5px;"></i> انقر على زر "إبدأ" لتدوير العجلة</p>
-        </div>
-        <div id="cooldownNotice" style="display:none;">
-            <p style="color:#f87171; font-weight:bold; font-size: 0.9rem;"><i class="fa-solid fa-hourglass-half"></i> تم استخدام محاولتك، يرجى الانتظار:</p>
-            <div class="timer-box" id="countdownTimer">00:00:00</div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="prizeModal">
-        <div class="modal-card">
-            <button class="modal-close-btn" id="closeModalBtn"><i class="fa-solid fa-xmark"></i></button>
-            <div class="prize-icon-wrapper"><i class="fa-solid fa-trophy"></i></div>
-            <h2 style="font-size: 1.4rem; color: #fff; font-weight: 800;">مبروك! لقد فزت بـ</h2>
-            <div class="prize-name-display" id="modalPrizeTitle">جائزة قيمة</div>
-            <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 8px;">رمز التحقق الخاص بربحتك:</p>
-            <div class="claim-code-box">
-                <span style="color: var(--text-sub); font-size: 0.8rem;">الرمز:</span>
-                <span class="claim-code-val" id="claimCodeDisplay">MS-000000</span>
+    <div class="luck-feature-wrap">
+        <a href="#chatbot" class="luck-feature chatbot-feature" onclick="openChatbotPage(event)" aria-label="فتح شات بوت المساعد الذكي">
+            <img src="https://f.top4top.io/p_3916qmqqv0.png" alt="شات بوت المساعد الذكي" loading="lazy" decoding="async">
+            <div class="luck-feature-text">
+                <div class="luck-feature-title">🤖 شات بوت المساعد الذكي</div>
+                <div class="luck-feature-sub">تواصل مع المساعد الذكي واحصل على المساعدة</div>
             </div>
-            <div class="code-expiry-box" id="modalExpiryBox">
-                <div><i class="fa-solid fa-clock"></i> صلاحية الكود: <strong>24 ساعة</strong></div>
-                <div>ينتهي في: <strong id="modalExpiryDate">-</strong></div>
-                <div class="expiry-countdown" id="modalExpiryCountdown">23:59:59</div>
+            <div class="luck-feature-arrow"><i class="fas fa-chevron-left"></i></div>
+        </a>
+    </div>
+
+    <div id="gameRequestModal" aria-hidden="true">
+        <div class="game-request-card" role="dialog" aria-modal="true" aria-labelledby="gameRequestTitle">
+            <div class="game-request-icon"><i class="fas fa-gamepad"></i></div>
+            <h3 id="gameRequestTitle">ما اللعبة التي تريد إضافتها؟</h3>
+            <p>اكتب اسم اللعبة التي تريد رؤيتها في المتجر، وسنقوم بتسجيل طلبك في النظام.</p>
+            <input id="gameRequestInput" class="game-request-input" type="text" maxlength="80" autocomplete="off" placeholder="مثال: Call of Duty Mobile">
+            <div class="game-request-actions">
+                <button class="game-request-btn game-request-submit" type="button" onclick="submitGameRequest()"><i class="fas fa-paper-plane"></i> إرسال الطلب</button>
+                <button class="game-request-btn game-request-cancel" type="button" onclick="closeGameRequest()">إغلاق</button>
             </div>
-            <a id="whatsappBtn" class="btn-whatsapp" target="_blank" href="#">
-                <i class="fa-brands fa-whatsapp" style="font-size: 1.25rem;"></i>
-                إرسال الكود للإدارة واستلام الجائزة
+            <div id="gameRequestMessage" class="game-request-message"></div>
+        </div>
+    </div>
+
+    <div class="slider-container" id="sliderContainer" style="display:none;">
+        <div class="slider" id="sliderWrapper"></div>
+        <div class="slider-dots" id="sliderDots"></div>
+    </div>
+
+    <div class="search-container">
+        <div class="search-box">
+            <input type="text" id="searchInput" placeholder="ابحث عن لعبتك المفضلة..." onkeyup="filterGamesDebounced()">
+            <i class="fas fa-search"></i>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="games-grid" id="gamesGrid">
+            <div class="loader-wrapper"><i class="fas fa-spinner fa-spin"></i></div>
+        </div>
+    </div>
+
+    <div id="bottomDock" class="bottom-nav-dock" style="display:none;"></div>
+
+    <!-- صفحة عجلة الحظ: الرابط الحقيقي مخفي عن واجهة المستخدم عبر رابط نسبي داخلي -->
+    <div id="luckPage" aria-hidden="true">
+        <div class="luck-page-header">
+            <button class="luck-back-btn" onclick="closeLuckPage()" aria-label="رجوع"><i class="fas fa-arrow-right"></i></button>
+            <div class="luck-page-title">عجلة الحظ</div>
+        </div>
+        <iframe id="luckFrame" class="luck-page-frame" title="عجلة الحظ" loading="lazy" decoding="async" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    </div>
+
+    <div id="chatbotPage" aria-hidden="true">
+        <div class="luck-page-header">
+            <button class="luck-back-btn" onclick="closeChatbotPage()" aria-label="رجوع"><i class="fas fa-arrow-right"></i></button>
+            <div class="luck-page-title">شات بوت المساعد الذكي</div>
+        </div>
+        <iframe id="chatbotFrame" class="luck-page-frame" title="شات بوت المساعد الذكي" loading="lazy" decoding="async" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    </div>
+
+    <div id="recoveryPage">
+        <div class="recovery-card">
+            <button class="recovery-close-icon" onclick="closeRecovery()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="recovery-icon-glow">
+                <i class="fab fa-telegram-plane"></i>
+            </div>
+            <div class="recovery-title">نقل خدمة كشف الاستعادة</div>
+            <div class="recovery-desc">
+                تم نقل خدمة كشف الاستعادة الى بوت تليجرام لاضافة المزيد من الخدمات مثل تخمين رمز الامان، اسبام تسجيل الدخول، الحصول على معلومات الحساب بشكل كامل واستعمال ميزة المقبرة.
+            </div>
+            <a href="https://t.me/mohabstore_bot" target="_blank" class="telegram-btn">
+                <i class="fab fa-telegram-plane" style="font-size: 1.2rem;"></i> الانتقال إلى بوت التليجرام
             </a>
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <div id="floatingGift" class="floating-gift" onclick="openDiscountModal()">
+        <i class="fas fa-gift"></i>
+    </div>
+
+    <!-- نافذة الإشعار (صورة فقط) بالتصميم الاحترافي الجذاب -->
+    <div id="welcomeEventModal" class="modal-overlay" onclick="closeOnOutside(event)">
+        <div class="ultra-event-modal">
+            <button class="ultra-close-btn" onclick="closeWelcomeModal()">
+                <i class="fas fa-times"></i>
+            </button>
+            <div id="welcomeCountdown" class="welcome-countdown">10</div>
+            <div class="ultra-img-container">
+                <a id="welcomeEventLink" class="welcome-event-link" href="#" target="_blank" rel="noopener noreferrer">
+                    <img id="welcomeEventImg" src="https://via.placeholder.com/600x600?text=إشعار+المتجر" alt="إشعار">
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div id="gameModal" class="modal-overlay" onclick="closeOnOutside(event)">
+        <div class="modal-box" id="modalScrollBox">
+            <div class="modal-header">
+                <div class="modal-title-area">
+                    <img id="modalGameImg" src="" alt="" loading="lazy" decoding="async">
+                    <div id="modalGameName" class="modal-title">اسم اللعبة</div>
+                </div>
+                <button class="close-modal" onclick="closeModal('gameModal')"><i class="fas fa-times"></i></button>
+            </div>
+            
+            <div id="stepSelection" class="step-panel active">
+                <div class="options-list" id="modalOptionsList"></div>
+            </div>
+            
+            <div id="stepPrices" class="step-panel">
+                <div class="prices-top-bar">
+                    <button class="back-step-btn" onclick="goBack()"><i class="fas fa-arrow-right"></i> رجوع</button>
+                    <span style="color:#fff; font-weight:800; font-size:0.95rem;">الأسعار</span>
+                </div>
+                <div class="prices-grid-container" id="pricesContent"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="discountModal" class="modal-overlay" onclick="closeOnOutside(event)">
+        <div class="modal-box special-discount-modal">
+            <div class="discount-modal-inner">
+                <button class="close-modal" style="position: absolute; top:15px; left:15px; z-index:11;" onclick="closeModal('discountModal')"><i class="fas fa-times"></i></button>
+                <div class="discount-header">
+                    <img id="dGameImage" class="discount-game-img" src="" alt="Game Icon" loading="lazy" decoding="async">
+                    <i class="fas fa-gift discount-icon" id="dGiftIconFallback"></i>
+                    
+                    <div class="discount-title">تهانينا! لديك خصم حصري</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted);" id="discountEndDateText"></div>
+                </div>
+                <div class="discount-body">
+                    <div class="discount-details-box">
+                        <div class="d-row"><span class="d-label"><i class="fas fa-gamepad"></i> المنتج:</span> <span class="d-val" id="dGameName"></span></div>
+                        <div class="d-row"><span class="d-label"><i class="fas fa-box"></i> الباقة:</span> <span class="d-val" id="dPackage"></span></div>
+                        <div class="d-row"><span class="d-label"><i class="fas fa-bolt"></i> طريقة الشحن:</span> <span class="d-val" id="dType"></span></div>
+                        <hr style="border-color: rgba(255,255,255,0.08); margin: 10px 0;">
+                        <div class="d-row" style="align-items: center;">
+                            <span class="d-label">السعر:</span> 
+                            <div>
+                                <span class="old-price" id="dOldPrice" style="margin-left: 6px;"></span>
+                                <span class="item-price-tag" id="dNewPrice" style="padding: 4px 12px;"></span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="timer-title-text">الوقت المتبقي لانتهاء الخصم</div>
+                    <div class="timer-box" id="discountTimer">
+                        <div class="timer-card"><span class="time-unit" id="tHours">00</span><span class="time-label">ساعة</span></div>
+                        <div class="timer-separator">:</div>
+                        <div class="timer-card"><span class="time-unit" id="tMins">00</span><span class="time-label">دقيقة</span></div>
+                        <div class="timer-separator">:</div>
+                        <div class="timer-card"><span class="time-unit" id="tSecs">00</span><span class="time-label">ثانية</span></div>
+                    </div>
+
+                    <button class="discount-btn" onclick="claimDiscountWhatsApp()">
+                        <i class="fab fa-whatsapp"></i> الحصول على الخصم الآن
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
+        document.addEventListener('contextmenu', event => event.preventDefault()); 
+        document.onkeydown = function(e) {
+            if(e.keyCode == 123) return false;
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'I'.charCodeAt(0)) return false;
+            if(e.ctrlKey && e.shiftKey && e.keyCode == 'J'.charCodeAt(0)) return false;
+            if(e.ctrlKey && e.keyCode == 'U'.charCodeAt(0)) return false;
+        };
+
         const firebaseConfig = {
             apiKey: "AIzaSyAVV1wjaYY1saP5Op9TdY_Snrt7DQcXSwU",
             authDomain: "mohab-store.firebaseapp.com",
             databaseURL: "https://mohab-store-default-rtdb.firebaseio.com",
-            projectId: "mohab-store"
+            projectId: "mohab-store",
+            storageBucket: "mohab-store.firebasestorage.app",
+            messagingSenderId: "883837761283",
+            appId: "1:883837761283:web:87c2c19ea0d0f224eb5b36"
         };
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        const db = firebase.database();
 
-        let db = null;
-        try {
-            firebase.initializeApp(firebaseConfig);
-            db = firebase.database();
-        } catch (e) {
-            console.error("Firebase initialization failed:", e);
+        let globalGames = {};
+        let currentGameId = null;
+        let currentPriceType = null; 
+        let currentCurrency = 'EGP';
+
+        let visitorId = localStorage.getItem('mohab_visitor_id');
+        if(!visitorId) {
+            visitorId = 'V_' + Math.random().toString(36).substr(2, 9) + Date.now();
+            localStorage.setItem('mohab_visitor_id', visitorId);
         }
-
-        let adminPhoneNumber = "201000000000";
-        // اللفة اليومية والكود كلاهما ثابتان لمدة 24 ساعة حسب المطلوب.
-        const DAILY_COOLDOWN_MS = 24 * 60 * 60 * 1000;
-        const PRIZE_VALIDITY_MS = 24 * 60 * 60 * 1000;
-
-        function getCooldownMs() {
-            const hours = Number(cooldownHours);
-            return (Number.isFinite(hours) && hours >= 1 ? hours : 24) * 60 * 60 * 1000;
-        }
-        let cooldownHours = 24;
-        let dailyCooldownMs = DAILY_COOLDOWN_MS;
-        let userIP = "unknown_user";
-        // طبقات تعريف إضافية للمساعدة في منع إعادة اللفة بعد مسح بيانات الموقع.
-        let userDeviceId = "unknown_device";
-        let deviceFingerprint = "unknown_fingerprint";
-        let deviceFingerprintKey = "unknown_fingerprint";
-        let currentResetVersion = 0;
-        let resetVersionLoaded = false;
-        let activeExpiryTimer = null;
-        let activeSavedExpiryTimer = null;
-
-        function getOrCreateDeviceId() {
-            const storageKey = "mohab_store_wheel_device_id_v1";
-            try {
-                let id = localStorage.getItem(storageKey);
-                if (!id) {
-                    if (window.crypto && typeof crypto.randomUUID === "function") {
-                        id = crypto.randomUUID();
-                    } else {
-                        id = "ms-" + Date.now() + "-" + Math.random().toString(36).slice(2) + "-" + Math.random().toString(36).slice(2);
-                    }
-                    localStorage.setItem(storageKey, id);
-                }
-                return String(id).replace(/[.#$\[\]/]/g, "_");
-            } catch (e) {
-                console.warn("Device ID storage unavailable:", e);
-                return "unknown_device";
-            }
-        }
-
-
-        function simpleHash(value) {
-            let hash = 2166136261;
-            const str = String(value);
-            for (let i = 0; i < str.length; i++) {
-                hash ^= str.charCodeAt(i);
-                hash = Math.imul(hash, 16777619);
-            }
-            return ("00000000" + (hash >>> 0).toString(16)).slice(-8);
-        }
-
-        function buildDeviceFingerprint() {
-            try {
-                const parts = [
-                    navigator.userAgent || "",
-                    navigator.language || "",
-                    Array.isArray(navigator.languages) ? navigator.languages.join(",") : "",
-                    navigator.platform || "",
-                    String(navigator.hardwareConcurrency || ""),
-                    String(navigator.deviceMemory || ""),
-                    String(screen.width || ""),
-                    String(screen.height || ""),
-                    String(screen.colorDepth || ""),
-                    String(window.devicePixelRatio || ""),
-                    String(new Date().getTimezoneOffset()),
-                    String(Intl.DateTimeFormat().resolvedOptions().timeZone || ""),
-                    String(navigator.maxTouchPoints || "")
-                ];
-                return "fp_" + simpleHash(parts.join("|"));
-            } catch (e) {
-                return "unknown_fingerprint";
-            }
-        }
-
-        function getFingerprintKey() {
-            return String(buildDeviceFingerprint()).replace(/[.#$\[\]/]/g, "_");
-        }
-
-        function isLosePrizeText(value) {
-            // يتعرف على "حظ أوفر" حتى مع اختلاف الهمزات/المسافات/الإيموجي والرموز.
-            const normalized = String(value || "")
-                .toLowerCase()
-                .replace(/[أإآٱ]/g, "ا")
-                .replace(/ؤ/g, "و")
-                .replace(/ئ/g, "ي")
-                .replace(/ة/g, "ه")
-                .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, "")
-                .replace(/[\s\u200B-\u200D\uFEFF]+/g, "")
-                .replace(/[\p{P}\p{S}]/gu, "");
-            return normalized.includes("حظاوفر");
-        }
-
-        function formatArabicDate(timestamp) {
-            const date = new Date(Number(timestamp) || 0);
-            if (!Number.isFinite(date.getTime()) || date.getTime() <= 0) return "-";
-            try {
-                return date.toLocaleString("ar-EG", {
-                    year:"numeric",
-                    month:"2-digit",
-                    day:"2-digit",
-                    hour:"2-digit",
-                    minute:"2-digit",
-                    second:"2-digit"
-                });
-            } catch (e) {
-                return date.toLocaleString("ar-EG");
-            }
-        }
-
-        function formatRemaining(ms) {
-            if (ms <= 0) return "انتهى";
-            const totalSeconds = Math.floor(ms / 1000);
-            const hours = Math.floor(totalSeconds / 3600);
-            const minutes = Math.floor((totalSeconds % 3600) / 60);
-            const seconds = totalSeconds % 60;
-            return `${String(hours).padStart(2,"0")}:${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")}`;
-        }
-
-        function setWheelLocked(locked) {
-            const overlay = document.getElementById("wheelLockOverlay");
-            const btn = document.getElementById("spinBtn");
-            if (overlay) overlay.classList.toggle("active", !!locked);
-            if (locked) {
-                if (btn) {
-                    btn.classList.add("disabled");
-                    btn.innerHTML = '<i class="fa-solid fa-lock"></i>';
-                }
-            } else if (btn) {
-                btn.innerHTML = "إبدأ";
-            }
-        }
-
-        function startPrizeExpiryTimer(expiresAt) {
-            if (activeExpiryTimer) clearInterval(activeExpiryTimer);
-            const update = () => {
-                const remaining = Number(expiresAt) - Date.now();
-                const countdown = document.getElementById("modalExpiryCountdown");
-                const box = document.getElementById("modalExpiryBox");
-                if (remaining <= 0) {
-                    if (countdown) {
-                        countdown.textContent = "انتهى";
-                        countdown.classList.add("expiry-expired");
-                    }
-                    if (box) box.classList.add("expiry-expired");
-                    clearInterval(activeExpiryTimer);
-                    activeExpiryTimer = null;
-                    return;
-                }
-                if (countdown) {
-                    countdown.textContent = formatRemaining(remaining);
-                    countdown.classList.remove("expiry-expired");
-                }
-            };
-            update();
-            activeExpiryTimer = setInterval(update, 1000);
-        }
-
-        function startSavedPrizeExpiryTimer(expiresAt) {
-            if (activeSavedExpiryTimer) clearInterval(activeSavedExpiryTimer);
-            const update = () => {
-                const remaining = Number(expiresAt) - Date.now();
-                const box = document.getElementById("savedExpiryBox");
-                const dateEl = document.getElementById("savedExpiryDate");
-                if (dateEl) dateEl.textContent = formatArabicDate(expiresAt);
-                if (remaining <= 0) {
-                    if (box) {
-                        box.classList.add("expiry-expired");
-                        box.innerHTML = '<div><i class="fa-solid fa-circle-xmark"></i> انتهت صلاحية الكود بعد مرور 24 ساعة.</div>';
-                    }
-                    clearInterval(activeSavedExpiryTimer);
-                    activeSavedExpiryTimer = null;
-                    return;
-                }
-                if (box) box.classList.remove("expiry-expired");
-            };
-            update();
-            activeSavedExpiryTimer = setInterval(update, 1000);
-        }
-
-        // IMPORTANT:
-        // لا توجد أي جوائز افتراضية هنا.
-        // العجلة لا يمكنها العمل إلا بالجوائز الموجودة في Firebase /settings/items.
-        let wheelItems = [];
-        let currentRotation = 0;
-        let loadedImages = {};
-        let isDataLoaded = false;
-        let settingsLoaded = false;
-        let spinStatusLoaded = false;
-        let isSpinning = false;
-        let audioCtx = null;
-
-        const canvas = document.getElementById('wheel');
-        const ctx = canvas.getContext('2d');
-
-        function hideLoader() {
-            if (!isDataLoaded) {
-                isDataLoaded = true;
-                const loader = document.getElementById('dbLoader');
-                if (loader) loader.classList.add('hidden');
-            }
-        }
-
-        function showConfigError(message) {
-            document.getElementById('activeNotice').style.display = 'block';
-            document.getElementById('cooldownNotice').style.display = 'none';
-            document.getElementById('spinBtn').classList.add('disabled');
-            document.getElementById('activeNotice').innerHTML =
-                `<p style="font-size:.9rem;color:#ff8792;font-weight:700">
-                    <i class="fa-solid fa-triangle-exclamation"></i> ${message}
-                </p>`;
-        }
-
-        function setSpinAvailability(enabled) {
-            const btn = document.getElementById('spinBtn');
-            if (enabled) btn.classList.remove('disabled');
-            else btn.classList.add('disabled');
-        }
-
-        /*
-         * تنظيف بيانات الجوائز القادمة من Firebase.
-         * نقبل Array أو Object، لكن لا ننشئ أي جائزة من عندنا.
-         * كل عنصر يجب أن يحتوي على اسم جائزة ونسبة رقمية، بما فيها 0%.
-         */
-        function normalizeWheelItems(rawItems) {
-            if (!rawItems) return [];
-
-            let source = Array.isArray(rawItems)
-                ? rawItems
-                : (typeof rawItems === 'object'
-                    ? Object.keys(rawItems).sort((a, b) => {
-                        const na = Number(a), nb = Number(b);
-                        if (Number.isFinite(na) && Number.isFinite(nb)) return na - nb;
-                        return a.localeCompare(b);
-                    }).map(k => rawItems[k])
-                    : []);
-
-            const cleaned = [];
-
-            source.forEach((raw, originalIndex) => {
-                if (!raw || typeof raw !== 'object') return;
-
-                const text = String(raw.text ?? raw.name ?? '').trim();
-                const chance = Number(raw.chance);
-
-                // أي عنصر ناقص أو بنسبة غير صحيحة يتم تجاهله ولا يتحول لجائزة وهمية.
-                if (!text || !Number.isFinite(chance) || chance < 0) return;
-
-                cleaned.push({
-                    text,
-                    logo: typeof raw.logo === 'string' ? raw.logo.trim() : '',
-                    color: typeof raw.color === 'string' && raw.color.trim()
-                        ? raw.color
-                        : '#151d2a',
-                    chance,
-                    // نحتفظ بمعرف العنصر إن كان موجوداً لسهولة التتبع.
-                    id: raw.id != null ? String(raw.id) : String(originalIndex)
-                });
-            });
-
-            return cleaned;
-        }
-
-        /*
-         * النسب هنا تعمل كـ "أوزان" وليست شرطاً أن يكون مجموعها 100%.
-         * مثال: 100 و85 و90 تعني أن فرص الجوائز الثلاث تتناسب مع هذه الأوزان.
-         * الجائزة ذات 0% تظل ظاهرة في العجلة، لكنها لا تدخل في السحب إطلاقاً.
-         */
-        function getEligiblePrizeIndexes(items = wheelItems) {
-            const eligible = [];
-            (Array.isArray(items) ? items : []).forEach((item, index) => {
-                const chance = Number(item && item.chance);
-                if (Number.isFinite(chance) && chance > 0) {
-                    eligible.push(index);
-                }
-            });
-            return eligible;
-        }
-
-        function validatePrizePercentages(items) {
-            if (!Array.isArray(items) || !items.length) {
-                return { ok: false, message: "لا توجد جوائز صالحة في قاعدة البيانات." };
-            }
-
-            const eligibleIndexes = getEligiblePrizeIndexes(items);
-            const total = eligibleIndexes.reduce((sum, index) => {
-                const chance = Number(items[index].chance);
-                return sum + chance;
-            }, 0);
-
-            if (eligibleIndexes.length === 0 || total <= 0) {
-                return {
-                    ok: false,
-                    message: "لا توجد أي جائزة بنسبة أكبر من 0% للسحب. الجوائز بنسبة 0% تظل ظاهرة فقط ولا يمكن أن تفوز."
-                };
-            }
-
-            return { ok: true, total, eligibleIndexes };
-        }
-
-        function maybeEnableAfterLoad() {
-            if (!settingsLoaded || !spinStatusLoaded) return;
-
-            hideLoader();
-
-            if (!wheelItems.length) {
-                showConfigError("لا توجد جوائز محفوظة في النظام.");
-                return;
-            }
-
-            const validation = validatePrizePercentages(wheelItems);
-            if (!validation.ok) {
-                showConfigError(validation.message);
-                return;
-            }
-        }
-
-        function createAudioContext() {
-            if (!audioCtx) {
-                try {
-                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                } catch (e) {
-                    audioCtx = null;
-                }
-            }
-            return audioCtx;
-        }
-
-        function playTickSound(progress) {
-            try {
-                const ac = createAudioContext();
-                if (!ac) return;
-                if (ac.state === 'suspended') ac.resume();
-
-                const osc = ac.createOscillator();
-                const gain = ac.createGain();
-
-                osc.type = 'triangle';
-                const freq = 300 + (1 - progress) * 420;
-                osc.frequency.setValueAtTime(freq, ac.currentTime);
-                osc.frequency.exponentialRampToValueAtTime(90, ac.currentTime + 0.055);
-                gain.gain.setValueAtTime(0.18, ac.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.055);
-
-                osc.connect(gain);
-                gain.connect(ac.destination);
-                osc.start();
-                osc.stop(ac.currentTime + 0.04);
-            } catch (e) {}
-        }
-
-        function preloadImages() {
-            loadedImages = {};
-
-            wheelItems.forEach((item, i) => {
-                if (!item.logo) return;
-
-                const img = new Image();
-                img.crossOrigin = "anonymous";
-                img.onload = () => {
-                    loadedImages[i] = img;
-                    drawWheel();
-                };
-                img.onerror = () => {
-                    // الصورة لا تؤثر على الجائزة نفسها.
-                    delete loadedImages[i];
-                    drawWheel();
-                };
-                img.src = item.logo;
-            });
-        }
-
-        function drawWheel() {
-            const width = canvas.width;
-            const center = width / 2;
-            const radius = center - 12;
-            const numSegments = wheelItems.length;
-
-            ctx.clearRect(0, 0, width, width);
-            if (!numSegments) return;
-
-            const segmentAngle = (2 * Math.PI) / numSegments;
-
-            for (let i = 0; i < numSegments; i++) {
-                const startAngle = currentRotation + i * segmentAngle;
-                const endAngle = startAngle + segmentAngle;
-
-                ctx.save();
-                ctx.beginPath();
-                ctx.moveTo(center, center);
-                ctx.arc(center, center, radius, startAngle, endAngle);
-                ctx.closePath();
-
-                ctx.fillStyle = wheelItems[i].color || "#151d2a";
-                ctx.fill();
-
-                ctx.lineWidth = Math.max(3, width * 0.006);
-                ctx.strokeStyle = "rgba(255,255,255,0.30)";
-                ctx.shadowColor = "rgba(0,0,0,0.34)";
-                ctx.shadowBlur = 3;
-                ctx.stroke();
-                ctx.restore();
-            }
-
-            for (let i = 0; i < numSegments; i++) {
-                const startAngle = currentRotation + i * segmentAngle;
-                const endAngle = startAngle + segmentAngle;
-                const midAngle = startAngle + segmentAngle / 2;
-                const rawText = String(wheelItems[i].text || "").trim();
-
-                if (!rawText && !loadedImages[i]) continue;
-
-                ctx.save();
-                ctx.translate(center, center);
-
-                ctx.beginPath();
-                ctx.moveTo(0, 0);
-                ctx.arc(0, 0, radius - 4, startAngle, endAngle);
-                ctx.closePath();
-                ctx.clip();
-
-                const labelRadius = radius * 0.60;
-                const labelX = Math.cos(midAngle) * labelRadius;
-                const labelY = Math.sin(midAngle) * labelRadius;
-
-                const sectorSafeWidth = Math.max(
-                    86,
-                    Math.min(radius * 0.46, labelRadius * segmentAngle * 0.58)
-                );
-                const sectorSafeHeight = Math.max(58, radius * 0.30);
-
-                ctx.textAlign = "center";
-                ctx.textBaseline = "middle";
-                ctx.direction = "rtl";
-
-                function buildPrizeLines(text, fontSize, widthLimit) {
-                    ctx.font = `900 ${fontSize}px "Tajawal", Arial, sans-serif`;
-
-                    const words = text.split(/\s+/).filter(Boolean);
-                    const lines = [];
-                    let line = "";
-
-                    for (const word of words) {
-                        const candidate = line ? `${line} ${word}` : word;
-
-                        if (ctx.measureText(candidate).width <= widthLimit) {
-                            line = candidate;
-                            continue;
-                        }
-
-                        if (line) {
-                            lines.push(line);
-                            line = "";
-                        }
-
-                        let chunk = "";
-                        for (const char of word) {
-                            const test = chunk + char;
-                            if (ctx.measureText(test).width <= widthLimit || !chunk) {
-                                chunk = test;
-                            } else {
-                                lines.push(chunk);
-                                chunk = char;
-                            }
-                        }
-
-                        if (chunk) line = chunk;
-                    }
-
-                    if (line) lines.push(line);
-                    return lines.length ? lines : [text];
-                }
-
-                let fontSize = Math.min(21, Math.max(11, radius * 0.066));
-                let lines = buildPrizeLines(rawText, fontSize, sectorSafeWidth);
-
-                while (fontSize > 9) {
-                    const lineHeight = fontSize * 1.14;
-                    const widestLine = lines.reduce(
-                        (max, line) => Math.max(max, ctx.measureText(line).width),
-                        0
-                    );
-                    const totalHeight = lines.length * lineHeight;
-
-                    if (
-                        widestLine <= sectorSafeWidth &&
-                        totalHeight <= sectorSafeHeight &&
-                        lines.length <= 5
-                    ) break;
-
-                    fontSize -= 1;
-                    lines = buildPrizeLines(rawText, fontSize, sectorSafeWidth);
-                }
-
-                if (lines.length > 5) {
-                    fontSize = Math.max(8, fontSize - 1);
-                    lines = buildPrizeLines(rawText, fontSize, sectorSafeWidth);
-                }
-
-                const lineHeight = fontSize * 1.14;
-                const textHeight = lines.length * lineHeight;
-
-                const hasLogo = !!loadedImages[i];
-                const logoSize = hasLogo ? Math.min(30, radius * 0.09) : 0;
-                const logoGap = hasLogo ? 5 : 0;
-                const contentHeight = textHeight + logoSize + logoGap;
-
-                const cardWidth = Math.min(sectorSafeWidth + 12, radius * 0.50);
-                const cardHeight = Math.min(
-                    Math.max(contentHeight + 14, 52),
-                    radius * 0.34
-                );
-
-                ctx.save();
-                ctx.translate(labelX, labelY);
-
-                ctx.fillStyle = "rgba(4, 10, 20, 0.40)";
-                ctx.strokeStyle = "rgba(255,255,255,0.20)";
-                ctx.lineWidth = 1.5;
-                ctx.shadowColor = "rgba(0,0,0,0.35)";
-                ctx.shadowBlur = 8;
-
-                ctx.beginPath();
-                ctx.roundRect(
-                    -cardWidth / 2,
-                    -cardHeight / 2,
-                    cardWidth,
-                    cardHeight,
-                    Math.min(14, cardHeight / 2)
-                );
-                ctx.fill();
-                ctx.stroke();
-
-                ctx.shadowBlur = 0;
-                ctx.fillStyle = "rgba(255,255,255,0.07)";
-                ctx.beginPath();
-                ctx.roundRect(
-                    -cardWidth / 2 + 2,
-                    -cardHeight / 2 + 2,
-                    cardWidth - 4,
-                    Math.min(12, cardHeight * 0.18),
-                    8
-                );
-                ctx.fill();
-
-                let cursorY = -contentHeight / 2;
-
-                if (hasLogo) {
-                    ctx.save();
-                    ctx.shadowColor = "rgba(0,0,0,0.50)";
-                    ctx.shadowBlur = 5;
-                    ctx.drawImage(
-                        loadedImages[i],
-                        -logoSize / 2,
-                        cursorY,
-                        logoSize,
-                        logoSize
-                    );
-                    ctx.restore();
-
-                    cursorY += logoSize + logoGap;
-                }
-
-                ctx.font = `900 ${fontSize}px "Tajawal", Arial, sans-serif`;
-                ctx.fillStyle = "#ffffff";
-                ctx.strokeStyle = "rgba(0,0,0,0.72)";
-                ctx.lineWidth = Math.max(1.4, fontSize * 0.085);
-                ctx.shadowColor = "rgba(0,0,0,0.82)";
-                ctx.shadowBlur = 4;
-                ctx.shadowOffsetY = 1;
-
-                lines.forEach((line, index) => {
-                    const y = cursorY + index * lineHeight + lineHeight / 2;
-                    ctx.strokeText(line, 0, y, sectorSafeWidth);
-                    ctx.fillText(line, 0, y, sectorSafeWidth);
-                });
-
-                ctx.restore();
-                ctx.restore();
-            }
-
-            ctx.save();
-            ctx.translate(center, center);
-
-            const hubRadius = radius * 0.14;
-            const hubGradient = ctx.createRadialGradient(
-                -hubRadius * 0.35,
-                -hubRadius * 0.40,
-                hubRadius * 0.15,
-                0,
-                0,
-                hubRadius
-            );
-
-            hubGradient.addColorStop(0, "rgba(255,255,255,0.24)");
-            hubGradient.addColorStop(0.35, "rgba(24,39,62,0.96)");
-            hubGradient.addColorStop(1, "rgba(7,13,24,0.98)");
-
-            ctx.beginPath();
-            ctx.arc(0, 0, hubRadius, 0, Math.PI * 2);
-            ctx.fillStyle = hubGradient;
-            ctx.shadowColor = "rgba(0,0,0,0.55)";
-            ctx.shadowBlur = 10;
-            ctx.fill();
-
-            ctx.shadowBlur = 0;
-            ctx.lineWidth = 3;
-            ctx.strokeStyle = "rgba(255,255,255,0.18)";
-            ctx.stroke();
-
-            ctx.fillStyle = "#f7fbff";
-            ctx.font = `900 ${Math.max(18, radius * 0.075)}px "Tajawal", Arial, sans-serif`;
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.direction = "rtl";
-            ctx.shadowColor = "rgba(0,0,0,0.70)";
-            ctx.shadowBlur = 4;
-            ctx.fillText("إبدأ", 0, 0);
-
-            ctx.restore();
-        }
-
-        /*
-         * اختيار الجائزة بنظام الأوزان:
-         * - chance = 0 => الجائزة تظهر على العجلة لكن مستحيل يتم اختيارها.
-         * - أي أرقام موجبة تعمل، ولا يشترط أن يكون مجموعها 100.
-         * - الاحتمال الفعلي لكل جائزة = وزنها / مجموع الأوزان.
-         * مثال: 100 و85 و90 => 36.36% و30.91% و32.73% تقريباً.
-         */
-        function pickWinningIndex() {
-            const validation = validatePrizePercentages(wheelItems);
-            if (!validation.ok) return -1;
-
-            const totalChance = validation.total;
-            const random = Math.random() * totalChance;
-            let cumulative = 0;
-
-            // مهم: نبني قائمة السحب من الجوائز التي chance > 0 فقط.
-            // لذلك لا توجد أي حالة fallback يمكن أن تعيد جائزة 0%.
-            for (const index of validation.eligibleIndexes) {
-                const chance = Number(wheelItems[index].chance);
-                cumulative += chance;
-                if (random < cumulative) return index;
-            }
-
-            // بسبب دقة الفاصلة العائمة فقط: أعد آخر عنصر مؤهل، وليس أي عنصر 0%.
-            return validation.eligibleIndexes[validation.eligibleIndexes.length - 1] ?? -1;
-        }
-
-        async function readSpinRecord(key) {
-            if (!db || !key || key === "unknown_user" || key === "unknown_device") return null;
-            try {
-                const snap = await db.ref('user_spins/' + key).once('value');
-                return snap.exists() ? (snap.val() || {}) : null;
-            } catch (error) {
-                console.error("Spin status read failed for", key, error);
-                return null;
-            }
-        }
-
-        async function checkServerSpinStatus() {
-            if (!db) {
-                spinStatusLoaded = true;
-                maybeEnableAfterLoad();
-                return;
-            }
-
-            const keys = [];
-            if (userDeviceId !== "unknown_device") keys.push(userDeviceId);
-            if (deviceFingerprintKey !== "unknown_fingerprint" && deviceFingerprintKey !== userDeviceId) {
-                keys.push(deviceFingerprintKey);
-            }
-            if (
-                userIP !== "unknown_user" &&
-                userIP !== userDeviceId &&
-                userIP !== deviceFingerprintKey
-            ) {
-                keys.push(userIP);
-            }
-
-            try {
-                // اقرأ إصدار التصفير أولاً. أي سجل قديم بإصدار أقل يتم تجاهله.
-                const resetSnap = await db.ref("wheel_control/resetVersion").once("value");
-                currentResetVersion = Number(resetSnap.val()) || 0;
-                resetVersionLoaded = true;
-
-                if (!keys.length) {
-                    spinStatusLoaded = true;
-                    maybeEnableAfterLoad();
-                    return;
-                }
-
-                const records = await Promise.all(keys.map(readSpinRecord));
-                let data = null;
-
-                for (const record of records) {
-                    if (!record) continue;
-
-                    // سجل قبل آخر تصفير = محاولة قديمة، ولا يجب أن تقفل الدورة الجديدة.
-                    const recordResetVersion = Number(record.resetVersion) || 0;
-                    if (recordResetVersion < currentResetVersion) continue;
-
-                    if (!data || Number(record.lastSpinTime || 0) > Number(data.lastSpinTime || 0)) {
-                        data = record;
-                    }
-                }
-
-                spinStatusLoaded = true;
-
-                if (data) {
-                    const lastSpinTime = Number(data.lastSpinTime) || 0;
-                    const nextSpinTime = lastSpinTime + getCooldownMs();
-                    const now = Date.now();
-
-                    if (now < nextSpinTime) {
-                        startTimer(nextSpinTime);
-
-                        if (data.savedPrize && data.savedPrize.prize) {
-                            const saved = data.savedPrize;
-                            const isLose = isLosePrizeText(saved.prize);
-                            const expiresAt = Number(saved.expiresAt) || (lastSpinTime + PRIZE_VALIDITY_MS);
-                            const expired = Date.now() >= expiresAt;
-
-                            document.getElementById('savedPrizeCard').style.display = 'block';
-                            document.getElementById('savedPrizeText').innerText =
-                                isLose
-                                    ? `حظ أوفر 🍀`
-                                    : `${saved.prize} (كود: ${saved.code || '-'})`;
-
-                            const badge = document.getElementById('prizeStatusBadge');
-
-                            if (isLose) {
-                                badge.innerHTML =
-                                    `<span style="color:#65b7ff;font-size:.85rem;font-weight:bold">
-                                        <i class="fa-solid fa-face-smile"></i> حظ أوفر — لا يوجد كود أو استلام عبر الواتساب
-                                    </span>`;
-                                document.getElementById('savedWhatsappBtn').style.display = 'none';
-                                document.getElementById('savedExpiryBox').style.display = 'none';
-                            } else {
-                                document.getElementById('savedWhatsappBtn').style.display = 'flex';
-                                document.getElementById('savedExpiryBox').style.display = 'block';
-
-                                if (expired) {
-                                    badge.innerHTML =
-                                        `<span style="color:#ff7885;font-size:.85rem;font-weight:bold">
-                                            <i class="fa-solid fa-circle-xmark"></i> انتهت صلاحية الكود
-                                        </span>`;
-                                    document.getElementById('savedWhatsappBtn').style.display = 'none';
-                                } else if (saved.claimed) {
-                                    badge.innerHTML =
-                                        `<span style="color:#4ade80;font-size:.85rem;font-weight:bold">
-                                            <i class="fa-solid fa-circle-check"></i> تم التفعيل والاستلام بنجاح
-                                        </span>`;
-                                } else {
-                                    badge.innerHTML =
-                                        `<span style="color:#fbbf24;font-size:.85rem;font-weight:bold">
-                                            <i class="fa-solid fa-clock"></i> الكود صالح لمدة 24 ساعة فقط
-                                        </span>`;
-                                }
-
-                                document.getElementById('savedExpiryDate').textContent = formatArabicDate(expiresAt);
-                                startSavedPrizeExpiryTimer(expiresAt);
-
-                                const msg =
-                                    `مرحباً MOHAB STORE 👋🏼\n` +
-                                    `أود استلام جائزتي:\n` +
-                                    `🎁 الجائزة: ${saved.prize}\n` +
-                                    `🔑 الكود: ${saved.code || '-'}\n` +
-                                    `⏳ مدة صلاحية الكود: 24 ساعة\n` +
-                                    `📅 تاريخ انتهاء الكود: ${formatArabicDate(expiresAt)}`;
-
-                                document.getElementById('savedWhatsappBtn').href =
-                                    `https://wa.me/${adminPhoneNumber}?text=${encodeURIComponent(msg)}`;
-                            }
-                        }
-                    } else {
-                        enableSpinning();
-                    }
-                } else {
-                    enableSpinning();
-                }
-
-                maybeEnableAfterLoad();
-            } catch (error) {
-                console.error("Spin status read failed:", error);
-                spinStatusLoaded = true;
-                showConfigError("تعذر قراءة حالة المحاولة من قاعدة البيانات.");
-                maybeEnableAfterLoad();
-            }
-        }
-
-        function enableSpinning() {
-            if (!settingsLoaded || !spinStatusLoaded) return;
-
-            const validation = validatePrizePercentages(wheelItems);
-            if (!validation.ok) {
-                showConfigError(validation.message);
-                return;
-            }
-
-            document.getElementById('activeNotice').style.display = 'block';
-            document.getElementById('activeNotice').innerHTML =
-                `<p style="font-size:.9rem;color:#cbd5e1">
-                    <i class="fa-solid fa-hand-pointer" style="color:var(--accent-blue);margin-left:5px"></i>
-                    انقر على زر "إبدأ" لتدوير العجلة
-                </p>`;
-            document.getElementById('cooldownNotice').style.display = 'none';
-            document.getElementById('savedPrizeCard').style.display = 'none';
-            setWheelLocked(false);
-            setSpinAvailability(true);
-        }
-
-        let timerFrame = null;
-
-        function startTimer(targetTime) {
-            document.getElementById('activeNotice').style.display = 'none';
-            document.getElementById('cooldownNotice').style.display = 'block';
-            setSpinAvailability(false);
-            setWheelLocked(true);
-
-            if (timerFrame) cancelAnimationFrame(timerFrame);
-
-            function update() {
-                const diff = targetTime - Date.now();
-
-                if (diff <= 0) {
-                    timerFrame = null;
-                    checkServerSpinStatus();
-                    return;
-                }
-
-                const hrs = Math.floor(diff / (1000 * 60 * 60));
-                const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-                const secs = Math.floor((diff % (1000 * 60)) / 1000);
-
-                const timeStr =
-                    `${hrs.toString().padStart(2, '0')}:` +
-                    `${mins.toString().padStart(2, '0')}:` +
-                    `${secs.toString().padStart(2, '0')}`;
-
-                document.getElementById('countdownTimer').innerText = timeStr;
-                document.getElementById('savedPrizeTimer').innerText = timeStr;
-
-                timerFrame = requestAnimationFrame(update);
-            }
-
-            update();
-        }
-
-        document.getElementById('spinBtn').addEventListener('click', async () => {
-            if (isSpinning) return;
-            if (document.getElementById('spinBtn').classList.contains('disabled')) return;
-            if (!settingsLoaded || !spinStatusLoaded || !resetVersionLoaded) return;
-
-            const validation = validatePrizePercentages(wheelItems);
-            if (!validation.ok) {
-                showConfigError(validation.message);
-                return;
-            }
-
-            if (!wheelItems.length) return;
-
-            // فحص محلي سريع قبل طلب الحجز من السيرفر.
-            const localLockKey = "mohab_store_wheel_last_spin_v1";
-            try {
-                const localLastSpin = Number(localStorage.getItem(localLockKey)) || 0;
-                const localNextSpin = localLastSpin + getCooldownMs();
-                const localResetVersion = Number(localStorage.getItem("mohab_store_wheel_reset_version_v2")) || 0;
-
-                if (localResetVersion === currentResetVersion && localLastSpin && Date.now() < localNextSpin) {
-                    startTimer(localNextSpin);
-                    return;
-                }
-            } catch (e) {}
-
-            // حجز المحاولة على Firebase قبل بدء الدوران.
-            // هذا يمنع الضغط مرتين/فتح تبويبين في نفس الوقت من إنشاء لفتين.
-            if (!db || userDeviceId === "unknown_device") {
-                showConfigError("تعذر التحقق من محاولة المستخدم. يرجى إعادة تحميل الصفحة.");
-                return;
-            }
-
-            let reservationKey = deviceFingerprintKey !== "unknown_fingerprint"
-                ? deviceFingerprintKey
-                : userDeviceId;
-
-            if (!reservationKey || reservationKey === "unknown_fingerprint") {
-                reservationKey = userDeviceId;
-            }
-
-            const reservationRef = db.ref("user_spins/" + reservationKey);
-            const reservationNow = Date.now();
-            let reserved = false;
-            let existingRecord = null;
-
-            try {
-                const tx = await reservationRef.transaction(record => {
-                    const data = record && typeof record === "object" ? record : {};
-                    const recordResetVersion = Number(data.resetVersion) || 0;
-                    const lastSpinTime = Number(data.lastSpinTime) || 0;
-
-                    // السجل من إصدار قديم بعد التصفير = يبدأ إصداراً جديداً.
-                    if (recordResetVersion < currentResetVersion) {
-                        reserved = true;
-                        return {
-                            ...data,
-                            lastSpinTime: reservationNow,
-                            resetVersion: currentResetVersion
-                        };
-                    }
-
-                    // نفس الإصدار: لا تسمح بلفة أخرى قبل انتهاء المدة.
-                    if (lastSpinTime > 0 && reservationNow < lastSpinTime + getCooldownMs()) {
-                        existingRecord = data;
-                        return;
-                    }
-
-                    reserved = true;
-                    return {
-                        ...data,
-                        lastSpinTime: reservationNow,
-                        resetVersion: currentResetVersion
-                    };
-                });
-
-                if (!tx.committed || !reserved) {
-                    const lastSpinTime = Number((tx.snapshot.val() || existingRecord || {}).lastSpinTime) || reservationNow;
-                    startTimer(lastSpinTime + getCooldownMs());
-                    return;
-                }
-            } catch (error) {
-                console.error("Spin reservation failed:", error);
-                showConfigError("تعذر تثبيت محاولة العجلة حالياً. لم يتم بدء الدوران.");
-                return;
-            }
-
-            // بعد نجاح الحجز فقط نختار الجائزة ونبدأ الحركة.
-            const winningIndex = pickWinningIndex();
-            if (winningIndex < 0 || !wheelItems[winningIndex] || Number(wheelItems[winningIndex].chance) <= 0) {
-                // لا نترك حجزاً وهمياً إذا حدث خطأ في إعداد الجوائز.
-                await reservationRef.update({
-                    lastSpinTime: 0,
-                    resetVersion: currentResetVersion
-                }).catch(() => {});
-                showConfigError("تعذر تحديد جائزة صالحة من الجوائز المحفوظة.");
-                return;
-            }
-
-            const selectedPrize = { ...wheelItems[winningIndex] };
-
-            isSpinning = true;
-            setSpinAvailability(false);
-
-            const numSegments = wheelItems.length;
-            const segmentAngle = (2 * Math.PI) / numSegments;
-            const spins = 7;
-
-            const desiredRotation =
-                (-Math.PI / 2) -
-                (winningIndex * segmentAngle + segmentAngle / 2);
-
-            const currentNormalized =
-                ((currentRotation % (2 * Math.PI)) + (2 * Math.PI)) % (2 * Math.PI);
-
-            let delta = desiredRotation - currentNormalized;
-            while (delta < 0) delta += 2 * Math.PI;
-
-            const totalTargetRotation =
-                currentRotation +
-                (spins * 2 * Math.PI) +
-                delta;
-
-            const duration = 6000;
-            const startTime = performance.now();
-            const startRotation = currentRotation;
-            let lastSoundSegment = -1;
-
-            function animateSpin(currentTime) {
-                const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const easeOut = 1 - Math.pow(1 - progress, 4);
-
-                currentRotation =
-                    startRotation +
-                    (totalTargetRotation - startRotation) * easeOut;
-
-                drawWheel();
-
-                const normalized =
-                    ((currentRotation % (2 * Math.PI)) + (2 * Math.PI)) % (2 * Math.PI);
-
-                const currentSegment =
-                    Math.floor(normalized / segmentAngle);
-
-                if (currentSegment !== lastSoundSegment) {
-                    playTickSound(progress);
-                    lastSoundSegment = currentSegment;
-                }
-
-                if (progress < 1) {
-                    requestAnimationFrame(animateSpin);
-                } else {
-                    currentRotation = totalTargetRotation;
-                    drawWheel();
-                    isSpinning = false;
-                    onSpinComplete(selectedPrize);
-                }
-            }
-
-            requestAnimationFrame(animateSpin);
-        });
-
-        function playWinSound() {
-            try {
-                const ac = createAudioContext();
-                if (!ac) return;
-                if (ac.state === 'suspended') ac.resume();
-
-                const now = ac.currentTime;
-
-                [523.25, 659.25, 783.99].forEach((freq, i) => {
-                    const osc = ac.createOscillator();
-                    const gain = ac.createGain();
-
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(freq, now + i * 0.08);
-                    gain.gain.setValueAtTime(0.0001, now + i * 0.08);
-                    gain.gain.exponentialRampToValueAtTime(
-                        0.18,
-                        now + i * 0.08 + 0.025
-                    );
-                    gain.gain.exponentialRampToValueAtTime(
-                        0.0001,
-                        now + i * 0.08 + 0.28
-                    );
-
-                    osc.connect(gain);
-                    gain.connect(ac.destination);
-                    osc.start(now + i * 0.08);
-                    osc.stop(now + i * 0.08 + 0.3);
-                });
-            } catch (e) {}
-        }
-
-        function generateUniqueCode() {
-            // كود عشوائي محلي للعرض/التتبع، وليس مصدر اختيار الجائزة.
-            return "MS-" + Math.floor(100000 + Math.random() * 900000);
-        }
-
-        function onSpinComplete(prize) {
-            playWinSound();
-
-            const now = Date.now();
-            const isLose = isLosePrizeText(prize.text);
-            const expiresAt = now + PRIZE_VALIDITY_MS;
-            const uniqueCode = isLose ? "" : generateUniqueCode();
-
-            if (window.confetti) {
-                confetti({
-                    particleCount: isLose ? 70 : 160,
-                    spread: isLose ? 75 : 100,
-                    origin: { y: 0.6 }
-                });
-            }
-
-            // قفل المحاولة محلياً فوراً حتى لا تبدأ لفة ثانية.
-            try {
-                localStorage.setItem("mohab_store_wheel_last_spin_v1", String(now));
-            } catch (e) {}
-
-            const savedPrize = {
-                prize: prize.text,
-                code: uniqueCode,
-                claimed: false,
-                itemId: prize.id,
-                chance: prize.chance,
-                expiresAt,
-                validityHours: 24,
-                isLosePrize: isLose
-            };
-
-            if (db) {
-                const spinData = {
-                    lastSpinTime: now,
-                    resetVersion: currentResetVersion,
-                    savedPrize
-                };
-
-                if (userDeviceId !== "unknown_device") {
-                    db.ref('user_spins/' + userDeviceId).set(spinData).catch(err => {
-                        console.error("Failed to save device spin:", err);
-                    });
-                }
-
-                // طبقة fingerprint إضافية للمساعدة في كشف إعادة الاستخدام بعد مسح التخزين المحلي.
-                if (deviceFingerprintKey !== "unknown_fingerprint") {
-                    db.ref('user_spins/' + deviceFingerprintKey).set(spinData).catch(err => {
-                        console.error("Failed to save fingerprint spin:", err);
-                    });
-                }
-
-                // سجل IP قديم محفوظ للتوافق مع النظام الحالي.
-                if (userIP !== "unknown_user") {
-                    db.ref('user_spins/' + userIP).set(spinData).catch(err => {
-                        console.error("Failed to save IP spin:", err);
-                    });
-                }
-
-                // نفس مسار prizes الحالي، مع إضافة معلومات الصلاحية دون حذف الحقول القديمة.
-                if (!isLose) {
-                    db.ref('prizes/' + uniqueCode).set({
-                        prize: prize.text,
-                        code: uniqueCode,
-                        userIP,
-                        userDeviceId,
-                        claimed: false,
-                        chance: prize.chance,
-                        itemId: prize.id,
-                        time: new Date().toLocaleString('ar-EG'),
-                        expiresAt,
-                        validityHours: 24,
-                        isLosePrize: false
-                    }).catch(err => {
-                        console.error("Failed to save prize:", err);
-                    });
-                }
-            }
-
-            setWheelLocked(true);
-
-            const modal = document.getElementById('prizeModal');
-            const modalCard = modal.querySelector('.modal-card');
-            const expiryBox = document.getElementById('modalExpiryBox');
-            const whatsappBtn = document.getElementById('whatsappBtn');
-            const prizeIcon = modal.querySelector('.prize-icon-wrapper');
-            const expiryDateEl = document.getElementById('modalExpiryDate');
-
-            modalCard.classList.toggle('lose-prize-state', isLose);
-            document.getElementById('modalPrizeTitle').innerText =
-                isLose ? 'حظ أوفر 🍀' : prize.text;
-
-            if (isLose) {
-                document.getElementById('claimCodeDisplay').innerText = 'لا يوجد كود';
-                expiryBox.style.display = 'none';
-                whatsappBtn.style.display = 'none';
-                prizeIcon.innerHTML = '<i class="fa-solid fa-clover"></i>';
+        let myActiveDiscountCode = null;
+        let discountTimerInterval = null;
+        let activeDiscountData = null;
+        let formattedExpiryTextForWA = '';
+        let systemCooldownHours = 24; 
+
+        // ----- إشعار الدخول القابل للتحكم من السيستم ----- //
+        let eventTimerInterval;
+        let welcomePopupSettings = {
+            enabled: true,
+            image: '',
+            duration: 10,
+            link: ''
+        };
+        let welcomePopupFallbackImage = '';
+        let welcomePopupLoaded = false;
+
+        function applyWelcomePopupSettings() {
+            if (!welcomePopupSettings.image && !welcomePopupFallbackImage) return;
+            const img = document.getElementById('welcomeEventImg');
+            const link = document.getElementById('welcomeEventLink');
+            const finalImage = welcomePopupSettings.image || welcomePopupFallbackImage;
+            if (finalImage) img.src = finalImage;
+
+            if (welcomePopupSettings.link) {
+                link.href = welcomePopupSettings.link;
+                link.style.pointerEvents = 'auto';
             } else {
-                document.getElementById('claimCodeDisplay').innerText = uniqueCode;
-                expiryBox.style.display = 'block';
-                whatsappBtn.style.display = 'flex';
-                prizeIcon.innerHTML = '<i class="fa-solid fa-trophy"></i>';
-                expiryDateEl.textContent = formatArabicDate(expiresAt);
-                startPrizeExpiryTimer(expiresAt);
-
-                const message =
-                    `مرحباً MOHAB STORE 👋🏼\n` +
-                    `لقد ربحت جائزة من عجلة الحظ!\n` +
-                    `🎁 الجائزة: ${prize.text}\n` +
-                    `🔑 كود التحقق: ${uniqueCode}\n` +
-                    `⏳ مدة صلاحية الكود: 24 ساعة فقط\n` +
-                    `📅 تاريخ انتهاء الكود: ${formatArabicDate(expiresAt)}`;
-
-                whatsappBtn.setAttribute(
-                    'href',
-                    `https://wa.me/${adminPhoneNumber}?text=${encodeURIComponent(message)}`
-                );
+                link.removeAttribute('href');
+                link.style.pointerEvents = 'none';
             }
+        }
 
+        function triggerWelcomeEventModal() {
+            if (!welcomePopupSettings.enabled) return;
+            applyWelcomePopupSettings();
+
+            const modal = document.getElementById('welcomeEventModal');
+            const img = document.getElementById('welcomeEventImg');
+            if (!img.getAttribute('src') || img.getAttribute('src').includes('via.placeholder.com')) return;
+
+            modal.style.display = 'flex';
+            void modal.offsetWidth;
             modal.classList.add('active');
 
-            // إعادة قراءة حالة المحاولة بعد الحفظ.
-            checkServerSpinStatus();
+            let timeLeft = Math.max(1, parseInt(welcomePopupSettings.duration, 10) || 10);
+            const countdown = document.getElementById('welcomeCountdown');
+            countdown.textContent = timeLeft;
+
+            clearInterval(eventTimerInterval);
+            eventTimerInterval = setInterval(() => {
+                timeLeft--;
+                countdown.textContent = Math.max(0, timeLeft);
+                if (timeLeft <= 0) closeWelcomeModal();
+            }, 1000);
         }
 
-        document.getElementById('closeModalBtn').addEventListener('click', () => {
-            document.getElementById('prizeModal').classList.remove('active');
-            if (activeExpiryTimer) {
-                clearInterval(activeExpiryTimer);
-                activeExpiryTimer = null;
+        function closeWelcomeModal() {
+            clearInterval(eventTimerInterval);
+            const modal = document.getElementById('welcomeEventModal');
+            modal.classList.remove('active');
+            setTimeout(() => modal.style.display = 'none', 400);
+        }
+
+        // الإعدادات الجديدة: الصورة، مدة الظهور، التفعيل، والرابط
+        db.ref('settings/welcomePopup').on('value', snap => {
+            welcomePopupLoaded = true;
+            if (snap.exists()) {
+                const data = snap.val() || {};
+                welcomePopupSettings = {
+                    enabled: data.enabled !== false,
+                    image: data.image || '',
+                    duration: Math.max(1, parseInt(data.duration, 10) || 10),
+                    link: data.link || ''
+                };
+            } else {
+                // الحفاظ على السلوك القديم إذا لم يتم إعداد الإشعار من لوحة التحكم
+                welcomePopupSettings = { enabled: true, image: '', duration: 10, link: '' };
+            }
+            applyWelcomePopupSettings();
+        });
+
+        // الصور القديمة الموجودة في settings/banners تظل متاحة كاحتياطي
+        db.ref('settings/banners').limitToFirst(1).on('value', snap => {
+            let firstImage = '';
+            snap.forEach(c => {
+                if (!firstImage) firstImage = c.val() || '';
+            });
+            welcomePopupFallbackImage = firstImage;
+            if (!welcomePopupSettings.image) applyWelcomePopupSettings();
+        });
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (!welcomePopupLoaded) setTimeout(triggerWelcomeEventModal, 500);
+                else triggerWelcomeEventModal();
+            }, 800);
+        });
+        // --------------------------------------------------- //
+
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                if (gameRequestSettingsLoaded && gameRequestEnabled) openGameRequest();
+            }, 1150);
+        });
+        document.getElementById('gameRequestModal').addEventListener('click', function(e){
+            if (e.target === this) closeGameRequest();
+        });
+        document.getElementById('gameRequestInput').addEventListener('keydown', function(e){
+            if (e.key === 'Enter') submitGameRequest();
+        });
+
+        db.ref('settings/discount_cooldown_hours').on('value', snap => {
+            if (snap.exists()) systemCooldownHours = parseFloat(snap.val()) || 0;
+        });
+
+        window.addEventListener('popstate', function(e) {
+            if (document.getElementById('discountModal').classList.contains('active')) {
+                closeModal('discountModal', true);
+            } else if (document.getElementById('gameModal').classList.contains('active')) {
+                if (document.getElementById('stepPrices').classList.contains('active')) {
+                    goBack(true);
+                } else {
+                    closeModal('gameModal', true);
+                }
+            } else if (document.getElementById('welcomeEventModal').classList.contains('active')) {
+                closeWelcomeModal();
             }
         });
 
-        /*
-         * تحميل الإعدادات مرة واحدة قبل السماح بأي تدوير.
-         * لا يوجد on('value') أثناء التشغيل حتى لا تتغير قائمة الجوائز
-         * في منتصف دوران العجلة وتصبح النتيجة غير متطابقة مع القطاعات.
-         */
-        async function loadSettings() {
-            if (!db) {
-                settingsLoaded = true;
-                showConfigError("تعذر الاتصال بقاعدة البيانات.");
-                maybeEnableAfterLoad();
+        function pushModalState() { history.pushState({ modal: true }, ''); }
+
+        // حماية صور العملات: إذا تعذر تحميل صور Top4Top، استخدم أعلام SVG داخلية
+        // حتى لا تختفي أيقونة العملة من الهيدر نهائياً. لا يتم تغيير بيانات Firebase.
+        const CURRENCY_FLAG_FALLBACKS = {
+            EGP: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 40"><rect width="60" height="40" fill="#fff"/><rect width="60" height="13.33" fill="#ce1126"/><rect y="26.67" width="60" height="13.33" fill="#000"/><circle cx="30" cy="20" r="5" fill="#d4af37"/></svg>`),
+            USD: 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 40"><rect width="60" height="40" fill="#fff"/><g fill="#b22234"><rect width="60" height="3.08"/><rect y="6.15" width="60" height="3.08"/><rect y="12.31" width="60" height="3.08"/><rect y="18.46" width="60" height="3.08"/><rect y="24.62" width="60" height="3.08"/><rect y="30.77" width="60" height="3.08"/><rect y="36.92" width="60" height="3.08"/></g><rect width="25" height="21.54" fill="#3c3b6e"/><g fill="#fff"><circle cx="4" cy="4" r="1"/><circle cx="10" cy="4" r="1"/><circle cx="16" cy="4" r="1"/><circle cx="22" cy="4" r="1"/><circle cx="7" cy="9" r="1"/><circle cx="13" cy="9" r="1"/><circle cx="19" cy="9" r="1"/><circle cx="4" cy="14" r="1"/><circle cx="10" cy="14" r="1"/><circle cx="16" cy="14" r="1"/><circle cx="22" cy="14" r="1"/><circle cx="7" cy="19" r="1"/><circle cx="13" cy="19" r="1"/><circle cx="19" cy="19" r="1"/></g></svg>`),
+        };
+        function handleCurrencyFlagError(img) {
+            if (!img || img.dataset.currencyFallback === '1') return;
+            img.dataset.currencyFallback = '1';
+            const isUSD = currentCurrency === 'USD';
+            img.src = CURRENCY_FLAG_FALLBACKS[isUSD ? 'USD' : 'EGP'];
+            img.style.display = 'block';
+        }
+
+        function toggleCurrency() {
+            currentCurrency = currentCurrency === 'EGP' ? 'USD' : 'EGP';
+
+            const btn = document.getElementById('currencyBtn');
+            const flag = document.getElementById('currencyFlag');
+            const title = document.getElementById('currencyTitle');
+
+            if (currentCurrency === 'USD') {
+                flag.src = 'https://k.top4top.io/p_3914ild450.jpg';
+                flag.alt = 'علم الولايات المتحدة';
+                title.textContent = 'الأسعار بالدولار الأمريكي';
+                btn.setAttribute('aria-label', 'الأسعار بالدولار الأمريكي - اضغط للعودة للجنيه المصري');
+            } else {
+                flag.src = 'https://a.top4top.io/p_3914owpxp0.jpg';
+                flag.alt = 'علم مصر';
+                title.textContent = 'الأسعار بالجنيه المصري';
+                btn.setAttribute('aria-label', 'الأسعار بالجنيه المصري - اضغط للتغيير للدولار');
+            }
+
+            if(document.getElementById('stepPrices').classList.contains('active') && currentPriceType) showPrices(currentPriceType);
+            if(activeDiscountData) updateDiscountPriceUI();
+        }
+
+        // ----- طلب اسم اللعبة عند الدخول (يتحكم به السيستم) ----- //
+        let gameRequestEnabled = true;
+        let gameRequestSettingsLoaded = false;
+        let gameRequestModalShown = false;
+
+        function openGameRequest() {
+            if (!gameRequestEnabled || gameRequestModalShown) return;
+            gameRequestModalShown = true;
+            const modal = document.getElementById('gameRequestModal');
+            const input = document.getElementById('gameRequestInput');
+            const msg = document.getElementById('gameRequestMessage');
+            if (!modal) return;
+            msg.textContent = '';
+            input.value = '';
+            modal.style.display = 'flex';
+            modal.setAttribute('aria-hidden','false');
+            void modal.offsetWidth;
+            modal.classList.add('active');
+            setTimeout(() => input && input.focus(), 100);
+        }
+
+        function closeGameRequest() {
+            const modal = document.getElementById('gameRequestModal');
+            if (!modal) return;
+            modal.classList.remove('active');
+            modal.setAttribute('aria-hidden','true');
+            setTimeout(() => { if (!modal.classList.contains('active')) modal.style.display='none'; }, 220);
+        }
+
+        async function submitGameRequest() {
+            const input = document.getElementById('gameRequestInput');
+            const msg = document.getElementById('gameRequestMessage');
+            const btn = document.querySelector('.game-request-submit');
+            const gameName = (input.value || '').trim().replace(/\s+/g,' ');
+            if (!gameName) { msg.textContent='اكتب اسم اللعبة أولاً.'; return; }
+            if (gameName.length < 2) { msg.textContent='اسم اللعبة قصير جداً.'; return; }
+            btn.disabled = true; msg.textContent='جاري إرسال الطلب...';
+            try {
+                const ref = db.ref('gameRequests').push();
+                await ref.set({ gameName, createdAt: firebase.database.ServerValue.TIMESTAMP });
+                msg.textContent='تم إرسال طلبك بنجاح ❤️';
+                input.value='';
+                setTimeout(closeGameRequest, 850);
+            } catch(e) {
+                console.error('Game request:', e);
+                msg.textContent='تعذر إرسال الطلب حالياً. حاول مرة أخرى.';
+            } finally { btn.disabled=false; }
+        }
+
+        const gameRequestSettingsRef = db.ref('settings/gameRequest/enabled');
+        gameRequestSettingsRef.on('value', snap => {
+            gameRequestEnabled = !snap.exists() || snap.val() !== false;
+            gameRequestSettingsLoaded = true;
+        }, err => { console.error('Game request settings:', err); gameRequestSettingsLoaded = true; });
+
+        // كل جزء من الإعدادات يستمع لمساره فقط؛ لا نسحب settings بالكامل مع كل تغيير صورة.
+        // هذا يمنع صورة كبيرة/تغيير واحد في قسم من التأثير على باقي الإعدادات أو واجهة الموقع.
+        db.ref('settings/general').on('value', snap => {
+            const data = snap.val() || {};
+            if (data.logo) { const logo = document.getElementById('mainLogoImg'); logo.src = data.logo; logo.style.display = 'block'; }
+        }, err => console.error('General settings:', err));
+
+        db.ref('settings/banners').on('value', snap => {
+            const banners = [];
+            snap.forEach(c => { if (typeof c.val() === 'string' && c.val()) banners.push(c.val()); });
+            initSlider(banners, true, 3000);
+        }, err => console.error('Banner settings:', err));
+
+        db.ref('settings/socials').on('value', snap => {
+            const socials = [];
+            snap.forEach(c => { const v = c.val() || {}; if (v.url || v.name) socials.push(v); });
+            renderBottomDock(socials);
+        }, err => console.error('Social settings:', err));
+
+        let sliderInterval; let totalSlides = 0; let globalSpeed = 3000;
+        function initSlider(banners, isAuto, speed) {
+            const container = document.getElementById('sliderContainer');
+            const wrapper = document.getElementById('sliderWrapper');
+            const dotsContainer = document.getElementById('sliderDots');
+            clearInterval(sliderInterval);
+            globalSpeed = speed;
+            wrapper.innerHTML = ''; dotsContainer.innerHTML = ''; totalSlides = banners.length;
+            if(banners.length === 0) { container.style.display = 'none'; return; }
+            container.style.display = 'block';
+            let fragment = document.createDocumentFragment(); let dotsFragment = document.createDocumentFragment();
+            
+            banners.forEach((url, index) => {
+                const box = document.createElement('div');
+                box.className = index === 0 ? 'slide-wrapper-box active' : 'slide-wrapper-box';
+                
+                box.innerHTML = `
+                    <div class="slide-bg-blur" style="background-image: url('${url}');"></div>
+                    <img src="${url}" loading="lazy" decoding="async" class="slide" alt="Banner">
+                `;
+                fragment.appendChild(box);
+
+                if(banners.length > 1) {
+                    const dot = document.createElement('div'); dot.className = index === 0 ? 'dot active' : 'dot';
+                    dot.onclick = () => { goToSlide(index); if(sliderInterval) { clearInterval(sliderInterval); startAutoPlay(globalSpeed); } }; 
+                    dotsFragment.appendChild(dot);
+                }
+            });
+            wrapper.appendChild(fragment); dotsContainer.appendChild(dotsFragment);
+            if(banners.length > 1 && isAuto) startAutoPlay(speed);
+        }
+        function startAutoPlay(speed) { sliderInterval = setInterval(() => { let w = document.getElementById('sliderWrapper'); let c = Array.from(w.children).findIndex(el => el.classList.contains('active')); goToSlide((c + 1) % totalSlides); }, speed); }
+        function goToSlide(index) { const s = document.getElementById('sliderWrapper').children; const d = document.getElementById('sliderDots').children; if(!s.length) return; for(let i=0; i<s.length; i++) { s[i].classList.remove('active'); if(d[i]) d[i].classList.remove('active'); } s[index].classList.add('active'); if(d[index]) d[index].classList.add('active'); }
+        
+        let touchstartX = 0; let touchendX = 0;
+        const sWrapper = document.getElementById('sliderWrapper');
+        sWrapper.addEventListener('touchstart', e => { touchstartX = e.changedTouches[0].screenX; }, {passive: true});
+        sWrapper.addEventListener('touchend', e => {
+            touchendX = e.changedTouches[0].screenX;
+            if(totalSlides > 1) {
+                let current = Array.from(sWrapper.children).findIndex(el => el.classList.contains('active'));
+                if (touchendX > touchstartX + 40) { 
+                    goToSlide((current + 1) % totalSlides); 
+                    if(sliderInterval) { clearInterval(sliderInterval); startAutoPlay(globalSpeed); }
+                } else if (touchendX < touchstartX - 40) { 
+                    goToSlide((current - 1 + totalSlides) % totalSlides); 
+                    if(sliderInterval) { clearInterval(sliderInterval); startAutoPlay(globalSpeed); }
+                }
+            }
+        }, {passive: true});
+
+        function renderBottomDock(socials) {
+            const dock = document.getElementById('bottomDock');
+            dock.style.display = 'flex'; 
+            
+            const icons = { 'whatsapp': 'fab fa-whatsapp', 'facebook': 'fab fa-facebook-f', 'telegram': 'fab fa-telegram-plane', 'instagram': 'fab fa-instagram', 'youtube': 'fab fa-youtube', 'warranty': 'fas fa-star' };
+            let htmlString = '';
+            
+            socials.forEach(s => {
+                htmlString += `<a href="${s.url}" target="_blank" class="dock-item"><div class="dock-icon-wrapper"><i class="${icons[s.platform] || 'fas fa-link'}"></i></div><span>${s.name}</span></a>`;
+            });
+            
+            htmlString += `
+            <a href="https://t.me/mohabstore_1" target="_blank" class="dock-item">
+                <div class="dock-icon-wrapper">
+                    <i class="fab fa-telegram-plane"></i>
+                </div>
+                <span>قناة التليجرام</span>
+            </a>`;
+
+            htmlString += `<button class="dock-item" onclick="openRecovery()" style="background:none;border:none;font-family:inherit;cursor:pointer;" id="recoveryDockBtn">
+                <div class="dock-icon-wrapper">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <span>كشف الاستعادة</span>
+            </button>`;
+            
+            dock.innerHTML = htmlString;
+        }
+
+        db.ref('games').on('value', snap => {
+            globalGames = snap.val() || {};
+            const grid = document.getElementById('gamesGrid');
+            let gamesArray = Object.keys(globalGames).map(key => ({ key: key, ...globalGames[key] }));
+            gamesArray.sort((a, b) => (a.order || 99) - (b.order || 99));
+            if(gamesArray.length === 0) { grid.innerHTML = '<div class="empty-msg">لا توجد منتجات مضافة حالياً</div>'; return; }
+            let htmlString = '';
+            gamesArray.forEach(g => {
+                const safeName = String(g.name || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+                if (g.kind === 'external') {
+                    htmlString += `<div class="game-card" data-name="${safeName.toLowerCase()}" onclick="openExternalItem('${g.key}')"><div class="game-logo-frame"><img src="${g.img || ''}" alt="${safeName}" loading="lazy" decoding="async"></div><h3>${safeName}</h3><button class="btn-view">فتح الصفحة <i class="fas fa-arrow-left"></i></button></div>`;
+                } else {
+                    htmlString += `<div class="game-card" data-name="${safeName.toLowerCase()}" onclick="openGame('${g.key}')"><div class="game-logo-frame"><img src="${g.img || ''}" alt="${safeName}" loading="lazy" decoding="async"></div><h3>${safeName}</h3><button class="btn-view">عرض الأسعار</button></div>`;
+                }
+            });
+            grid.innerHTML = htmlString;
+        });
+
+        function decodeExternalTarget(item) {
+            if (!item) return '';
+            let target = '';
+            // Support both new Base64 values and older plain URL fields.
+            try {
+                if (item.external_url_b64) {
+                    const raw = atob(String(item.external_url_b64).replace(/\s/g, ''));
+                    try { target = decodeURIComponent(Array.from(raw, c => '%' + c.charCodeAt(0).toString(16).padStart(2,'0')).join('')); }
+                    catch (_) { target = raw; }
+                }
+            } catch (_) {}
+            if (!target && item.external_url) target = String(item.external_url).trim();
+            if (!target && item.url) target = String(item.url).trim();
+            try {
+                const parsed = new URL(target);
+                return parsed.protocol === 'https:' ? parsed.href : '';
+            } catch (_) { return ''; }
+        }
+
+        /* تعرض الصفحة داخل إطار المتجر. إذا منع الموقع التضمين، نوضح السبب دون فتح نافذة خارجية. */
+        let currentExternalTarget = '';
+        function openExternalPageUrl(target, title) {
+            let parsed;
+            try { parsed = new URL(String(target || '').trim()); } catch (_) { parsed = null; }
+            if (!parsed || parsed.protocol !== 'https:') { alert('رابط الصفحة غير صحيح. تأكد من إدخال رابط كامل يبدأ بـ https:// في السيستم ثم احفظ التعديل.'); return; }
+            currentExternalTarget = parsed.href;
+            const page = document.getElementById('customExternalPage');
+            const frame = document.getElementById('customExternalFrame');
+            const help = document.getElementById('customExternalHelp');
+            document.getElementById('customExternalTitle').textContent = title || 'صفحة';
+            help.hidden = false;
+            frame.src = 'about:blank';
+            page.classList.add('open');
+            page.setAttribute('aria-hidden','false');
+            document.body.style.overflow = 'hidden';
+            frame.src = currentExternalTarget;
+            if (!(location.hash === '#external-page')) history.pushState({ customExternalPage: true }, '', location.pathname + location.search + '#external-page');
+        }
+
+
+        function openExternalItem(id) {
+            const item = globalGames[id];
+            if (!item || item.kind !== 'external') return;
+            openExternalPageUrl(decodeExternalTarget(item), item.name || 'صفحة');
+        }
+
+        function openExternalMethod(method) {
+            if (!method) return;
+            openExternalPageUrl(decodeExternalTarget(method), method.name || 'صفحة');
+        }
+
+        function closeExternalPage() {
+            const page = document.getElementById('customExternalPage');
+            if (!page) return;
+            page.classList.remove('open');
+            page.setAttribute('aria-hidden','true');
+            document.getElementById('customExternalFrame').src = 'about:blank';
+            document.getElementById('customExternalHelp').hidden = true;
+            currentExternalTarget = '';
+            document.body.style.overflow = '';
+            if (location.hash === '#external-page') history.replaceState({}, '', location.pathname + location.search);
+        }
+
+        let searchTimeout;
+        function filterGamesDebounced() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(() => {
+                let q = document.getElementById('searchInput').value.toLowerCase(); 
+                document.querySelectorAll('.game-card').forEach(card => { 
+                    card.style.display = card.dataset.name.includes(q) ? "flex" : "none"; 
+                });
+            }, 150); 
+        }
+
+        function openGame(id) {
+            const selectedItem = globalGames[id];
+            if (selectedItem && selectedItem.kind === 'external') { openExternalItem(id); return; }
+            pushModalState();
+            currentGameId = id; const game = globalGames[id];
+            document.getElementById('modalGameName').innerText = game.name; document.getElementById('modalGameImg').src = game.img;
+            const optionsList = document.getElementById('modalOptionsList'); let htmlString = ''; let hasAnyOption = false;
+            
+            if (game.id_available) { hasAnyOption = true; htmlString += `<div class="option-card" onclick="showPrices('id')"><div class="option-icon"><i class="fas fa-id-card"></i></div><div><h4 style="color:#fff; font-size:0.95rem;">شحن عن طريق ID</h4></div></div>`; }
+            if (game.account_available) { hasAnyOption = true; htmlString += `<div class="option-card" onclick="showPrices('account')"><div class="option-icon"><i class="fas fa-user-shield"></i></div><div><h4 style="color:#fff; font-size:0.95rem;">شحن عن طريق الحساب</h4></div></div>`; }
+            
+            if (game.custom_methods && game.custom_methods.length > 0) {
+                hasAnyOption = true;
+                game.custom_methods.forEach((cm, index) => {
+                    const methodName = String(cm.name || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+                    const iconHtml = cm.icon ? `<img src="${String(cm.icon).replace(/"/g,'&quot;')}" alt="" style="width:100%;height:100%;object-fit:contain;background:transparent" onerror="this.outerHTML='<i class=\"fas fa-bolt\"></i>'">` : '<i class="fas fa-bolt"></i>';
+                    const action = cm.type === 'external' ? `openExternalMethod(globalGames[currentGameId].custom_methods[${index}])` : `showPrices('custom_${index}')`;
+                    htmlString += `<div class="option-card" onclick="${action}"><div class="option-icon">${iconHtml}</div><div><h4 style="color:#fff; font-size:0.95rem;">${methodName}</h4></div></div>`;
+                });
+            }
+            
+            optionsList.innerHTML = hasAnyOption ? htmlString : '<div class="empty-msg">غير متوفر حالياً</div>';
+            document.getElementById('stepSelection').classList.add('active'); document.getElementById('stepPrices').classList.remove('active');
+            document.getElementById('modalScrollBox').scrollTop = 0; const modal = document.getElementById('gameModal'); modal.style.display = 'flex'; void modal.offsetWidth; modal.classList.add('active');
+        }
+
+        function showPrices(type) {
+            pushModalState();
+            currentPriceType = type; const game = globalGames[currentGameId];
+            let pricesStr = ''; let methodTextForWhatsApp = '';
+            
+            if (type === 'id') { 
+                pricesStr = currentCurrency === 'USD' ? (game.id_prices_usd || '') : (game.id_prices || ''); methodTextForWhatsApp = 'عن طريق شحن الـ ID'; 
+            } else if (type === 'account') { 
+                pricesStr = currentCurrency === 'USD' ? (game.account_prices_usd || '') : (game.account_prices || ''); methodTextForWhatsApp = 'عن طريق شحن الحساب'; 
+            } else if (type.startsWith('custom_')) { 
+                const index = parseInt(type.split('_')[1]); const customMethod = game.custom_methods[index]; pricesStr = currentCurrency === 'USD' ? (customMethod.prices_usd || '') : (customMethod.prices || ''); methodTextForWhatsApp = customMethod.name; 
+            }
+            
+            const content = document.getElementById('pricesContent');
+            if (!pricesStr || pricesStr.trim() === '') { content.innerHTML = `<div class="empty-msg">لا توجد أسعار مدخلة لهذه الطريقة بالعملة الحالية (${currentCurrency})</div>`; } else {
+                const lines = pricesStr.split('\n'); let htmlString = '';
+                lines.forEach(line => {
+                    let parts = line.split('=');
+                    if(parts.length === 2) {
+                        let name = parts[0].trim(); let rawVal = parts[1].trim(); let finalPrice = rawVal; let oldPriceHtml = '';
+                        if(rawVal.includes('بدل')) { let priceParts = rawVal.split('بدل'); finalPrice = priceParts[0].trim(); let oldPrice = priceParts[1].trim(); oldPriceHtml = `<div class="discount-wrapper"><span class="discount-badge">خصم</span><span class="old-price">${oldPrice}</span></div>`; }
+                        let quantityMatch = name.match(/[0-9,\.]+/); let quantity = quantityMatch ? quantityMatch[0] : ''; let itemName = name.replace(/[0-9,\.]+/, '').trim(); if (!itemName && !quantity) { itemName = name; }
+                        let displayNameHtml = quantity ? `<span class="item-quantity">${quantity}</span> <span class="item-type">${itemName}</span>` : `<span class="item-quantity" style="font-size: 1rem;">${itemName}</span>`;
+                        
+                        htmlString += `<div class="price-card-modern" style="cursor: pointer;" data-game="${encodeURIComponent(game.name)}" data-pack="${encodeURIComponent(name)}" data-price="${encodeURIComponent(finalPrice)}" data-method="${encodeURIComponent(methodTextForWhatsApp)}" onclick="openWhatsApp(this)">
+                                        <div class="price-card-content">
+                                            ${(game.package_icons && game.package_icons[name]) || game.price_icon ? `<img class="price-item-icon" src="${((game.package_icons && game.package_icons[name]) || game.price_icon)}" alt="" loading="lazy" decoding="async" onerror="this.style.display='none'">` : ''}
+                                            <div class="item-details">${displayNameHtml}</div>
+                                            <div class="price-area">${oldPriceHtml}<div class="item-price-tag">${finalPrice}</div></div>
+                                        </div>
+                                       </div>`;
+                    }
+                });
+                content.innerHTML = htmlString;
+            }
+            document.getElementById('stepSelection').classList.remove('active'); document.getElementById('stepPrices').classList.add('active'); document.getElementById('modalScrollBox').scrollTop = 0;
+        }
+
+        function openWhatsApp(element) {
+            const phone = "201125808758";
+            const gameName = decodeURIComponent(element.getAttribute('data-game')); const packName = decodeURIComponent(element.getAttribute('data-pack')); const price = decodeURIComponent(element.getAttribute('data-price')); const method = decodeURIComponent(element.getAttribute('data-method'));
+            const text = `مرحباً، أريد طلب شحن:\n🎮 اللعبة/المنتج: ${gameName}\n📦 الباقة: ${packName}\n💰 السعر: ${price}\n⚙️ طريقة الشحن: ${method}`;
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        function goBack(fromHistory = false) {
+            if(!fromHistory) { history.back(); return; } 
+            currentPriceType = null; document.getElementById('stepPrices').classList.remove('active'); document.getElementById('stepSelection').classList.add('active'); document.getElementById('modalScrollBox').scrollTop = 0;
+        }
+
+        function closeModal(modalId, fromHistory = false) {
+            if(!fromHistory) { history.back(); return; } 
+            if(modalId === 'gameModal') currentPriceType = null;
+            const modal = document.getElementById(modalId); modal.classList.remove('active'); setTimeout(() => modal.style.display = 'none', 250);
+            
+            if(modalId === 'discountModal' && activeDiscountData) {
+                document.getElementById('floatingGift').style.display = 'flex';
+            }
+        }
+        function closeOnOutside(e) { if (e.target.classList.contains('modal-overlay')) closeModal(e.target.id); }
+
+        function openDiscountModal() {
+            pushModalState();
+            document.getElementById('floatingGift').style.display = 'none';
+            const modal = document.getElementById('discountModal');
+            modal.style.display = 'flex'; void modal.offsetWidth; modal.classList.add('active');
+        }
+
+        function initLiveDiscounts() {
+            db.ref('discount_codes').orderByChild('visitorId').equalTo(visitorId).on('value', codeSnap => {
+                let hasActiveCode = false;
+                let now = Date.now();
+                let latestCode = null;
+
+                codeSnap.forEach(child => {
+                    let codeData = child.val();
+                    if (codeData.status === 'active' && codeData.expiresAt > now) {
+                        hasActiveCode = true;
+                        latestCode = { key: child.key, ...codeData };
+                    } else if (codeData.status === 'shipped' && myActiveDiscountCode === child.key) {
+                        activeDiscountData = null;
+                        clearInterval(discountTimerInterval);
+                        document.getElementById('floatingGift').style.display = 'none';
+                        if (document.getElementById('discountModal').classList.contains('active')) closeModal('discountModal');
+                        myActiveDiscountCode = null;
+                    }
+                });
+
+                if (hasActiveCode && latestCode) {
+                    if (myActiveDiscountCode !== latestCode.key) {
+                        myActiveDiscountCode = latestCode.key;
+                        loadDiscountDetails(latestCode);
+                        openDiscountModal();
+                    }
+                } else {
+                    if (activeDiscountData || myActiveDiscountCode) {
+                        activeDiscountData = null;
+                        myActiveDiscountCode = null;
+                        clearInterval(discountTimerInterval);
+                        document.getElementById('floatingGift').style.display = 'none';
+                        const modal = document.getElementById('discountModal');
+                        if (modal.classList.contains('active')) {
+                            modal.classList.remove('active');
+                            setTimeout(() => modal.style.display = 'none', 250);
+                        }
+                    }
+                    listenForAvailableDiscounts();
+                }
+            });
+        }
+
+        let isListeningForDiscounts = false;
+        function listenForAvailableDiscounts() {
+            if(isListeningForDiscounts) return;
+            isListeningForDiscounts = true;
+
+            db.ref('discount_codes').orderByChild('visitorId').equalTo(visitorId).once('value', userCodesSnap => {
+                let now = Date.now();
+                let inCooldown = false;
+
+                userCodesSnap.forEach(child => {
+                    let code = child.val();
+                    if (code.status === 'shipped' && code.shippedAt) {
+                        let cooldownMs = systemCooldownHours * 60 * 60 * 1000;
+                        if (now - code.shippedAt < cooldownMs) {
+                            inCooldown = true;
+                        }
+                    }
+                });
+
+                if (inCooldown) {
+                    isListeningForDiscounts = false;
+                    return; 
+                }
+
+                db.ref('discounts').on('value', distSnap => {
+                    if(myActiveDiscountCode) return;
+
+                    let activeDiscounts = [];
+                    distSnap.forEach(d => {
+                        let data = d.val();
+                        if (data.status === 'active') {
+                            if (data.maxUsers === 'all' || data.currentClaims < data.maxUsers) {
+                                activeDiscounts.push({key: d.key, ...data});
+                            }
+                        }
+                    });
+
+                    if (activeDiscounts.length > 0) {
+                        let randomDiscount = activeDiscounts[Math.floor(Math.random() * activeDiscounts.length)];
+                        assignDiscountToUser(randomDiscount);
+                    }
+                });
+            });
+        }
+
+        function assignDiscountToUser(discount) {
+            let code = 'MOHABSTORE-' + Math.floor(100000 + Math.random() * 900000);
+            let expiresAt = Date.now() + (discount.durationHours * 60 * 60 * 1000);
+
+            let codeData = {
+                visitorId: visitorId,
+                discountId: discount.key,
+                game: discount.gameName,
+                package: discount.package,
+                type: discount.type,
+                oldPrice: discount.oldPrice || '',
+                newPrice: discount.newPrice,
+                oldPriceUsd: discount.oldPriceUsd || '',
+                newPriceUsd: discount.newPriceUsd || '',
+                expiresAt: expiresAt,
+                status: 'active'
+            };
+
+            db.ref('discount_codes/' + code).set(codeData).then(() => {
+                if (discount.maxUsers !== 'all') {
+                    db.ref('discounts/' + discount.key + '/currentClaims').set(firebase.database.ServerValue.increment(1));
+                }
+            });
+        }
+
+        function updateDiscountPriceUI() {
+            if(!activeDiscountData) return;
+            let displayOld = (currentCurrency === 'USD' && activeDiscountData.oldPriceUsd) ? activeDiscountData.oldPriceUsd : activeDiscountData.oldPrice;
+            let displayNew = (currentCurrency === 'USD' && activeDiscountData.newPriceUsd) ? activeDiscountData.newPriceUsd : activeDiscountData.newPrice;
+            
+            document.getElementById('dOldPrice').innerText = displayOld || '';
+            document.getElementById('dNewPrice').innerText = displayNew;
+        }
+
+        function loadDiscountDetails(codeData) {
+            activeDiscountData = codeData;
+            document.getElementById('dGameName').innerText = codeData.game;
+            document.getElementById('dPackage').innerText = codeData.package;
+            document.getElementById('dType').innerText = codeData.type;
+
+            updateDiscountPriceUI();
+
+            let gameImgSrc = '';
+            for(let key in globalGames) {
+                if(globalGames[key].name === codeData.game) {
+                    gameImgSrc = globalGames[key].img;
+                    break;
+                }
+            }
+
+            const imgEl = document.getElementById('dGameImage');
+            const fallbackIcon = document.getElementById('dGiftIconFallback');
+            
+            if(gameImgSrc) {
+                imgEl.src = gameImgSrc;
+                imgEl.style.display = 'block';
+                fallbackIcon.style.display = 'none';
+            } else {
+                imgEl.style.display = 'none';
+                fallbackIcon.style.display = 'inline-block';
+            }
+
+            let date = new Date(codeData.expiresAt);
+            let timeString = date.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+            let todayDate = new Date().getDate();
+            let expiryDateNum = date.getDate();
+            
+            let dayText = "";
+            if (expiryDateNum === todayDate) {
+                dayText = "اليوم";
+            } else if (expiryDateNum === todayDate + 1) {
+                dayText = "غداً";
+            } else {
+                dayText = "يوم " + date.toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' });
+            }
+
+            formattedExpiryTextForWA = `${dayText} الساعة ${timeString}`;
+            document.getElementById('discountEndDateText').innerText = `ينتهي ${formattedExpiryTextForWA}`;
+
+            startCountdown(codeData.expiresAt);
+        }
+
+        function startCountdown(endTime) {
+            clearInterval(discountTimerInterval);
+            discountTimerInterval = setInterval(() => {
+                let now = Date.now();
+                let distance = endTime - now;
+
+                if (distance < 0) {
+                    clearInterval(discountTimerInterval);
+                    activeDiscountData = null;
+                    document.getElementById('floatingGift').style.display = 'none';
+                    if (document.getElementById('discountModal').classList.contains('active')) closeModal('discountModal');
+                    return;
+                }
+
+                let hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                let minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                let seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                document.getElementById('tHours').innerText = hours.toString().padStart(2, '0');
+                document.getElementById('tMins').innerText = minutes.toString().padStart(2, '0');
+                document.getElementById('tSecs').innerText = seconds.toString().padStart(2, '0');
+            }, 1000);
+        }
+
+        function claimDiscountWhatsApp() {
+            const phone = "201125808758";
+            let currentPriceStr = (currentCurrency === 'USD' && activeDiscountData.newPriceUsd) ? activeDiscountData.newPriceUsd : activeDiscountData.newPrice;
+            const text = `مرحباً، لدي كود خصم حصري أريد شحنه!\n\n🎁 الكود: ${myActiveDiscountCode}\n🎮 المنتج: ${activeDiscountData.game}\n📦 الباقة: ${activeDiscountData.package}\n⚙️ طريقة الشحن: ${activeDiscountData.type}\n💰 السعر المطلوب: ${currentPriceStr}\n⏳ (الخصم ينتهي ${formattedExpiryTextForWA})`;
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        initLiveDiscounts();
+
+        // رابط الوجهة محفوظ داخل JavaScript ومُرمّز Base64 بدل عرضه كرابط مباشر في HTML.
+        const luckTarget = atob('aHR0cHM6Ly9tb2hhYnRvcDFwLWFmay5naXRodWIuaW8vbHVjay0v');
+        function openLuckPage(e) {
+            if (e) e.preventDefault();
+            const page = document.getElementById('luckPage');
+            const frame = document.getElementById('luckFrame');
+            if (frame.getAttribute('src') !== luckTarget) frame.src = luckTarget;
+            page.classList.add('open'); page.setAttribute('aria-hidden','false');
+            document.body.style.overflow='hidden';
+            history.pushState({ luck: true }, '');
+        }
+        function closeLuckPage(fromHistory=false) {
+            const page = document.getElementById('luckPage');
+            if (!page.classList.contains('open')) return;
+            if (!fromHistory) { history.back(); return; }
+            page.classList.remove('open'); page.setAttribute('aria-hidden','true');
+            document.body.style.overflow='';
+        }
+
+        // رابط شات بوت المساعد الذكي مُرمّز Base64 ولا يظهر كرابط مباشر داخل HTML.
+        const chatbotTarget = atob('aHR0cHM6Ly9tb2hhYnRvcDFwLWFmay5naXRodWIuaW8vTWFoYWItQ2hhdC0v');
+        function openChatbotPage(e) {
+            if (e) e.preventDefault();
+            const page = document.getElementById('chatbotPage');
+            const frame = document.getElementById('chatbotFrame');
+            if (frame.getAttribute('src') !== chatbotTarget) frame.src = chatbotTarget;
+            page.classList.add('open'); page.setAttribute('aria-hidden','false');
+            document.body.style.overflow='hidden';
+            history.pushState({ chatbot: true }, '');
+        }
+        function closeChatbotPage(fromHistory=false) {
+            const page = document.getElementById('chatbotPage');
+            if (!page.classList.contains('open')) return;
+            if (!fromHistory) { history.back(); return; }
+            page.classList.remove('open'); page.setAttribute('aria-hidden','true');
+            document.body.style.overflow='';
+        }
+
+        function openRecovery() {
+            document.getElementById('recoveryPage').classList.add('open');
+            document.body.style.overflow = 'hidden';
+            history.pushState({ recovery: true }, '');
+        }
+
+        function closeRecovery() {
+            document.getElementById('recoveryPage').classList.remove('open');
+            document.body.style.overflow = '';
+            if (history.state && history.state.recovery) history.back();
+        }
+
+        window.addEventListener('popstate', function(e) {
+            if (document.getElementById('luckPage').classList.contains('open')) {
+                closeLuckPage(true);
                 return;
             }
-
-            try {
-                const snap = await db.ref('settings').once('value');
-
-                if (!snap.exists()) {
-                    settingsLoaded = true;
-                    wheelItems = [];
-                    drawWheel();
-                    showConfigError("إعدادات العجلة غير موجودة في قاعدة البيانات.");
-                    maybeEnableAfterLoad();
-                    return;
-                }
-
-                const data = snap.val() || {};
-
-                if (data.storeName) {
-                    document.getElementById('storeName').innerText = String(data.storeName);
-                }
-
-                if (data.storeLogo) {
-                    document.getElementById('storeLogo').src = String(data.storeLogo);
-                }
-
-                if (data.whatsappNumber) {
-                    adminPhoneNumber = String(data.whatsappNumber);
-                }
-
-                // مدة الانتظار تؤخذ من إعدادات لوحة التحكم، والحد الأدنى ساعة واحدة.
-                const configuredCooldown = Number(data.cooldownHours);
-                cooldownHours = Number.isFinite(configuredCooldown) && configuredCooldown >= 1
-                    ? configuredCooldown
-                    : 24;
-                dailyCooldownMs = getCooldownMs();
-
-                // المصدر الوحيد للجوائز هو settings/items.
-                wheelItems = normalizeWheelItems(data.items);
-
-                const validation = validatePrizePercentages(wheelItems);
-
-                if (!validation.ok) {
-                    settingsLoaded = true;
-                    loadedImages = {};
-                    drawWheel();
-                    showConfigError(validation.message);
-                    maybeEnableAfterLoad();
-                    return;
-                }
-
-                settingsLoaded = true;
-                preloadImages();
-                drawWheel();
-                maybeEnableAfterLoad();
-
-            } catch (error) {
-                console.error("Settings read failed:", error);
-                settingsLoaded = true;
-                wheelItems = [];
-                drawWheel();
-                showConfigError("تعذر تحميل جوائز العجلة من قاعدة البيانات.");
-                maybeEnableAfterLoad();
+            if (document.getElementById('chatbotPage').classList.contains('open')) {
+                closeChatbotPage(true);
+                return;
             }
-        }
-
-        function timeoutPromise(promise, ms, label) {
-            return Promise.race([
-                Promise.resolve(promise),
-                new Promise((_, reject) => setTimeout(() => reject(new Error(label + " timeout")), ms))
-            ]);
-        }
-
-        async function init() {
-            userDeviceId = getOrCreateDeviceId();
-            deviceFingerprint = buildDeviceFingerprint();
-            deviceFingerprintKey = getFingerprintKey();
-            setWheelLocked(false);
-            setSpinAvailability(false);
-            drawWheel();
-
-            // عنوان IP مجرد طبقة إضافية؛ لا يجوز أن يمنع ظهور الموقع إذا تعطل مزود IP.
-            const ipPromise = timeoutPromise(
-                fetch('https://api.ipify.org?format=json').then(res => {
-                    if (!res.ok) throw new Error("IP request failed");
-                    return res.json();
-                }).then(data => {
-                    if (data && data.ip) userIP = String(data.ip).replace(/\./g, '_');
-                }),
-                3500,
-                "IP lookup"
-            ).catch(error => {
-                console.warn("IP lookup skipped:", error);
-                userIP = "unknown_user";
-            });
-
-            // Firebase يجب ألا يترك شاشة المزامنة معلقة إلى ما لا نهاية.
-            const settingsPromise = timeoutPromise(loadSettings(), 8000, "Firebase settings");
-            try {
-                await settingsPromise;
-            } catch (error) {
-                console.error("Initial settings timeout/error:", error);
-                settingsLoaded = true;
-                if (!wheelItems.length) {
-                    showConfigError("تعذر الاتصال بقاعدة البيانات حالياً. حاول تحديث الصفحة.");
-                }
+            if (document.getElementById('recoveryPage').classList.contains('open')) {
+                document.getElementById('recoveryPage').classList.remove('open');
+                document.body.style.overflow = '';
             }
-
-            // لا ننتظر IP حتى تظهر الصفحة.
-            await ipPromise;
-
-            try {
-                await timeoutPromise(checkServerSpinStatus(), 6000, "Firebase spin status");
-            } catch (error) {
-                console.error("Initial spin-status timeout/error:", error);
-                spinStatusLoaded = true;
-                showConfigError("تعذر قراءة حالة المحاولة من قاعدة البيانات حالياً. حاول تحديث الصفحة.");
-            }
-
-            // ضمان أخير: لا تظل شاشة المزامنة ظاهرة للأبد بسبب طلب خارجي عالق.
-            hideLoader();
-            maybeEnableAfterLoad();
-        }
-
-        // مزامنة التصفير من لوحة التحكم بدون إعادة تحميل الصفحة.
-        if (db) {
-            db.ref("wheel_control/resetVersion").on("value", snap => {
-                const version = Number(snap.val()) || 0;
-                const changed = version !== currentResetVersion;
-
-                currentResetVersion = version;
-                resetVersionLoaded = true;
-
-                try {
-                    localStorage.setItem("mohab_store_wheel_reset_version_v2", String(version));
-
-                    // إذا حدث تصفير جديد، امسح القفل المحلي فقط.
-                    // سجلات Firebase القديمة لا يتم حذفها؛ يتم تجاهلها بواسطة resetVersion.
-                    if (changed) {
-                        localStorage.removeItem("mohab_store_wheel_last_spin_v1");
-                    }
-                } catch (e) {}
-
-                if (changed) {
-                    if (timerFrame) cancelAnimationFrame(timerFrame);
-                    timerFrame = null;
-                    document.getElementById("savedPrizeCard").style.display = "none";
-                    document.getElementById("cooldownNotice").style.display = "none";
-                    spinStatusLoaded = true;
-
-                    if (!isSpinning && settingsLoaded) {
-                        enableSpinning();
-                    }
-                }
-
-                maybeEnableAfterLoad();
-            });
-        }
-
-        init();
+        });
     </script>
+    <section id="customExternalPage" aria-hidden="true">
+        <header class="custom-external-header">
+            <button class="custom-external-close" type="button" onclick="closeExternalPage()" aria-label="رجوع"><i class="fas fa-arrow-right"></i></button>
+            <div id="customExternalTitle">الصفحة</div>
+        </header>
+        <div id="customExternalHelp" class="custom-external-help" hidden>
+            <span>لو الصفحة لم تظهر، فقد يمنع الموقع الخارجي عرضه داخل مواقع أخرى. جرّب رابطًا يسمح بالتضمين داخل المواقع.</span>
+        </div>
+        <iframe id="customExternalFrame" title="صفحة داخل المتجر" src="about:blank" referrerpolicy="strict-origin-when-cross-origin" allow="payment *; clipboard-read; clipboard-write; fullscreen" loading="lazy"></iframe>
+    </section>
+
 </body>
 </html>
