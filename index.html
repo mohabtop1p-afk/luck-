@@ -2094,15 +2094,15 @@ canvas#wheel{
             drawWheel();
 
             document.getElementById('wheelGoLogin').addEventListener('click', () => {
-                try {
-                    if (window.parent && window.parent !== window) {
-                        window.parent.closeLuckPage(true);
-                        window.parent.openWallet();
-                    } else {
-                        window.location.href = '/';
-                    }
-                } catch (e) {
-                    window.location.href = '/';
+                // صفحة العجلة على نطاق GitHub مختلف؛ نطلب من الموقع الرئيسي فتح المحفظة عبر postMessage.
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage(
+                        { type: 'MOHAB_OPEN_WALLET_LOGIN' },
+                        'https://mohabstore.online'
+                    );
+                } else {
+                    // عند فتح صفحة العجلة مباشرة خارج الموقع الرئيسي.
+                    window.location.href = 'https://mohabstore.online/#wallet';
                 }
             });
 
