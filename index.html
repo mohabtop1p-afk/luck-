@@ -1,292 +1,2138 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#07111c">
-  <title>عجلة الحظ | تحديثات MOHAB STORE</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      color-scheme: dark;
-      --bg: #07111c;
-      --surface: #0b1b2a;
-      --surface-2: #10283a;
-      --cyan: #18b8d2;
-      --cyan-light: #79e5f4;
-      --white: #f3f8fb;
-      --muted: #9aafbd;
-      --stroke: rgba(67, 198, 220, .22);
-    }
-    * { box-sizing: border-box; }
-    html { min-height: 100%; }
-    body {
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 28px 18px;
-      overflow-x: hidden;
-      color: var(--white);
-      background:
-        radial-gradient(ellipse at 50% 40%, rgba(16, 117, 146, .22), transparent 42%),
-        radial-gradient(circle at 8% 12%, rgba(20, 111, 139, .10), transparent 25%),
-        radial-gradient(circle at 92% 88%, rgba(20, 111, 139, .10), transparent 25%),
-        var(--bg);
-      font-family: "Almarai", "Noto Sans Arabic", sans-serif;
-    }
-    body::before, body::after {
-      content: "";
-      position: fixed;
-      width: 330px;
-      height: 330px;
-      border: 1px solid rgba(38, 183, 211, .08);
-      border-radius: 50%;
-      pointer-events: none;
-    }
-    body::before { top: -210px; right: -150px; box-shadow: 0 0 0 28px rgba(38,183,211,.018), 0 0 0 58px rgba(38,183,211,.014); }
-    body::after { bottom: -240px; left: -150px; box-shadow: 0 0 0 28px rgba(38,183,211,.018), 0 0 0 58px rgba(38,183,211,.014); }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MOHAB STORE - عجلة الحظ</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+:root{
+    --bg:#05070c;
+    --bg-2:#0a0f18;
+    --glass:rgba(255,255,255,.075);
+    --glass-strong:rgba(255,255,255,.105);
+    --glass-line:rgba(255,255,255,.16);
+    --glass-soft:rgba(255,255,255,.07);
+    --white:#f8fbff;
+    --muted:#9aa9bd;
+    --blue:#49a6ff;
+    --blue-2:#0b78e8;
+    --gold:#ffd76a;
+    --green:#39e58c;
+    --red:#ff6574;
+    --shadow:0 24px 70px rgba(0,0,0,.46);
+}
 
-    .page {
-      width: min(100%, 590px);
-      position: relative;
-      isolation: isolate;
-      padding: 22px;
-      border-radius: 34px;
-      background: linear-gradient(145deg, rgba(14, 35, 51, .96), rgba(7, 20, 32, .98));
-      border: 1px solid var(--stroke);
-      box-shadow: 0 30px 100px rgba(0,0,0,.48), inset 0 1px rgba(255,255,255,.045);
-      animation: rise .85s cubic-bezier(.2,.8,.2,1) both;
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    font-family:'Tajawal',sans-serif;
+    user-select:none;
+    -webkit-tap-highlight-color:transparent!important;
+    outline:none!important;
+}
+
+html{
+    min-height:100%;
+    background:#05070c;
+    color:var(--white);
+}
+
+body{
+    min-height:100vh;
+    padding:30px 14px 42px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    color:var(--white);
+    overflow-x:hidden;
+    background:
+        radial-gradient(900px 560px at 50% -10%, rgba(44,141,255,.19), transparent 62%),
+        radial-gradient(700px 500px at 100% 45%, rgba(255,201,78,.075), transparent 65%),
+        radial-gradient(700px 500px at 0% 70%, rgba(64,139,255,.08), transparent 65%),
+        linear-gradient(145deg,#05070c 0%,#080d15 48%,#05070c 100%);
+    -webkit-font-smoothing:antialiased;
+    text-rendering:optimizeLegibility;
+}
+
+body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:-1;
+    opacity:.22;
+    background-image:
+        linear-gradient(rgba(255,255,255,.025) 1px,transparent 1px),
+        linear-gradient(90deg,rgba(255,255,255,.02) 1px,transparent 1px);
+    background-size:42px 42px;
+    mask-image:linear-gradient(to bottom,black,transparent 82%);
+}
+
+header{
+    width:min(100%,520px);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    text-align:center;
+    margin-bottom:24px;
+}
+
+.logo-box{
+    width:92px;
+    height:92px;
+    padding:2px;
+    margin-bottom:14px;
+    border-radius:28px;
+    background:linear-gradient(135deg,rgba(255,255,255,.55),rgba(73,166,255,.35),rgba(255,215,106,.35));
+    box-shadow:0 18px 45px rgba(0,0,0,.42),0 0 35px rgba(73,166,255,.10);
+    backdrop-filter:blur(22px) saturate(150%);
+    -webkit-backdrop-filter:blur(22px) saturate(150%);
+}
+
+.logo-inner{
+    width:100%;
+    height:100%;
+    border-radius:26px;
+    overflow:hidden;
+    background:linear-gradient(145deg,rgba(255,255,255,.12),rgba(255,255,255,.035));
+    border:1px solid rgba(255,255,255,.14);
+}
+
+.logo-inner img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+}
+
+.store-title{
+    font-size:clamp(2rem,8vw,2.7rem);
+    line-height:1.05;
+    font-weight:900;
+    letter-spacing:.5px;
+    color:#fff;
+    text-shadow:0 4px 24px rgba(0,0,0,.55);
+}
+
+.subtitle{
+    margin-top:8px;
+    color:var(--muted);
+    font-size:.9rem;
+    font-weight:600;
+}
+
+.glass-card{
+    width:min(100%,430px);
+    padding:18px 20px;
+    border:1px solid var(--glass-line);
+    border-radius:26px;
+    background:
+        linear-gradient(145deg,rgba(255,255,255,.105),rgba(255,255,255,.045) 48%,rgba(255,255,255,.025)),
+        rgba(12,18,29,.42);
+    backdrop-filter:blur(28px) saturate(155%);
+    -webkit-backdrop-filter:blur(28px) saturate(155%);
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.12),
+        inset 0 0 0 1px rgba(255,255,255,.025),
+        0 22px 65px rgba(0,0,0,.32);
+}
+
+.saved-prize-card{
+    display:none;
+    text-align:center;
+    margin-bottom:20px;
+    border-color:rgba(255,215,106,.28);
+    background:
+        linear-gradient(145deg,rgba(255,215,106,.105),rgba(255,255,255,.045)),
+        rgba(15,19,27,.42);
+}
+
+.wheel-container{
+    position:relative;
+    width:min(430px,94vw);
+    aspect-ratio:1;
+    margin:8px auto 28px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    isolation:isolate;
+    touch-action:manipulation;
+    --wheel-size:72%;
+    --frame-size:96%;
+}
+
+.wheel-container::before{
+    content:"";
+    position:absolute;
+    top:50%;
+    left:50%;
+    width:var(--wheel-size);
+    height:var(--wheel-size);
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(73,166,255,.10),transparent 63%);
+    filter:blur(20px);
+    z-index:-2;
+}
+
+.wheel-container::after{
+    content:"";
+    position:absolute;
+    top:50%;
+    left:50%;
+    width:72%;
+    height:72%;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.045);
+    box-shadow:0 0 80px rgba(73,166,255,.055);
+    pointer-events:none;
+    z-index:-1;
+}
+
+.wheel-outer-ring{
+    position:absolute;
+    top:50%;
+    left:50%;
+    width:var(--wheel-size);
+    height:var(--wheel-size);
+    padding:clamp(6px,1.5vw,10px);
+    border-radius:50%;
+    background:
+        linear-gradient(145deg,rgba(255,255,255,.22),rgba(255,255,255,.055) 28%,rgba(0,0,0,.30) 70%),
+        rgba(10,15,24,.62);
+    border:1px solid rgba(255,255,255,.22);
+    box-shadow:
+        0 24px 60px rgba(0,0,0,.54),
+        inset 0 1px 0 rgba(255,255,255,.22),
+        inset 0 -14px 30px rgba(0,0,0,.28),
+        0 0 0 6px rgba(255,255,255,.025);
+    backdrop-filter:blur(24px) saturate(135%);
+    -webkit-backdrop-filter:blur(24px) saturate(135%);
+    transform:translate(-50%,-50%) translateZ(0);
+    overflow:hidden;
+    z-index:2;
+}
+
+.wheel-outer-ring::before{
+    content:"";
+    position:absolute;
+    inset:5px;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.13);
+    box-shadow:
+        inset 0 0 0 2px rgba(255,255,255,.025),
+        inset 0 0 28px rgba(0,0,0,.42);
+    pointer-events:none;
+    z-index:3;
+}
+
+.wheel-outer-ring::after{
+    content:"";
+    position:absolute;
+    inset:10px;
+    border-radius:50%;
+    border:1px solid rgba(73,166,255,.08);
+    pointer-events:none;
+    z-index:3;
+}
+
+.wheel-frame{
+    position:absolute;
+    top:50%;
+    left:50%;
+    width:var(--frame-size);
+    height:var(--frame-size);
+    object-fit:contain;
+    display:block;
+    z-index:20;
+    pointer-events:none;
+    user-select:none;
+    -webkit-user-drag:none;
+    transform:translate(-50%,-50%) translateZ(0);
+    filter:drop-shadow(0 12px 20px rgba(0,0,0,.22));
+}
+
+canvas#wheel{
+    display:block;
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    background:#090d15;
+    position:relative;
+    z-index:1;
+    transform:translateZ(0);
+    backface-visibility:hidden;
+}
+
+.pointer-box{
+    position:absolute;
+    top:calc(50% - (var(--wheel-size) / 2) - 7px);
+    left:50%;
+    transform:translateX(-50%);
+    z-index:100;
+    filter:drop-shadow(0 9px 13px rgba(0,0,0,.58));
+}
+
+.pointer-box::before{
+    content:"";
+    position:absolute;
+    left:50%;
+    top:-5px;
+    width:42px;
+    height:15px;
+    transform:translateX(-50%);
+    border-radius:50%;
+    background:rgba(255,255,255,.10);
+    filter:blur(5px);
+}
+
+.pointer-arrow{
+    width:34px;
+    height:48px;
+    background:
+        linear-gradient(180deg,#ff7783 0%,#ff394d 48%,#a30e1f 100%);
+    border:1px solid rgba(255,255,255,.72);
+    clip-path:polygon(50% 100%,0 0,100% 0);
+    filter:drop-shadow(inset 0 1px rgba(255,255,255,.5));
+}
+
+.spin-btn{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    width:88px;
+    height:88px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    font-size:1.18rem;
+    font-weight:900;
+    cursor:pointer;
+    z-index:40;
+    border:2px solid rgba(255,255,255,.74);
+    background:
+        radial-gradient(circle at 33% 22%,rgba(255,255,255,.34),transparent 31%),
+        linear-gradient(145deg,rgba(86,180,255,.98),rgba(0,89,181,.98));
+    box-shadow:
+        0 0 0 7px rgba(73,166,255,.055),
+        0 12px 34px rgba(0,0,0,.42),
+        0 0 34px rgba(73,166,255,.34),
+        inset 0 2px 7px rgba(255,255,255,.35),
+        inset 0 -10px 17px rgba(0,0,0,.20);
+    transition:transform .2s ease,filter .2s ease,box-shadow .2s ease;
+    touch-action:manipulation;
+}
+
+.spin-btn:hover{
+    transform:translate(-50%,-50%) scale(1.055);
+    filter:brightness(1.07);
+}
+
+.spin-btn:active{
+    transform:translate(-50%,-50%) scale(.95);
+}
+
+.spin-btn.disabled{
+    color:#8190a3;
+    cursor:not-allowed;
+    background:linear-gradient(145deg,#263242,#151d28);
+    border-color:rgba(255,255,255,.14);
+    box-shadow:0 8px 25px rgba(0,0,0,.30),inset 0 1px rgba(255,255,255,.05);
+}
+
+.db-loader-overlay{
+    position:fixed;
+    inset:0;
+    width:100%;
+    height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    z-index:3000;
+    background:
+        radial-gradient(circle at 50% 40%,rgba(73,166,255,.13),transparent 35%),
+        rgba(4,7,12,.76);
+    backdrop-filter:blur(30px) saturate(145%);
+    -webkit-backdrop-filter:blur(30px) saturate(145%);
+    opacity:1;
+    transition:opacity .45s ease,visibility .45s ease;
+}
+
+.db-loader-overlay.hidden{
+    opacity:0;
+    visibility:hidden;
+    pointer-events:none;
+}
+
+.loader-spinner-box{
+    position:relative;
+    width:92px;
+    height:92px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:22px;
+}
+
+.spinner-ring{
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    border:2px solid rgba(255,255,255,.08);
+    border-top-color:var(--blue);
+    border-right-color:var(--gold);
+    box-shadow:0 0 35px rgba(73,166,255,.12);
+    animation:spinRing 1s linear infinite;
+}
+
+.spinner-icon{
+    font-size:1.75rem;
+    color:#fff;
+    filter:drop-shadow(0 0 12px rgba(73,166,255,.35));
+    animation:pulseIcon 1.35s ease-in-out infinite alternate;
+}
+
+@keyframes spinRing{
+    to{transform:rotate(360deg)}
+}
+@keyframes pulseIcon{
+    from{transform:scale(.88);opacity:.7}
+    to{transform:scale(1.08);opacity:1}
+}
+
+.loader-text{
+    font-size:1.05rem;
+    font-weight:800;
+    color:#fff;
+}
+.loader-subtext{
+    margin-top:7px;
+    font-size:.8rem;
+    color:var(--muted);
+}
+
+.modal-overlay{
+    position:fixed;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:2000;
+    background:rgba(3,6,11,.62);
+    backdrop-filter:blur(26px) saturate(135%);
+    -webkit-backdrop-filter:blur(26px) saturate(135%);
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .28s ease;
+}
+
+.modal-overlay.active{
+    opacity:1;
+    pointer-events:all;
+}
+
+.modal-card{
+    width:min(100%,400px);
+    padding:30px 22px 24px;
+    text-align:center;
+    position:relative;
+    border-radius:30px;
+    border:1px solid rgba(255,255,255,.19);
+    background:
+        linear-gradient(145deg,rgba(255,255,255,.13),rgba(255,255,255,.045)),
+        rgba(13,19,30,.62);
+    backdrop-filter:blur(34px) saturate(150%);
+    -webkit-backdrop-filter:blur(34px) saturate(150%);
+    box-shadow:
+        0 35px 90px rgba(0,0,0,.62),
+        inset 0 1px rgba(255,255,255,.16);
+    transform:translateY(10px) scale(.985);
+    transition:transform .28s ease;
+}
+
+.modal-overlay.active .modal-card{
+    transform:translateY(0) scale(1);
+}
+
+.modal-close-btn{
+    position:absolute;
+    top:13px;
+    left:13px;
+    width:36px;
+    height:36px;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,.12);
+    background:rgba(255,255,255,.07);
+    color:#fff;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    transition:.2s ease;
+}
+
+.modal-close-btn:hover{
+    background:rgba(255,101,116,.13);
+    border-color:rgba(255,101,116,.55);
+    color:#ff8994;
+}
+
+.prize-icon-wrapper{
+    width:78px;
+    height:78px;
+    margin:0 auto 14px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:var(--gold);
+    font-size:2.05rem;
+    border:1px solid rgba(255,215,106,.35);
+    background:radial-gradient(circle,rgba(255,215,106,.16),rgba(255,215,106,.035));
+    box-shadow:0 0 35px rgba(255,215,106,.10),inset 0 1px rgba(255,255,255,.12);
+}
+
+.prize-name-display{
+    margin:14px 0;
+    padding:14px 12px;
+    border-radius:17px;
+    color:#fff;
+    font-size:1.38rem;
+    font-weight:900;
+    border:1px solid rgba(255,215,106,.25);
+    background:rgba(255,255,255,.055);
+    box-shadow:inset 0 1px rgba(255,255,255,.08);
+}
+
+.claim-code-box{
+    margin-bottom:20px;
+    padding:13px 14px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    border-radius:15px;
+    border:1px solid rgba(255,255,255,.10);
+    background:rgba(0,0,0,.22);
+    box-shadow:inset 0 1px rgba(255,255,255,.05);
+}
+
+.claim-code-val{
+    font-family:monospace;
+    font-size:1.25rem;
+    font-weight:900;
+    letter-spacing:1px;
+    color:#65b7ff;
+}
+
+.btn-whatsapp{
+    width:100%;
+    padding:14px;
+    border-radius:16px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:10px;
+    text-decoration:none;
+    color:#fff;
+    font-size:1rem;
+    font-weight:800;
+    border:1px solid rgba(255,255,255,.13);
+    background:linear-gradient(135deg,rgba(49,229,139,.92),rgba(18,128,75,.95));
+    box-shadow:0 12px 30px rgba(18,128,75,.20),inset 0 1px rgba(255,255,255,.22);
+    transition:transform .18s ease,filter .18s ease;
+}
+
+.btn-whatsapp:hover{filter:brightness(1.06)}
+.btn-whatsapp:active{transform:scale(.985)}
+
+.timer-box{
+    display:inline-block;
+    direction:ltr;
+    margin-top:7px;
+    padding:7px 15px;
+    border-radius:11px;
+    color:var(--gold);
+    font-size:1.15rem;
+    font-weight:900;
+    background:rgba(0,0,0,.26);
+    border:1px solid rgba(255,215,106,.18);
+    box-shadow:inset 0 1px rgba(255,255,255,.04);
+}
+
+
+/* قفل العجلة بعد استخدام المحاولة: نفس الدائرة تماماً وبصورة خفيفة */
+.wheel-lock-overlay{
+    position:absolute;
+    top:43.5%;
+    left:50%;
+    width:var(--wheel-size);
+    height:var(--wheel-size);
+    transform:translate(-50%,-50%) translateZ(0);
+    border-radius:50%;
+    overflow:hidden;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:30;
+    pointer-events:none;
+    opacity:0;
+    visibility:hidden;
+    background:rgba(5,7,12,.18);
+    transition:opacity:.35s ease,visibility:.35s ease;
+    box-shadow:inset 0 0 0 1px rgba(255,255,255,.10),inset 0 0 55px rgba(0,0,0,.20);
+}
+.wheel-lock-overlay.active{
+    opacity:1;
+    visibility:visible;
+}
+.wheel-lock-overlay img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    display:block;
+    opacity:.94;
+    filter:drop-shadow(0 8px 18px rgba(0,0,0,.28));
+    user-select:none;
+    -webkit-user-drag:none;
+}
+
+/* معلومات صلاحية الكود */
+.code-expiry-box,
+.saved-expiry-box{
+    margin:0 0 16px;
+    padding:11px 12px;
+    border-radius:14px;
+    border:1px solid rgba(255,215,106,.18);
+    background:rgba(255,215,106,.055);
+    color:#dbe7f5;
+    font-size:.82rem;
+    line-height:1.75;
+}
+.code-expiry-box strong,
+.saved-expiry-box strong{
+    color:#ffd76a;
+}
+.code-expiry-box i,
+.saved-expiry-box i{
+    color:#ffd76a;
+    margin-left:4px;
+}
+.expiry-countdown{
+    display:inline-block;
+    margin-top:5px;
+    padding:4px 10px;
+    border-radius:9px;
+    background:rgba(0,0,0,.22);
+    color:#ffd76a;
+    font-weight:900;
+    direction:ltr;
+    letter-spacing:.5px;
+}
+.expiry-expired{
+    color:#ff7885!important;
+}
+.lose-prize-state{
+    border-color:rgba(73,166,255,.22)!important;
+    background:rgba(73,166,255,.055)!important;
+}
+.lose-prize-state .prize-icon-wrapper{
+    color:#65b7ff;
+    border-color:rgba(73,166,255,.30);
+    background:radial-gradient(circle,rgba(73,166,255,.14),rgba(73,166,255,.025));
+}
+.lose-prize-state .prize-name-display{
+    border-color:rgba(73,166,255,.22);
+}
+
+@media (max-width:520px){
+    body{padding:22px 10px 34px}
+    .logo-box{width:82px;height:82px}
+    .glass-card{border-radius:23px;padding:16px}
+    .wheel-container{width:min(410px,94vw);margin-top:4px;--wheel-size:72%;--frame-size:96%}
+    .spin-btn{width:78px;height:78px;font-size:1.05rem}
+    .pointer-arrow{width:29px;height:42px}
+}
+
+@media (max-width:360px){
+    .store-title{font-size:1.85rem}
+    .subtitle{font-size:.82rem}
+    .wheel-container{width:93vw;--wheel-size:72%;--frame-size:96%}
+    .spin-btn{width:72px;height:72px}
+}
+
+@media (prefers-reduced-motion:reduce){
+    *,*::before,*::after{
+        animation-duration:.01ms!important;
+        animation-iteration-count:1!important;
+        transition-duration:.01ms!important;
     }
-    .page::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      border-radius: inherit;
-      padding: 1px;
-      background: linear-gradient(135deg, rgba(104,225,241,.38), transparent 30%, transparent 72%, rgba(24,184,210,.22));
-      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-      -webkit-mask-composite: xor;
-      mask-composite: exclude;
-      pointer-events: none;
-    }
-    .topline {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      padding: 4px 5px 20px;
-      border-bottom: 1px solid rgba(142, 188, 207, .12);
-    }
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-family: Arial, sans-serif;
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 2px;
-      color: #e9f7fb;
-    }
-    .brand-mark {
-      width: 34px; height: 34px;
-      display: grid; place-items: center;
-      border-radius: 11px;
-      color: var(--cyan-light);
-      background: rgba(24,184,210,.10);
-      border: 1px solid rgba(24,184,210,.25);
-    }
-    .brand-mark svg { width: 19px; height: 19px; }
-    .status {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 7px 12px;
-      border-radius: 30px;
-      color: #9ceaf4;
-      background: rgba(24,184,210,.08);
-      border: 1px solid rgba(24,184,210,.18);
-      font-size: 14px;
-      line-height: 1;
-    }
-    .status-dot {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: #42d4e7;
-      box-shadow: 0 0 12px #18b8d2;
-      animation: blink 1.6s ease-in-out infinite;
-    }
-    .content { text-align: center; padding: 34px 12px 14px; }
-    .visual {
-      width: 174px; height: 174px;
-      position: relative;
-      display: grid;
-      place-items: center;
-      margin: 0 auto 27px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(27,147,174,.20) 0 38%, rgba(12,38,55,.25) 39% 65%, transparent 66%);
-    }
-    .visual::before, .visual::after {
-      content: "";
-      position: absolute;
-      inset: 9px;
-      border: 1px solid rgba(70,206,226,.24);
-      border-radius: 50%;
-    }
-    .visual::after {
-      inset: 0;
-      border-style: dashed;
-      border-color: rgba(70,206,226,.28);
-      animation: rotate 28s linear infinite;
-    }
-    .gear {
-      width: 90px; height: 90px;
-      color: var(--cyan-light);
-      filter: drop-shadow(0 0 18px rgba(24,184,210,.38));
-      animation: rotate 16s linear infinite;
-    }
-    .wrench {
-      position: absolute;
-      width: 43px; height: 43px;
-      color: #e8fbff;
-      filter: drop-shadow(0 0 9px rgba(24,184,210,.35));
-      animation: float 3.4s ease-in-out infinite;
-    }
-    .orbit {
-      position: absolute;
-      width: 10px; height: 10px;
-      border-radius: 50%;
-      background: var(--cyan-light);
-      box-shadow: 0 0 15px var(--cyan);
-    }
-    .orbit.one { top: 20px; right: 25px; }
-    .orbit.two { bottom: 22px; left: 24px; width: 6px; height: 6px; opacity: .65; }
-    .kicker {
-      margin: 0 0 8px;
-      color: var(--cyan-light);
-      font-size: 17px;
-      font-weight: 700;
-      letter-spacing: .2px;
-    }
-    h1 {
-      margin: 0;
-      font-size: clamp(32px, 7vw, 43px);
-      line-height: 1.45;
-      font-weight: 700;
-      color: #f6fbfd;
-      text-shadow: 0 3px 25px rgba(62,203,226,.10);
-    }
-    .description {
-      max-width: 430px;
-      margin: 13px auto 0;
-      color: var(--muted);
-      font-size: 20px;
-      line-height: 1.9;
-    }
-    .progress-area {
-      width: min(100%, 290px);
-      margin: 27px auto 0;
-    }
-    .progress-label {
-      display: flex;
-      justify-content: space-between;
-      color: #7897a9;
-      font-family: Arial, sans-serif;
-      font-size: 10px;
-      letter-spacing: 1.4px;
-      margin-bottom: 9px;
-    }
-    .progress {
-      height: 4px;
-      overflow: hidden;
-      border-radius: 10px;
-      background: rgba(137,183,199,.13);
-    }
-    .progress span {
-      display: block;
-      width: 38%;
-      height: 100%;
-      border-radius: inherit;
-      background: linear-gradient(90deg, #117c9a, #75e5f2);
-      box-shadow: 0 0 14px rgba(24,184,210,.7);
-      animation: loading 2.8s ease-in-out infinite alternate;
-    }
-    .footer {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 9px;
-      margin-top: 28px;
-      padding-top: 19px;
-      border-top: 1px solid rgba(142,188,207,.10);
-      color: #7893a4;
-      font-size: 16px;
-    }
-    .footer svg { width: 17px; height: 17px; color: var(--cyan); flex: 0 0 auto; }
-    @keyframes rotate { to { transform: rotate(360deg); } }
-    @keyframes blink { 50% { opacity: .35; } }
-    @keyframes float { 0%,100% { transform: translateY(0) rotate(-9deg); } 50% { transform: translateY(-7px) rotate(5deg); } }
-    @keyframes loading { from { transform: translateX(0); } to { transform: translateX(160%); } }
-    @keyframes rise { from { opacity: 0; transform: translateY(22px) scale(.985); } to { opacity: 1; transform: none; } }
-    @media (max-width: 440px) {
-      body { padding: 15px; }
-      .page { padding: 17px 15px; border-radius: 27px; }
-      .content { padding: 29px 5px 12px; }
-      .visual { width: 150px; height: 150px; margin-bottom: 21px; }
-      .gear { width: 78px; height: 78px; }
-      .description { font-size: 18px; }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
-    }
-  </style>
+}
+
+/* Precision wheel/frame alignment: keep the wheel and artwork scaled together. */
+.wheel-container{
+    --wheel-size:74%;
+    --frame-size:101%;
+}
+.wheel-outer-ring{
+    top:43.5%;
+    left:50%;
+    width:var(--wheel-size);
+    height:var(--wheel-size);
+    transform:translate(-50%,-50%) translateZ(0);
+    overflow:hidden;
+    box-sizing:border-box;
+}
+.wheel-outer-ring #wheel{
+    width:100%;
+    height:100%;
+    clip-path:circle(50% at 50% 50%);
+    -webkit-clip-path:circle(50% at 50% 50%);
+}
+.wheel-frame{
+    top:50%;
+    left:50%;
+    width:var(--frame-size);
+    height:var(--frame-size);
+    transform:translate(-50%,-50%) translateZ(0);
+}
+.pointer-box{
+    top:calc(43.5% - (var(--wheel-size) / 2) - 7px);
+}
+@media (max-width:520px){
+    .wheel-container{--wheel-size:74%;--frame-size:101%;}
+}
+@media (max-width:360px){
+    .wheel-container{--wheel-size:74%;--frame-size:101%;}
+}
+
+/* Responsive wheel sizing: scales naturally from phones to large desktop screens. */
+.wheel-container{
+    width:clamp(320px,58vw,680px);
+    max-width:none;
+    aspect-ratio:1 / 1;
+}
+@media (max-width:900px){
+    .wheel-container{width:min(88vw,560px);}
+}
+@media (max-width:520px){
+    .wheel-container{width:94vw;}
+}
+@media (max-width:360px){
+    .wheel-container{width:93vw;}
+}
+
+/* تحسينات بصرية هادئة مع الإبقاء على صور العجلة ومحتواها كما هي */
+.glass-card{
+    border-color:rgba(148,190,235,.22);
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 24px 70px rgba(0,0,0,.36),0 0 28px rgba(73,166,255,.045);
+}
+.wheel-container{filter:drop-shadow(0 16px 28px rgba(0,0,0,.18));}
+.wheel-outer-ring{
+    border-color:rgba(210,231,255,.30);
+    box-shadow:0 26px 68px rgba(0,0,0,.58),inset 0 1px 0 rgba(255,255,255,.25),inset 0 -14px 30px rgba(0,0,0,.30),0 0 0 7px rgba(73,166,255,.035);
+}
+.spin-btn{
+    border-color:rgba(255,255,255,.86);
+    box-shadow:0 0 0 7px rgba(73,166,255,.075),0 14px 36px rgba(0,0,0,.46),0 0 38px rgba(73,166,255,.38),inset 0 2px 8px rgba(255,255,255,.42),inset 0 -10px 17px rgba(0,0,0,.20);
+}
+.modal-card{border-color:rgba(255,255,255,.23);}
+.wheel-login-gate{
+    position:fixed;inset:0;z-index:5000;display:flex;align-items:center;justify-content:center;
+    padding:22px;background:rgba(3,7,15,.72);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+}
+.wheel-login-gate[hidden]{display:none!important;}
+.wheel-login-card{
+    width:min(100%,390px);padding:26px 22px;text-align:center;border-radius:24px;
+    border:1px solid rgba(255,255,255,.16);
+    background:linear-gradient(145deg,rgba(22,34,52,.96),rgba(8,13,23,.97));
+    box-shadow:0 28px 80px rgba(0,0,0,.55),inset 0 1px rgba(255,255,255,.10);
+}
+.wheel-login-card h2{font-size:1.3rem;font-weight:900;color:#fff;margin-bottom:10px;}
+.wheel-login-card p{font-size:.92rem;line-height:1.9;color:#bdc9d9;margin-bottom:20px;}
+.wheel-login-card button{
+    width:100%;padding:14px 18px;border:1px solid rgba(255,255,255,.22);border-radius:14px;
+    color:#fff;font:800 1rem 'Tajawal',sans-serif;cursor:pointer;
+    background:linear-gradient(135deg,#1689ed,#0754a8);box-shadow:0 10px 28px rgba(16,120,220,.25);
+}
+.wheel-login-card button:active{transform:scale(.985);}
+
+</style>
 </head>
 <body>
-  <main class="page" aria-labelledby="page-title">
-    <header class="topline">
-      <div class="brand">
-        <span class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4 19V8l8-4 8 4v11"/><path d="M9 19v-6h6v6"/><path d="M2 19h20"/>
-          </svg>
-        </span>
-        <span>MOHAB STORE</span>
-      </div>
-      <div class="status"><span class="status-dot"></span> تحديثات جارية</div>
+
+    <!-- شاشة التحميل الحديثة تظهر حتى اكتمال جلب البيانات -->
+    <div class="db-loader-overlay" id="dbLoader">
+        <div class="loader-spinner-box">
+            <div class="spinner-ring"></div>
+            <i class="fa-solid fa-database spinner-icon"></i>
+        </div>
+        <div class="loader-text">جاري مزامنة بيانات العجلة...</div>
+        <div class="loader-subtext">يرجى الانتظار لحظة واحدة</div>
+    </div>
+
+    <div id="wheelLoginGate" class="wheel-login-gate" hidden>
+        <div class="wheel-login-card">
+            <h2>سجّل الدخول أولاً</h2>
+            <p>لاستخدام عجلة الحظ، سجّل الدخول إلى حسابك في MOHAB STORE. لكل حساب محاولة واحدة كل 24 ساعة.</p>
+            <button type="button" id="wheelGoLogin">الانتقال إلى تسجيل الدخول</button>
+        </div>
+    </div>
+
+    <header>
+        <div class="logo-box">
+            <div class="logo-inner">
+                <img src="https://via.placeholder.com/150/151d2a/0084ff?text=MOHAB" alt="MOHAB STORE" id="storeLogo">
+            </div>
+        </div>
+        <h1 class="store-title" id="storeName">MOHAB STORE</h1>
+        <p class="subtitle"><i class="fa-solid fa-wand-magic-sparkles" style="color:var(--accent-gold);"></i> اضغط ودوّر العجلة للفوز بهدايا فورية!</p>
     </header>
 
-    <section class="content">
-      <div class="visual" aria-hidden="true">
-        <span class="orbit one"></span><span class="orbit two"></span>
-        <svg class="gear" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M43 5h14l3 10.2a36 36 0 0 1 8.2 3.4l9.1-5.1 9.9 9.9-5.1 9.1a36 36 0 0 1 3.4 8.2L96 43v14l-10.2 3a36 36 0 0 1-3.4 8.3l5.1 9.1-9.9 9.9-9.1-5.1a36 36 0 0 1-8.2 3.4L57 96H43l-3-10.2a36 36 0 0 1-8.3-3.4l-9.1 5.1-9.9-9.9 5.1-9.1a36 36 0 0 1-3.4-8.3L4 57V43l10.2-3a36 36 0 0 1 3.4-8.2l-5.1-9.1 9.9-9.9 9.1 5.1a36 36 0 0 1 8.3-3.4L43 5Z" fill="currentColor" opacity=".13" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/>
-          <circle cx="50" cy="50" r="19" stroke="currentColor" stroke-width="4"/>
-          <circle cx="50" cy="50" r="7" fill="currentColor" opacity=".65"/>
-        </svg>
-        <svg class="wrench" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <path d="M14.7 6.3a5 5 0 0 0-6.4 6.4L3 18l3 3 5.3-5.3a5 5 0 0 0 6.4-6.4l-3 3-3-3 3-3Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
+    <div class="glass-card saved-prize-card" id="savedPrizeCard">
+        <p style="color: var(--accent-gold); font-weight: bold; font-size: 0.95rem;"><i class="fa-solid fa-box-open"></i> لديك جائزة محفوظة بانتظارك</p>
+        <div style="font-size: 1.15rem; margin: 10px 0; color: #fff; font-weight: 800;" id="savedPrizeText">-</div>
+        <div id="prizeStatusBadge" style="margin-bottom: 12px;"></div>
+        <div class="saved-expiry-box" id="savedExpiryBox">
+            <div><i class="fa-solid fa-hourglass-half"></i> مدة صلاحية الكود: <strong>24 ساعة</strong></div>
+            <div>تاريخ انتهاء الكود: <strong id="savedExpiryDate">-</strong></div>
+        </div>
+        <a id="savedWhatsappBtn" class="btn-whatsapp" target="_blank" href="#" style="margin-bottom: 10px;">
+            <i class="fa-brands fa-whatsapp" style="font-size:1.2rem;"></i> استلام الجائزة عبر الواتساب
+        </a>
+        <div style="font-size: 0.8rem; color: var(--text-sub);">المحاولة التالية المتاحة بعد: <br><span class="timer-box" id="savedPrizeTimer">00:00:00</span></div>
+    </div>
 
-      <p class="kicker">نعود إليك قريباً</p>
-      <h1 id="page-title">عجلة الحظ تحت الصيانة</h1>
-      <p class="description">
-        نعمل الآن على تطوير عجلة الحظ وإضافة تحسينات جديدة لتكون تجربتك القادمة أفضل وأكثر تميزاً.
-      </p>
+    <div class="wheel-container">
+        <div class="pointer-box"><div class="pointer-arrow"></div></div>
+        <div class="wheel-outer-ring">
+            <canvas id="wheel" width="600" height="600"></canvas>
+            <div class="spin-btn" id="spinBtn">إبدأ</div>
+        </div>
+        <img
+            class="wheel-frame"
+            src="https://f.top4top.io/p_3914hp00q0.png"
+            alt="MOHAB STORE Wheel Frame"
+            aria-hidden="true"
+            draggable="false"
+        >
+        <div class="wheel-lock-overlay" id="wheelLockOverlay" aria-hidden="true">
+            <img
+                src="https://l.top4top.io/p_3921q8csf0.png"
+                alt=""
+                draggable="false"
+            >
+        </div>
+    </div>
 
-      <div class="progress-area" aria-label="جاري العمل على التحديثات">
-        <div class="progress-label"><span>جاري التطوير</span><span>MOHAB STORE</span></div>
-        <div class="progress"><span></span></div>
-      </div>
-    </section>
+    <div class="glass-card" style="text-align: center;">
+        <div id="activeNotice">
+            <p style="font-size: 0.9rem; color: #cbd5e1;"><i class="fa-solid fa-hand-pointer" style="color:var(--accent-blue); margin-left:5px;"></i> انقر على زر "إبدأ" لتدوير العجلة</p>
+        </div>
+        <div id="cooldownNotice" style="display:none;">
+            <p style="color:#f87171; font-weight:bold; font-size: 0.9rem;"><i class="fa-solid fa-hourglass-half"></i> تم استخدام محاولتك، يرجى الانتظار:</p>
+            <div class="timer-box" id="countdownTimer">00:00:00</div>
+        </div>
+    </div>
 
-    <footer class="footer">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <path d="M12 3 4.5 6v5.2c0 4.7 3.2 8.1 7.5 9.8 4.3-1.7 7.5-5.1 7.5-9.8V6L12 3Z"/><path d="m9 12 2 2 4-4"/>
-      </svg>
-      <span>شكراً لثقتك بنا، نقدر انتظارك</span>
-    </footer>
-  </main>
+    <div class="modal-overlay" id="prizeModal">
+        <div class="modal-card">
+            <button class="modal-close-btn" id="closeModalBtn"><i class="fa-solid fa-xmark"></i></button>
+            <div class="prize-icon-wrapper"><i class="fa-solid fa-trophy"></i></div>
+            <h2 style="font-size: 1.4rem; color: #fff; font-weight: 800;">مبروك! لقد فزت بـ</h2>
+            <div class="prize-name-display" id="modalPrizeTitle">جائزة قيمة</div>
+            <p style="font-size: 0.85rem; color: var(--text-sub); margin-bottom: 8px;">رمز التحقق الخاص بربحتك:</p>
+            <div class="claim-code-box">
+                <span style="color: var(--text-sub); font-size: 0.8rem;">الرمز:</span>
+                <span class="claim-code-val" id="claimCodeDisplay">MS-000000</span>
+            </div>
+            <div class="code-expiry-box" id="modalExpiryBox">
+                <div><i class="fa-solid fa-clock"></i> صلاحية الكود: <strong>24 ساعة</strong></div>
+                <div>ينتهي في: <strong id="modalExpiryDate">-</strong></div>
+                <div class="expiry-countdown" id="modalExpiryCountdown">23:59:59</div>
+            </div>
+            <a id="whatsappBtn" class="btn-whatsapp" target="_blank" href="#">
+                <i class="fa-brands fa-whatsapp" style="font-size: 1.25rem;"></i>
+                إرسال الكود للإدارة واستلام الجائزة
+            </a>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAVV1wjaYY1saP5Op9TdY_Snrt7DQcXSwU",
+            authDomain: "mohab-store.firebaseapp.com",
+            databaseURL: "https://mohab-store-default-rtdb.firebaseio.com",
+            projectId: "mohab-store"
+        };
+
+        let db = null;
+        let auth = null;
+        let currentAuthUser = null;
+        let spinReservationInProgress = false;
+
+        // لا نترك شاشة التحميل معلّقة إذا لم يرد Firebase بسبب الشبكة أو الصلاحيات.
+        function withFirebaseTimeout(promise, ms, label) {
+            let timer;
+            const timeout = new Promise((_, reject) => {
+                timer = setTimeout(() => reject(new Error(label || "انتهت مهلة الاتصال بقاعدة البيانات.")), ms);
+            });
+            return Promise.race([promise, timeout]).finally(() => clearTimeout(timer));
+        }
+        try {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+            auth = firebase.auth();
+        } catch (e) {
+            console.error("Firebase initialization failed:", e);
+        }
+
+        let adminPhoneNumber = "201000000000";
+        // اللفة اليومية والكود كلاهما ثابتان لمدة 24 ساعة حسب المطلوب.
+        const DAILY_COOLDOWN_MS = 24 * 60 * 60 * 1000;
+        const PRIZE_VALIDITY_MS = 24 * 60 * 60 * 1000;
+        let cooldownHours = 24;
+        let userIP = "unknown_user";
+        // طبقات تعريف إضافية للمساعدة في منع إعادة اللفة بعد مسح بيانات الموقع.
+        let userDeviceId = "unknown_device";
+        let deviceFingerprint = "unknown_fingerprint";
+        let deviceFingerprintKey = "unknown_fingerprint";
+        let activeExpiryTimer = null;
+        let activeSavedExpiryTimer = null;
+
+        function getOrCreateDeviceId() {
+            const storageKey = "mohab_store_wheel_device_id_v1";
+            try {
+                let id = localStorage.getItem(storageKey);
+                if (!id) {
+                    if (window.crypto && typeof crypto.randomUUID === "function") {
+                        id = crypto.randomUUID();
+                    } else {
+                        id = "ms-" + Date.now() + "-" + Math.random().toString(36).slice(2) + "-" + Math.random().toString(36).slice(2);
+                    }
+                    localStorage.setItem(storageKey, id);
+                }
+                return String(id).replace(/[.#$\[\]/]/g, "_");
+            } catch (e) {
+                console.warn("Device ID storage unavailable:", e);
+                return "unknown_device";
+            }
+        }
+
+
+        function simpleHash(value) {
+            let hash = 2166136261;
+            const str = String(value);
+            for (let i = 0; i < str.length; i++) {
+                hash ^= str.charCodeAt(i);
+                hash = Math.imul(hash, 16777619);
+            }
+            return ("00000000" + (hash >>> 0).toString(16)).slice(-8);
+        }
+
+        function buildDeviceFingerprint() {
+            try {
+                const parts = [
+                    navigator.userAgent || "",
+                    navigator.language || "",
+                    Array.isArray(navigator.languages) ? navigator.languages.join(",") : "",
+                    navigator.platform || "",
+                    String(navigator.hardwareConcurrency || ""),
+                    String(navigator.deviceMemory || ""),
+                    String(screen.width || ""),
+                    String(screen.height || ""),
+                    String(screen.colorDepth || ""),
+                    String(window.devicePixelRatio || ""),
+                    String(new Date().getTimezoneOffset()),
+                    String(Intl.DateTimeFormat().resolvedOptions().timeZone || ""),
+                    String(navigator.maxTouchPoints || "")
+                ];
+                return "fp_" + simpleHash(parts.join("|"));
+            } catch (e) {
+                return "unknown_fingerprint";
+            }
+        }
+
+        function getFingerprintKey() {
+            return String(buildDeviceFingerprint()).replace(/[.#$\[\]/]/g, "_");
+        }
+
+        function isLosePrizeText(value) {
+            // يتعرف على "حظ أوفر" حتى مع اختلاف الهمزات/المسافات/الإيموجي والرموز.
+            const normalized = String(value || "")
+                .toLowerCase()
+                .replace(/[أإآٱ]/g, "ا")
+                .replace(/ؤ/g, "و")
+                .replace(/ئ/g, "ي")
+                .replace(/ة/g, "ه")
+                .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, "")
+                .replace(/[\s\u200B-\u200D\uFEFF]+/g, "")
+                .replace(/[\p{P}\p{S}]/gu, "");
+            return normalized.includes("حظاوفر");
+        }
+
+        function formatArabicDate(timestamp) {
+            const date = new Date(Number(timestamp) || 0);
+            if (!Number.isFinite(date.getTime()) || date.getTime() <= 0) return "-";
+            try {
+                return date.toLocaleString("ar-EG", {
+                    year:"numeric",
+                    month:"2-digit",
+                    day:"2-digit",
+                    hour:"2-digit",
+                    minute:"2-digit",
+                    second:"2-digit"
+                });
+            } catch (e) {
+                return date.toLocaleString("ar-EG");
+            }
+        }
+
+        function formatRemaining(ms) {
+            if (ms <= 0) return "انتهى";
+            const totalSeconds = Math.floor(ms / 1000);
+            const hours = Math.floor(totalSeconds / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+            return `${String(hours).padStart(2,"0")}:${String(minutes).padStart(2,"0")}:${String(seconds).padStart(2,"0")}`;
+        }
+
+        function setWheelLocked(locked) {
+            const overlay = document.getElementById("wheelLockOverlay");
+            const btn = document.getElementById("spinBtn");
+            if (overlay) overlay.classList.toggle("active", !!locked);
+            if (locked) {
+                if (btn) {
+                    btn.classList.add("disabled");
+                    btn.innerHTML = '<i class="fa-solid fa-lock"></i>';
+                }
+            } else if (btn) {
+                btn.innerHTML = "إبدأ";
+            }
+        }
+
+        function startPrizeExpiryTimer(expiresAt) {
+            if (activeExpiryTimer) clearInterval(activeExpiryTimer);
+            const update = () => {
+                const remaining = Number(expiresAt) - Date.now();
+                const countdown = document.getElementById("modalExpiryCountdown");
+                const box = document.getElementById("modalExpiryBox");
+                if (remaining <= 0) {
+                    if (countdown) {
+                        countdown.textContent = "انتهى";
+                        countdown.classList.add("expiry-expired");
+                    }
+                    if (box) box.classList.add("expiry-expired");
+                    clearInterval(activeExpiryTimer);
+                    activeExpiryTimer = null;
+                    return;
+                }
+                if (countdown) {
+                    countdown.textContent = formatRemaining(remaining);
+                    countdown.classList.remove("expiry-expired");
+                }
+            };
+            update();
+            activeExpiryTimer = setInterval(update, 1000);
+        }
+
+        function startSavedPrizeExpiryTimer(expiresAt) {
+            if (activeSavedExpiryTimer) clearInterval(activeSavedExpiryTimer);
+            const update = () => {
+                const remaining = Number(expiresAt) - Date.now();
+                const box = document.getElementById("savedExpiryBox");
+                const dateEl = document.getElementById("savedExpiryDate");
+                if (dateEl) dateEl.textContent = formatArabicDate(expiresAt);
+                if (remaining <= 0) {
+                    if (box) {
+                        box.classList.add("expiry-expired");
+                        box.innerHTML = '<div><i class="fa-solid fa-circle-xmark"></i> انتهت صلاحية الكود بعد مرور 24 ساعة.</div>';
+                    }
+                    clearInterval(activeSavedExpiryTimer);
+                    activeSavedExpiryTimer = null;
+                    return;
+                }
+                if (box) box.classList.remove("expiry-expired");
+            };
+            update();
+            activeSavedExpiryTimer = setInterval(update, 1000);
+        }
+
+        // IMPORTANT:
+        // لا توجد أي جوائز افتراضية هنا.
+        // العجلة لا يمكنها العمل إلا بالجوائز الموجودة في Firebase /settings/items.
+        let wheelItems = [];
+        let currentRotation = 0;
+        let loadedImages = {};
+        let isDataLoaded = false;
+        let settingsLoaded = false;
+        let spinStatusLoaded = false;
+        let isSpinning = false;
+        let audioCtx = null;
+
+        const canvas = document.getElementById('wheel');
+        const ctx = canvas.getContext('2d');
+
+        function hideLoader() {
+            if (!isDataLoaded) {
+                isDataLoaded = true;
+                const loader = document.getElementById('dbLoader');
+                if (loader) loader.classList.add('hidden');
+            }
+        }
+
+        function showConfigError(message) {
+            document.getElementById('activeNotice').style.display = 'block';
+            document.getElementById('cooldownNotice').style.display = 'none';
+            document.getElementById('spinBtn').classList.add('disabled');
+            document.getElementById('activeNotice').innerHTML =
+                `<p style="font-size:.9rem;color:#ff8792;font-weight:700">
+                    <i class="fa-solid fa-triangle-exclamation"></i> ${message}
+                </p>`;
+        }
+
+        function setSpinAvailability(enabled) {
+            const btn = document.getElementById('spinBtn');
+            if (enabled) btn.classList.remove('disabled');
+            else btn.classList.add('disabled');
+        }
+
+        /*
+         * تنظيف بيانات الجوائز القادمة من Firebase.
+         * نقبل Array أو Object، لكن لا ننشئ أي جائزة من عندنا.
+         * كل عنصر يجب أن يحتوي على اسم جائزة ونسبة رقمية، بما فيها 0%.
+         */
+        function normalizeWheelItems(rawItems) {
+            if (!rawItems) return [];
+
+            let source = Array.isArray(rawItems)
+                ? rawItems
+                : (typeof rawItems === 'object'
+                    ? Object.keys(rawItems).sort((a, b) => {
+                        const na = Number(a), nb = Number(b);
+                        if (Number.isFinite(na) && Number.isFinite(nb)) return na - nb;
+                        return a.localeCompare(b);
+                    }).map(k => rawItems[k])
+                    : []);
+
+            const cleaned = [];
+
+            source.forEach((raw, originalIndex) => {
+                if (!raw || typeof raw !== 'object') return;
+
+                const text = String(raw.text ?? raw.name ?? '').trim();
+                const chance = Number(raw.chance);
+
+                // أي عنصر ناقص أو بنسبة غير صحيحة يتم تجاهله ولا يتحول لجائزة وهمية.
+                if (!text || !Number.isFinite(chance) || chance < 0) return;
+
+                cleaned.push({
+                    text,
+                    logo: typeof raw.logo === 'string' ? raw.logo.trim() : '',
+                    color: typeof raw.color === 'string' && raw.color.trim()
+                        ? raw.color
+                        : '#151d2a',
+                    chance,
+                    // نحتفظ بمعرف العنصر إن كان موجوداً لسهولة التتبع.
+                    id: raw.id != null ? String(raw.id) : String(originalIndex)
+                });
+            });
+
+            return cleaned;
+        }
+
+        /*
+         * النسب هنا تعمل كـ "أوزان" وليست شرطاً أن يكون مجموعها 100%.
+         * مثال: 100 و85 و90 تعني أن فرص الجوائز الثلاث تتناسب مع هذه الأوزان.
+         * الجائزة ذات 0% تظل ظاهرة في العجلة، لكنها لا تدخل في السحب إطلاقاً.
+         */
+        function validatePrizePercentages(items) {
+            if (!items.length) {
+                return { ok: false, message: "لا توجد جوائز صالحة في قاعدة البيانات." };
+            }
+
+            const total = items.reduce((sum, item) => {
+                const chance = Number(item.chance);
+                return sum + (Number.isFinite(chance) && chance > 0 ? chance : 0);
+            }, 0);
+
+            if (total <= 0) {
+                return {
+                    ok: false,
+                    message: "لا توجد أي نسبة أكبر من 0% للسحب. ضع نسبة موجبة لجائزة واحدة على الأقل."
+                };
+            }
+
+            return { ok: true, total };
+        }
+
+        function maybeEnableAfterLoad() {
+            if (!settingsLoaded || !spinStatusLoaded) return;
+
+            hideLoader();
+
+            if (!wheelItems.length) {
+                showConfigError("لا توجد جوائز محفوظة في النظام.");
+                return;
+            }
+
+            const validation = validatePrizePercentages(wheelItems);
+            if (!validation.ok) {
+                showConfigError(validation.message);
+                return;
+            }
+        }
+
+        function createAudioContext() {
+            if (!audioCtx) {
+                try {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    audioCtx = null;
+                }
+            }
+            return audioCtx;
+        }
+
+        function playTickSound(progress) {
+            try {
+                const ac = createAudioContext();
+                if (!ac) return;
+                if (ac.state === 'suspended') ac.resume();
+
+                const osc = ac.createOscillator();
+                const gain = ac.createGain();
+
+                osc.type = 'triangle';
+                const freq = 300 + (1 - progress) * 420;
+                osc.frequency.setValueAtTime(freq, ac.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(90, ac.currentTime + 0.055);
+                gain.gain.setValueAtTime(0.18, ac.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, ac.currentTime + 0.055);
+
+                osc.connect(gain);
+                gain.connect(ac.destination);
+                osc.start();
+                osc.stop(ac.currentTime + 0.04);
+            } catch (e) {}
+        }
+
+        function preloadImages() {
+            loadedImages = {};
+
+            wheelItems.forEach((item, i) => {
+                if (!item.logo) return;
+
+                const img = new Image();
+                img.crossOrigin = "anonymous";
+                img.onload = () => {
+                    loadedImages[i] = img;
+                    drawWheel();
+                };
+                img.onerror = () => {
+                    // الصورة لا تؤثر على الجائزة نفسها.
+                    delete loadedImages[i];
+                    drawWheel();
+                };
+                img.src = item.logo;
+            });
+        }
+
+        function drawWheel() {
+            const width = canvas.width;
+            const center = width / 2;
+            const radius = center - 12;
+            const numSegments = wheelItems.length;
+
+            ctx.clearRect(0, 0, width, width);
+            if (!numSegments) return;
+
+            const segmentAngle = (2 * Math.PI) / numSegments;
+
+            for (let i = 0; i < numSegments; i++) {
+                const startAngle = currentRotation + i * segmentAngle;
+                const endAngle = startAngle + segmentAngle;
+
+                ctx.save();
+                ctx.beginPath();
+                ctx.moveTo(center, center);
+                ctx.arc(center, center, radius, startAngle, endAngle);
+                ctx.closePath();
+
+                ctx.fillStyle = wheelItems[i].color || "#151d2a";
+                ctx.fill();
+
+                ctx.lineWidth = Math.max(3, width * 0.006);
+                ctx.strokeStyle = "rgba(255,255,255,0.30)";
+                ctx.shadowColor = "rgba(0,0,0,0.34)";
+                ctx.shadowBlur = 3;
+                ctx.stroke();
+                ctx.restore();
+            }
+
+            for (let i = 0; i < numSegments; i++) {
+                const startAngle = currentRotation + i * segmentAngle;
+                const endAngle = startAngle + segmentAngle;
+                const midAngle = startAngle + segmentAngle / 2;
+                const rawText = String(wheelItems[i].text || "").trim();
+
+                if (!rawText && !loadedImages[i]) continue;
+
+                ctx.save();
+                ctx.translate(center, center);
+
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.arc(0, 0, radius - 4, startAngle, endAngle);
+                ctx.closePath();
+                ctx.clip();
+
+                const labelRadius = radius * 0.60;
+                const labelX = Math.cos(midAngle) * labelRadius;
+                const labelY = Math.sin(midAngle) * labelRadius;
+
+                const sectorSafeWidth = Math.max(
+                    86,
+                    Math.min(radius * 0.46, labelRadius * segmentAngle * 0.58)
+                );
+                const sectorSafeHeight = Math.max(58, radius * 0.30);
+
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.direction = "rtl";
+
+                function buildPrizeLines(text, fontSize, widthLimit) {
+                    ctx.font = `900 ${fontSize}px "Tajawal", Arial, sans-serif`;
+
+                    const words = text.split(/\s+/).filter(Boolean);
+                    const lines = [];
+                    let line = "";
+
+                    for (const word of words) {
+                        const candidate = line ? `${line} ${word}` : word;
+
+                        if (ctx.measureText(candidate).width <= widthLimit) {
+                            line = candidate;
+                            continue;
+                        }
+
+                        if (line) {
+                            lines.push(line);
+                            line = "";
+                        }
+
+                        let chunk = "";
+                        for (const char of word) {
+                            const test = chunk + char;
+                            if (ctx.measureText(test).width <= widthLimit || !chunk) {
+                                chunk = test;
+                            } else {
+                                lines.push(chunk);
+                                chunk = char;
+                            }
+                        }
+
+                        if (chunk) line = chunk;
+                    }
+
+                    if (line) lines.push(line);
+                    return lines.length ? lines : [text];
+                }
+
+                let fontSize = Math.min(21, Math.max(11, radius * 0.066));
+                let lines = buildPrizeLines(rawText, fontSize, sectorSafeWidth);
+
+                while (fontSize > 9) {
+                    const lineHeight = fontSize * 1.14;
+                    const widestLine = lines.reduce(
+                        (max, line) => Math.max(max, ctx.measureText(line).width),
+                        0
+                    );
+                    const totalHeight = lines.length * lineHeight;
+
+                    if (
+                        widestLine <= sectorSafeWidth &&
+                        totalHeight <= sectorSafeHeight &&
+                        lines.length <= 5
+                    ) break;
+
+                    fontSize -= 1;
+                    lines = buildPrizeLines(rawText, fontSize, sectorSafeWidth);
+                }
+
+                if (lines.length > 5) {
+                    fontSize = Math.max(8, fontSize - 1);
+                    lines = buildPrizeLines(rawText, fontSize, sectorSafeWidth);
+                }
+
+                const lineHeight = fontSize * 1.14;
+                const textHeight = lines.length * lineHeight;
+
+                const hasLogo = !!loadedImages[i];
+                const logoSize = hasLogo ? Math.min(30, radius * 0.09) : 0;
+                const logoGap = hasLogo ? 5 : 0;
+                const contentHeight = textHeight + logoSize + logoGap;
+
+                const cardWidth = Math.min(sectorSafeWidth + 12, radius * 0.50);
+                const cardHeight = Math.min(
+                    Math.max(contentHeight + 14, 52),
+                    radius * 0.34
+                );
+
+                ctx.save();
+                ctx.translate(labelX, labelY);
+
+                ctx.fillStyle = "rgba(4, 10, 20, 0.40)";
+                ctx.strokeStyle = "rgba(255,255,255,0.20)";
+                ctx.lineWidth = 1.5;
+                ctx.shadowColor = "rgba(0,0,0,0.35)";
+                ctx.shadowBlur = 8;
+
+                ctx.beginPath();
+                ctx.roundRect(
+                    -cardWidth / 2,
+                    -cardHeight / 2,
+                    cardWidth,
+                    cardHeight,
+                    Math.min(14, cardHeight / 2)
+                );
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.shadowBlur = 0;
+                ctx.fillStyle = "rgba(255,255,255,0.07)";
+                ctx.beginPath();
+                ctx.roundRect(
+                    -cardWidth / 2 + 2,
+                    -cardHeight / 2 + 2,
+                    cardWidth - 4,
+                    Math.min(12, cardHeight * 0.18),
+                    8
+                );
+                ctx.fill();
+
+                let cursorY = -contentHeight / 2;
+
+                if (hasLogo) {
+                    ctx.save();
+                    ctx.shadowColor = "rgba(0,0,0,0.50)";
+                    ctx.shadowBlur = 5;
+                    ctx.drawImage(
+                        loadedImages[i],
+                        -logoSize / 2,
+                        cursorY,
+                        logoSize,
+                        logoSize
+                    );
+                    ctx.restore();
+
+                    cursorY += logoSize + logoGap;
+                }
+
+                ctx.font = `900 ${fontSize}px "Tajawal", Arial, sans-serif`;
+                ctx.fillStyle = "#ffffff";
+                ctx.strokeStyle = "rgba(0,0,0,0.72)";
+                ctx.lineWidth = Math.max(1.4, fontSize * 0.085);
+                ctx.shadowColor = "rgba(0,0,0,0.82)";
+                ctx.shadowBlur = 4;
+                ctx.shadowOffsetY = 1;
+
+                lines.forEach((line, index) => {
+                    const y = cursorY + index * lineHeight + lineHeight / 2;
+                    ctx.strokeText(line, 0, y, sectorSafeWidth);
+                    ctx.fillText(line, 0, y, sectorSafeWidth);
+                });
+
+                ctx.restore();
+                ctx.restore();
+            }
+
+            ctx.save();
+            ctx.translate(center, center);
+
+            const hubRadius = radius * 0.14;
+            const hubGradient = ctx.createRadialGradient(
+                -hubRadius * 0.35,
+                -hubRadius * 0.40,
+                hubRadius * 0.15,
+                0,
+                0,
+                hubRadius
+            );
+
+            hubGradient.addColorStop(0, "rgba(255,255,255,0.24)");
+            hubGradient.addColorStop(0.35, "rgba(24,39,62,0.96)");
+            hubGradient.addColorStop(1, "rgba(7,13,24,0.98)");
+
+            ctx.beginPath();
+            ctx.arc(0, 0, hubRadius, 0, Math.PI * 2);
+            ctx.fillStyle = hubGradient;
+            ctx.shadowColor = "rgba(0,0,0,0.55)";
+            ctx.shadowBlur = 10;
+            ctx.fill();
+
+            ctx.shadowBlur = 0;
+            ctx.lineWidth = 3;
+            ctx.strokeStyle = "rgba(255,255,255,0.18)";
+            ctx.stroke();
+
+            ctx.fillStyle = "#f7fbff";
+            ctx.font = `900 ${Math.max(18, radius * 0.075)}px "Tajawal", Arial, sans-serif`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.direction = "rtl";
+            ctx.shadowColor = "rgba(0,0,0,0.70)";
+            ctx.shadowBlur = 4;
+            ctx.fillText("إبدأ", 0, 0);
+
+            ctx.restore();
+        }
+
+        /*
+         * اختيار الجائزة بنظام الأوزان:
+         * - chance = 0 => الجائزة تظهر على العجلة لكن مستحيل يتم اختيارها.
+         * - أي أرقام موجبة تعمل، ولا يشترط أن يكون مجموعها 100.
+         * - الاحتمال الفعلي لكل جائزة = وزنها / مجموع الأوزان.
+         * مثال: 100 و85 و90 => 36.36% و30.91% و32.73% تقريباً.
+         */
+        function pickWinningIndex() {
+            const validation = validatePrizePercentages(wheelItems);
+            if (!validation.ok) return -1;
+
+            const totalChance = validation.total;
+            const random = Math.random() * totalChance;
+            let cumulative = 0;
+
+            for (let i = 0; i < wheelItems.length; i++) {
+                const chance = Number(wheelItems[i].chance) || 0;
+
+                // النسبة صفر: موجودة بصرياً فقط ولا يمكن أن تفوز.
+                if (chance <= 0) continue;
+
+                cumulative += chance;
+                if (random < cumulative) return i;
+            }
+
+            // لا نعيد جائزة 0% أبداً. نأخذ آخر جائزة موجبة فقط كحماية.
+            for (let i = wheelItems.length - 1; i >= 0; i--) {
+                if ((Number(wheelItems[i].chance) || 0) > 0) return i;
+            }
+
+            return -1;
+        }
+
+        async function readSpinRecord(key) {
+            if (!db || !key || key === "unknown_user" || key === "unknown_device") return null;
+            try {
+                const snap = await db.ref('user_spins/' + key).once('value');
+                return snap.exists() ? (snap.val() || {}) : null;
+            } catch (error) {
+                console.error("Spin status read failed for", key, error);
+                return null;
+            }
+        }
+
+        async function checkServerSpinStatus() {
+            if (!db) {
+                spinStatusLoaded = true;
+                maybeEnableAfterLoad();
+                return;
+            }
+
+            const keys = [];
+            if (!currentAuthUser || !currentAuthUser.uid) {
+                spinStatusLoaded = true;
+                setSpinAvailability(false);
+                document.getElementById('wheelLoginGate').hidden = false;
+                maybeEnableAfterLoad();
+                return;
+            }
+            // هوية الحساب المسجل في الموقع الرئيسي هي المفتاح الوحيد لمحاولة اليوم.
+            keys.push(String(currentAuthUser.uid).replace(/[^A-Za-z0-9_-]/g, "_"));
+            document.getElementById('wheelLoginGate').hidden = true;
+
+            try {
+                const records = await withFirebaseTimeout(Promise.all(keys.map(readSpinRecord)), 10000, 'انتهت مهلة قراءة سجل المحاولة.');
+                let data = null;
+
+                // نستخدم أحدث سجل من الجهاز أو الـIP حتى لا يستطيع المستخدم
+                // تجاوز المنع بمجرد تغيير الشبكة أو إعادة فتح الموقع.
+                for (const record of records) {
+                    if (!record) continue;
+                    if (!data || Number(record.lastSpinTime || 0) > Number(data.lastSpinTime || 0)) {
+                        data = record;
+                    }
+                }
+
+                spinStatusLoaded = true;
+
+                if (data) {
+                    const lastSpinTime = Number(data.lastSpinTime) || 0;
+                    const nextSpinTime = lastSpinTime + DAILY_COOLDOWN_MS;
+                    const now = Date.now();
+
+                    if (now < nextSpinTime) {
+                        startTimer(nextSpinTime);
+
+                        if (data.savedPrize && data.savedPrize.prize) {
+                            const saved = data.savedPrize;
+                            const isLose = isLosePrizeText(saved.prize);
+                            const expiresAt = Number(saved.expiresAt) || (lastSpinTime + PRIZE_VALIDITY_MS);
+                            const expired = Date.now() >= expiresAt;
+
+                            document.getElementById('savedPrizeCard').style.display = 'block';
+                            document.getElementById('savedPrizeText').innerText =
+                                isLose
+                                    ? `حظ أوفر 🍀`
+                                    : `${saved.prize} (كود: ${saved.code || '-'})`;
+
+                            const badge = document.getElementById('prizeStatusBadge');
+
+                            if (isLose) {
+                                badge.innerHTML =
+                                    `<span style="color:#65b7ff;font-size:.85rem;font-weight:bold">
+                                        <i class="fa-solid fa-face-smile"></i> حظ أوفر — لا يوجد كود أو استلام عبر الواتساب
+                                    </span>`;
+                                document.getElementById('savedWhatsappBtn').style.display = 'none';
+                                document.getElementById('savedExpiryBox').style.display = 'none';
+                            } else {
+                                document.getElementById('savedWhatsappBtn').style.display = 'flex';
+                                document.getElementById('savedExpiryBox').style.display = 'block';
+
+                                if (expired) {
+                                    badge.innerHTML =
+                                        `<span style="color:#ff7885;font-size:.85rem;font-weight:bold">
+                                            <i class="fa-solid fa-circle-xmark"></i> انتهت صلاحية الكود
+                                        </span>`;
+                                    document.getElementById('savedWhatsappBtn').style.display = 'none';
+                                } else if (saved.claimed) {
+                                    badge.innerHTML =
+                                        `<span style="color:#4ade80;font-size:.85rem;font-weight:bold">
+                                            <i class="fa-solid fa-circle-check"></i> تم التفعيل والاستلام بنجاح
+                                        </span>`;
+                                } else {
+                                    badge.innerHTML =
+                                        `<span style="color:#fbbf24;font-size:.85rem;font-weight:bold">
+                                            <i class="fa-solid fa-clock"></i> الكود صالح لمدة 24 ساعة فقط
+                                        </span>`;
+                                }
+
+                                document.getElementById('savedExpiryDate').textContent = formatArabicDate(expiresAt);
+                                startSavedPrizeExpiryTimer(expiresAt);
+
+                                const msg =
+                                    `مرحباً MOHAB STORE 👋🏼\n` +
+                                    `أود استلام جائزتي:\n` +
+                                    `🎁 الجائزة: ${saved.prize}\n` +
+                                    `🔑 الكود: ${saved.code || '-'}\n` +
+                                    `⏳ مدة صلاحية الكود: 24 ساعة\n` +
+                                    `📅 تاريخ انتهاء الكود: ${formatArabicDate(expiresAt)}`;
+
+                                document.getElementById('savedWhatsappBtn').href =
+                                    `https://wa.me/${adminPhoneNumber}?text=${encodeURIComponent(msg)}`;
+                            }
+                        }
+                    } else {
+                        enableSpinning();
+                    }
+                } else {
+                    enableSpinning();
+                }
+
+                maybeEnableAfterLoad();
+            } catch (error) {
+                console.error("Spin status read failed:", error);
+                spinStatusLoaded = true;
+                showConfigError("تعذر قراءة حالة المحاولة من قاعدة البيانات.");
+                maybeEnableAfterLoad();
+            }
+        }
+
+        function enableSpinning() {
+            if (!settingsLoaded || !spinStatusLoaded) return;
+
+            const validation = validatePrizePercentages(wheelItems);
+            if (!validation.ok) {
+                showConfigError(validation.message);
+                return;
+            }
+
+            document.getElementById('activeNotice').style.display = 'block';
+            document.getElementById('activeNotice').innerHTML =
+                `<p style="font-size:.9rem;color:#cbd5e1">
+                    <i class="fa-solid fa-hand-pointer" style="color:var(--accent-blue);margin-left:5px"></i>
+                    انقر على زر "إبدأ" لتدوير العجلة
+                </p>`;
+            document.getElementById('cooldownNotice').style.display = 'none';
+            document.getElementById('savedPrizeCard').style.display = 'none';
+            setWheelLocked(false);
+            setSpinAvailability(true);
+        }
+
+        let timerFrame = null;
+
+        function startTimer(targetTime) {
+            document.getElementById('activeNotice').style.display = 'none';
+            document.getElementById('cooldownNotice').style.display = 'block';
+            setSpinAvailability(false);
+            setWheelLocked(true);
+
+            if (timerFrame) cancelAnimationFrame(timerFrame);
+
+            function update() {
+                const diff = targetTime - Date.now();
+
+                if (diff <= 0) {
+                    timerFrame = null;
+                    checkServerSpinStatus();
+                    return;
+                }
+
+                const hrs = Math.floor(diff / (1000 * 60 * 60));
+                const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+                const timeStr =
+                    `${hrs.toString().padStart(2, '0')}:` +
+                    `${mins.toString().padStart(2, '0')}:` +
+                    `${secs.toString().padStart(2, '0')}`;
+
+                document.getElementById('countdownTimer').innerText = timeStr;
+                document.getElementById('savedPrizeTimer').innerText = timeStr;
+
+                timerFrame = requestAnimationFrame(update);
+            }
+
+            update();
+        }
+
+        document.getElementById('spinBtn').addEventListener('click', async () => {
+            if (isSpinning) return;
+            if (document.getElementById('spinBtn').classList.contains('disabled')) return;
+            if (!settingsLoaded || !spinStatusLoaded) return;
+
+            const validation = validatePrizePercentages(wheelItems);
+            if (!validation.ok) {
+                showConfigError(validation.message);
+                return;
+            }
+
+            if (!wheelItems.length) return;
+            if (!currentAuthUser || !currentAuthUser.uid) {
+                document.getElementById('wheelLoginGate').hidden = false;
+                return;
+            }
+            if (spinReservationInProgress) return;
+
+            const accountKey = String(currentAuthUser.uid).replace(/[^A-Za-z0-9_-]/g, "_");
+            const accountSpinRef = db.ref('user_spins/' + accountKey);
+            spinReservationInProgress = true;
+            setSpinAvailability(false);
+            try {
+                const reservationTime = Date.now();
+                const reservation = await accountSpinRef.transaction(current => {
+                    const previous = current && Number(current.lastSpinTime || 0);
+                    if (previous && reservationTime < previous + DAILY_COOLDOWN_MS) return;
+                    return {
+                        ...(current || {}),
+                        lastSpinTime: reservationTime,
+                        pending: true,
+                        accountUid: currentAuthUser.uid
+                    };
+                });
+                if (!reservation.committed) {
+                    spinReservationInProgress = false;
+                    await checkServerSpinStatus();
+                    return;
+                }
+                window._mohabReservedSpinTime = reservationTime;
+            } catch (reservationError) {
+                console.error('Daily account spin reservation failed:', reservationError);
+                spinReservationInProgress = false;
+                setSpinAvailability(false);
+                showConfigError('تعذر تأكيد محاولتك من قاعدة البيانات. حاول مرة أخرى بعد قليل.');
+                return;
+            }
+            spinReservationInProgress = false;
+
+            // فحص إضافي محلي؛ الحماية الأساسية الآن مرتبطة بحساب Firebase.
+            // كانت قراءة قاعدة البيانات ما زالت قيد التنفيذ بعد فتح الصفحة.
+            const localLockKey = currentAuthUser ? ("mohab_store_wheel_last_spin_" + currentAuthUser.uid) : "mohab_store_wheel_last_spin_v1";
+            try {
+                const localLastSpin = Number(localStorage.getItem(localLockKey)) || 0;
+                const localNextSpin = localLastSpin + DAILY_COOLDOWN_MS;
+                if (localLastSpin && Date.now() < localNextSpin) {
+                    startTimer(localNextSpin);
+                    return;
+                }
+            } catch (e) {}
+
+            const winningIndex = pickWinningIndex();
+            if (winningIndex < 0 || !wheelItems[winningIndex]) {
+                showConfigError("تعذر تحديد جائزة صالحة من الجوائز المحفوظة.");
+                return;
+            }
+
+            // نأخذ نسخة من نفس العنصر الذي تم اختياره من قاعدة البيانات.
+            const selectedPrize = { ...wheelItems[winningIndex] };
+
+            isSpinning = true;
+            setSpinAvailability(false);
+
+            const numSegments = wheelItems.length;
+            const segmentAngle = (2 * Math.PI) / numSegments;
+
+            const spins = 7;
+
+            // pointer عند أعلى العجلة = -PI/2.
+            // نحدد مركز القطاع الفائز تحت المؤشر بدقة.
+            const desiredRotation =
+                (-Math.PI / 2) -
+                (winningIndex * segmentAngle + segmentAngle / 2);
+
+            const currentNormalized =
+                ((currentRotation % (2 * Math.PI)) + (2 * Math.PI)) % (2 * Math.PI);
+
+            let delta =
+                desiredRotation -
+                currentNormalized;
+
+            while (delta < 0) delta += 2 * Math.PI;
+
+            const totalTargetRotation =
+                currentRotation +
+                (spins * 2 * Math.PI) +
+                delta;
+
+            const duration = 6000;
+            const startTime = performance.now();
+            const startRotation = currentRotation;
+            let lastSoundSegment = -1;
+
+            function animateSpin(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easeOut = 1 - Math.pow(1 - progress, 4);
+
+                currentRotation =
+                    startRotation +
+                    (totalTargetRotation - startRotation) * easeOut;
+
+                drawWheel();
+
+                const normalized =
+                    ((currentRotation % (2 * Math.PI)) + (2 * Math.PI)) %
+                    (2 * Math.PI);
+
+                const currentSegment =
+                    Math.floor(normalized / segmentAngle);
+
+                if (currentSegment !== lastSoundSegment) {
+                    playTickSound(progress);
+                    lastSoundSegment = currentSegment;
+                }
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateSpin);
+                } else {
+                    currentRotation = totalTargetRotation;
+                    drawWheel();
+                    isSpinning = false;
+                    onSpinComplete(selectedPrize);
+                }
+            }
+
+            requestAnimationFrame(animateSpin);
+        });
+
+        function playWinSound() {
+            try {
+                const ac = createAudioContext();
+                if (!ac) return;
+                if (ac.state === 'suspended') ac.resume();
+
+                const now = ac.currentTime;
+
+                [523.25, 659.25, 783.99].forEach((freq, i) => {
+                    const osc = ac.createOscillator();
+                    const gain = ac.createGain();
+
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + i * 0.08);
+                    gain.gain.setValueAtTime(0.0001, now + i * 0.08);
+                    gain.gain.exponentialRampToValueAtTime(
+                        0.18,
+                        now + i * 0.08 + 0.025
+                    );
+                    gain.gain.exponentialRampToValueAtTime(
+                        0.0001,
+                        now + i * 0.08 + 0.28
+                    );
+
+                    osc.connect(gain);
+                    gain.connect(ac.destination);
+                    osc.start(now + i * 0.08);
+                    osc.stop(now + i * 0.08 + 0.3);
+                });
+            } catch (e) {}
+        }
+
+        function generateUniqueCode() {
+            // كود عشوائي محلي للعرض/التتبع، وليس مصدر اختيار الجائزة.
+            return "MS-" + Math.floor(100000 + Math.random() * 900000);
+        }
+
+        function onSpinComplete(prize) {
+            playWinSound();
+
+            const now = Date.now();
+            const isLose = isLosePrizeText(prize.text);
+            const expiresAt = now + PRIZE_VALIDITY_MS;
+            const uniqueCode = isLose ? "" : generateUniqueCode();
+
+            if (window.confetti) {
+                confetti({
+                    particleCount: isLose ? 70 : 160,
+                    spread: isLose ? 75 : 100,
+                    origin: { y: 0.6 }
+                });
+            }
+
+            // قفل المحاولة محلياً فوراً حتى لا تبدأ لفة ثانية.
+            try {
+                localStorage.setItem(currentAuthUser ? ("mohab_store_wheel_last_spin_" + currentAuthUser.uid) : "mohab_store_wheel_last_spin_v1", String(now));
+            } catch (e) {}
+
+            const savedPrize = {
+                prize: prize.text,
+                code: uniqueCode,
+                claimed: false,
+                itemId: prize.id,
+                chance: prize.chance,
+                expiresAt,
+                validityHours: 24,
+                isLosePrize: isLose
+            };
+
+            if (db && currentAuthUser && currentAuthUser.uid) {
+                const accountKey = String(currentAuthUser.uid).replace(/[^A-Za-z0-9_-]/g, "_");
+                const accountSpinRef = db.ref('user_spins/' + accountKey);
+                accountSpinRef.update({
+                    savedPrize,
+                    pending: false,
+                    accountUid: currentAuthUser.uid
+                }).catch(err => {
+                    console.error("Failed to save account prize:", err);
+                    showConfigError("تم حجز محاولتك، لكن تعذر حفظ تفاصيل الجائزة. تواصل مع الإدارة.");
+                });
+
+                // نفس مسار الجوائز الحالي دون تغيير بنية سجلات الجوائز.
+                if (!isLose) {
+                    db.ref('prizes/' + uniqueCode).set({
+                        prize: prize.text,
+                        code: uniqueCode,
+                        userIP,
+                        userDeviceId,
+                        accountUid: currentAuthUser.uid,
+                        claimed: false,
+                        chance: prize.chance,
+                        itemId: prize.id,
+                        time: new Date().toLocaleString('ar-EG'),
+                        expiresAt,
+                        validityHours: 24,
+                        isLosePrize: false
+                    }).catch(err => {
+                        console.error("Failed to save prize:", err);
+                    });
+                }
+            }
+
+            setWheelLocked(true);
+
+            const modal = document.getElementById('prizeModal');
+            const modalCard = modal.querySelector('.modal-card');
+            const expiryBox = document.getElementById('modalExpiryBox');
+            const whatsappBtn = document.getElementById('whatsappBtn');
+            const prizeIcon = modal.querySelector('.prize-icon-wrapper');
+            const expiryDateEl = document.getElementById('modalExpiryDate');
+
+            modalCard.classList.toggle('lose-prize-state', isLose);
+            document.getElementById('modalPrizeTitle').innerText =
+                isLose ? 'حظ أوفر 🍀' : prize.text;
+
+            if (isLose) {
+                document.getElementById('claimCodeDisplay').innerText = 'لا يوجد كود';
+                expiryBox.style.display = 'none';
+                whatsappBtn.style.display = 'none';
+                prizeIcon.innerHTML = '<i class="fa-solid fa-clover"></i>';
+            } else {
+                document.getElementById('claimCodeDisplay').innerText = uniqueCode;
+                expiryBox.style.display = 'block';
+                whatsappBtn.style.display = 'flex';
+                prizeIcon.innerHTML = '<i class="fa-solid fa-trophy"></i>';
+                expiryDateEl.textContent = formatArabicDate(expiresAt);
+                startPrizeExpiryTimer(expiresAt);
+
+                const message =
+                    `مرحباً MOHAB STORE 👋🏼\n` +
+                    `لقد ربحت جائزة من عجلة الحظ!\n` +
+                    `🎁 الجائزة: ${prize.text}\n` +
+                    `🔑 كود التحقق: ${uniqueCode}\n` +
+                    `⏳ مدة صلاحية الكود: 24 ساعة فقط\n` +
+                    `📅 تاريخ انتهاء الكود: ${formatArabicDate(expiresAt)}`;
+
+                whatsappBtn.setAttribute(
+                    'href',
+                    `https://wa.me/${adminPhoneNumber}?text=${encodeURIComponent(message)}`
+                );
+            }
+
+            modal.classList.add('active');
+
+            // إعادة قراءة حالة المحاولة بعد الحفظ.
+            checkServerSpinStatus();
+        }
+
+        document.getElementById('closeModalBtn').addEventListener('click', () => {
+            document.getElementById('prizeModal').classList.remove('active');
+            if (activeExpiryTimer) {
+                clearInterval(activeExpiryTimer);
+                activeExpiryTimer = null;
+            }
+        });
+
+        /*
+         * تحميل الإعدادات مرة واحدة قبل السماح بأي تدوير.
+         * لا يوجد on('value') أثناء التشغيل حتى لا تتغير قائمة الجوائز
+         * في منتصف دوران العجلة وتصبح النتيجة غير متطابقة مع القطاعات.
+         */
+        async function loadSettings() {
+            if (!db) {
+                settingsLoaded = true;
+                showConfigError("تعذر الاتصال بقاعدة البيانات.");
+                maybeEnableAfterLoad();
+                return;
+            }
+
+            try {
+                const snap = await withFirebaseTimeout(db.ref('settings').once('value'), 12000, 'انتهت مهلة تحميل إعدادات العجلة. تحقق من اتصال Firebase وقواعد القراءة.');
+
+                if (!snap.exists()) {
+                    settingsLoaded = true;
+                    wheelItems = [];
+                    drawWheel();
+                    showConfigError("إعدادات العجلة غير موجودة في قاعدة البيانات.");
+                    maybeEnableAfterLoad();
+                    return;
+                }
+
+                const data = snap.val() || {};
+
+                if (data.storeName) {
+                    document.getElementById('storeName').innerText = String(data.storeName);
+                }
+
+                if (data.storeLogo) {
+                    document.getElementById('storeLogo').src = String(data.storeLogo);
+                }
+
+                if (data.whatsappNumber) {
+                    adminPhoneNumber = String(data.whatsappNumber);
+                }
+
+                // نحتفظ بإعداد cooldownHours القديم في قاعدة البيانات، لكن اللفة اليومية هنا ثابتة 24 ساعة.
+                cooldownHours = 24;
+
+                // المصدر الوحيد للجوائز هو settings/items.
+                wheelItems = normalizeWheelItems(data.items);
+
+                const validation = validatePrizePercentages(wheelItems);
+
+                if (!validation.ok) {
+                    settingsLoaded = true;
+                    loadedImages = {};
+                    drawWheel();
+                    showConfigError(validation.message);
+                    maybeEnableAfterLoad();
+                    return;
+                }
+
+                settingsLoaded = true;
+                preloadImages();
+                drawWheel();
+                maybeEnableAfterLoad();
+
+            } catch (error) {
+                console.error("Settings read failed:", error);
+                settingsLoaded = true;
+                wheelItems = [];
+                drawWheel();
+                showConfigError("تعذر تحميل جوائز العجلة من قاعدة البيانات.");
+                maybeEnableAfterLoad();
+            }
+        }
+
+        async function init() {
+            userDeviceId = getOrCreateDeviceId();
+            deviceFingerprint = buildDeviceFingerprint();
+            deviceFingerprintKey = getFingerprintKey();
+            setWheelLocked(false);
+            setSpinAvailability(false);
+            drawWheel();
+
+            document.getElementById('wheelGoLogin').addEventListener('click', () => {
+                try {
+                    if (window.parent && window.parent !== window) {
+                        window.parent.closeLuckPage(true);
+                        window.parent.openWallet();
+                    } else {
+                        window.location.href = '/';
+                    }
+                } catch (e) {
+                    window.location.href = '/';
+                }
+            });
+
+            // نفس نطاق GitHub Pages ونفس مشروع Firebase؛ تستعيد العجلة جلسة الدخول نفسها.
+            await new Promise(resolve => {
+                if (!auth) { resolve(); return; }
+                let settled = false;
+                const finish = () => { if (!settled) { settled = true; resolve(); } };
+                auth.onAuthStateChanged(user => {
+                    currentAuthUser = user || null;
+                    finish();
+                    if (settingsLoaded) {
+                        spinStatusLoaded = false;
+                        checkServerSpinStatus();
+                    }
+                }, finish);
+                setTimeout(finish, 8000);
+            });
+
+            await loadSettings();
+            await checkServerSpinStatus();
+        }
+
+        init().catch(error => {
+            console.error("Wheel initialization failed:", error);
+            settingsLoaded = true;
+            spinStatusLoaded = true;
+            showConfigError("تعذر تشغيل العجلة. حدّث الصفحة وتأكد من اتصال Firebase وصلاحيات القراءة.");
+            hideLoader();
+        });
+    </script>
 </body>
 </html>
